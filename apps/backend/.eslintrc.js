@@ -1,3 +1,6 @@
 module.exports = {
-  extends: ['custom/library'],
+  extends: ["custom/library"],
+  rules: {
+    "@typescript-eslint/no-extraneous-class": "off",
+  },
 };
