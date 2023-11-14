@@ -9,11 +9,14 @@ export class EventsService {
 
   async createEvent(event: CreateEventDto): Promise<void> {
     const { error } = await this.supabaseService.supabase.from("user_event").insert({
-      event_time: event.event_time.toString(),
-      action: event.action,
-      flow_id: event.flow_id,
-      step_index: event.step_index,
-      user_hash: event.user_hash,
+      event_time: event.eventTime.toString(),
+      type: event.type,
+      flow_id: event.flowId,
+      user_hash: event.userHash,
+      project_id: event.projectId,
+      step_index: event.stepIndex,
+      step_hash: event.stepHash,
+      flow_hash: event.flowHash,
     });
 
     if (error) throw new BadRequestException(error.message, { cause: error });

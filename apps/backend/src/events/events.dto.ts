@@ -1,27 +1,30 @@
-import { IsDateString, IsString } from "class-validator";
+import { IsDateString, IsOptional, IsString } from "class-validator";
 
 export class CreateEventDto {
   @IsDateString()
-  event_time: Date;
+  eventTime: Date;
 
   @IsString()
-  action: string;
+  type: string;
 
   @IsString()
-  user_hash: string;
+  @IsOptional()
+  userHash?: string;
 
   @IsString()
-  flow_id: string;
+  flowId: string;
 
   @IsString()
-  project_id: string;
+  projectId: string;
 
   @IsString()
-  step_index: string;
+  @IsOptional()
+  stepIndex?: string;
 
   @IsString()
-  step_hash: string;
+  @IsOptional()
+  stepHash?: string;
 
   @IsString()
-  flow_hash: string;
+  flowHash: string;
 }

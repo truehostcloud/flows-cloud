@@ -32,14 +32,14 @@ beforeEach(async () => {
 });
 
 const createEventDto: CreateEventDto = {
-  action: "a",
-  event_time: new Date(),
-  flow_id: "b",
-  step_index: "c",
-  user_hash: "d",
-  flow_hash: "e",
-  step_hash: "f",
-  project_id: "g",
+  type: "a",
+  eventTime: new Date(),
+  flowId: "b",
+  stepIndex: "c",
+  userHash: "d",
+  flowHash: "e",
+  stepHash: "f",
+  projectId: "g",
 };
 
 describe("Create", () => {
