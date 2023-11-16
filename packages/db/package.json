@@ -1,0 +1,21 @@
+{
+  "name": "db",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "main": "./index.ts",
+  "scripts": {
+    "tsc": "tsc",
+    "db:generate": "drizzle-kit generate:pg"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "workspace:*",
+    "drizzle-kit": "^0.20.2",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.29.0",
+    "postgres": "^3.4.3"
+  }
+}
