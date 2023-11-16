@@ -9,12 +9,7 @@ import { EventsModule } from "./events/events.module";
 const publicRoutes: string[] = ["/events"];
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      envFilePath: [".env", ".env.local"],
-    }),
-    EventsModule,
-  ],
+  imports: [ConfigModule.forRoot(), EventsModule],
   controllers: [AppController],
   providers: [],
 })

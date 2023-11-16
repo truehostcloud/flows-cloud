@@ -46,4 +46,4 @@ jobs:
       - run: docker run -d --restart always -p 6003:3000 --name flows-docs-frontend-prod docker.flows.sh/docs-frontend-prod:${{github.sha}}
       - run: docker stop flows-backend-prod
       - run: docker rm flows-backend-prod
-      - run: docker run -d --restart always -p 6005:3000 --name flows-backend-prod docker.flows.sh/backend-prod:${{github.sha}}
+      - run: docker run -d --restart always -p 6005:3005 --name flows-backend-prod docker.flows.sh/backend-prod:${{github.sha}}
