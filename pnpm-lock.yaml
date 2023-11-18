@@ -319,9 +319,15 @@ importers:
         specifier: ^3.4.3
         version: 3.4.3
     devDependencies:
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.2
         version: 0.20.2
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig

@@ -1,8 +1,11 @@
-import "dotenv/config";
-import type { Config } from "drizzle-kit";
+import { config } from "dotenv";
+import { defineConfig } from "drizzle-kit";
 
-// TODO: Add .env.example, .env.development, .env.production
-export default {
+config({
+  path: ".env.local",
+});
+
+export default defineConfig({
   schema: "./src/schema/*",
   out: "./drizzle/migrations",
   driver: "pg",
@@ -12,4 +15,16 @@ export default {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || "drizzle",
   },
-} satisfies Config;
+});
+
+// export default {
+//   schema: "./src/schema/*",
+//   out: "./drizzle/migrations",
+//   driver: "pg",
+//   dbCredentials: {
+//     host: process.env.DB_HOST || "localhost",
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASSWORD,
+//     database: process.env.DB_NAME || "drizzle",
+//   },
+// } satisfies Config;

@@ -1,23 +1,32 @@
-import { pgTable, text, timestamp, integer, json, uuid, index } from "drizzle-orm/pg-core";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
+import { index, json, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+
 import { projects } from "./project";
 
 export const flows = pgTable(
   "flow",
   {
     id: uuid("id").notNull().unique().primaryKey().defaultRandom(),
-    human_id: text("human_id").notNull().unique(),
+    human_id: text("human_id").notNull(),
+    human_id_alias: text("human_id_alias"),
     project_id: uuid("project_id")
       .notNull()
       .references(() => projects.id),
     name: text("name").notNull(),
+    flow_version_id: uuid("flow_version_id").references((): AnyPgColumn => flowVersions.id),
+    flow_type: text("flow_type").notNull(),
     description: text("description").notNull(),
-    data: json("data").notNull(),
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => {
     return {
-      flowIdx: index("human_id_idx").on(table.human_id),
+      humanIdIdx: index("human_id_idx").on(table.human_id),
+      humanIdAliasIdx: index("human_id_alias_idx").on(table.human_id_alias),
+      humanIdProjectIdIdx: uniqueIndex("human_id_project_id_idx").on(
+        table.project_id,
+        table.human_id,
+      ),
     };
   },
 );
@@ -27,9 +36,6 @@ export const flowVersions = pgTable("flow_version", {
   flow_id: uuid("flow_id")
     .notNull()
     .references(() => flows.id),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
   data: json("data").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
-  updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
