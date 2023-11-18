@@ -1,10 +1,9 @@
-import { Global, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "./types/supabase";
 
-@Global()
 @Injectable()
 export class SupabaseService {
   supabase: SupabaseClient<Database>;

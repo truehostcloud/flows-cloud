@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { index, json, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
@@ -30,6 +31,13 @@ export const flows = pgTable(
     };
   },
 );
+
+export const flowsRelations = relations(flows, ({ one }) => ({
+  version: one(flowVersions, {
+    fields: [flows.flow_version_id],
+    references: [flowVersions.id],
+  }),
+}));
 
 export const flowVersions = pgTable("flow_version", {
   id: uuid("id").notNull().unique().primaryKey().defaultRandom(),

@@ -5,6 +5,7 @@ import { Test } from "@nestjs/testing";
 import request from "supertest";
 
 import { AppModule } from "../src/app.module";
+import { DatabaseService } from "../src/database/database.service";
 import { SupabaseService } from "../src/supabase.service";
 
 describe("AppController (e2e)", () => {
@@ -14,11 +15,10 @@ describe("AppController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .useMocker((token) => {
-        if (token === SupabaseService) {
-          return {};
-        }
-      })
+      .overrideProvider(DatabaseService)
+      .useValue({})
+      .overrideProvider(SupabaseService)
+      .useValue({})
       .compile();
 
     app = moduleFixture.createNestApplication(new FastifyAdapter());

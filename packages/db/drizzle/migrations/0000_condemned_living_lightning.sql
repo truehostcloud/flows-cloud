@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS "flow" (
 	"project_id" uuid NOT NULL,
 	"name" text NOT NULL,
 	"flow_version_id" uuid,
+	"flow_type" text NOT NULL,
 	"description" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS "project" (
 	"organization_id" uuid NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
+	"domains" text[],
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "project_id_unique" UNIQUE("id")

@@ -1,6 +1,6 @@
 {
-  "id": "84e909cf-9cf6-49ed-a2a4-ceacfdd45705",
-  "prevId": "d4f554ee-6df2-47d6-aa03-85bb7a551221",
+  "id": "9cb3a211-38d9-4327-973e-03a934aeb5f5",
+  "prevId": "c21e3a05-e084-4d9d-9deb-21e46d592527",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -384,6 +384,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "domains": {
+          "name": "domains",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",

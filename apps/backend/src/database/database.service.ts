@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { db } from "db";
+import { db, migrate } from "db";
 
 @Injectable()
 export class DatabaseService {
@@ -7,5 +7,6 @@ export class DatabaseService {
 
   constructor() {
     this.db = db(process.env.BACKEND_DATABASE_CONNECTION).db;
+    void migrate(this.db);
   }
 }

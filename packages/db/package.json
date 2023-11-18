@@ -6,8 +6,7 @@
   "main": "./index.ts",
   "scripts": {
     "tsc": "tsc",
-    "db:generate": "drizzle-kit generate:pg",
-    "db:migrate": "node ./src/db.mjs"
+    "db:generate": "drizzle-kit generate:pg"
   },
   "devDependencies": {
     "dotenv": "^16.3.1",

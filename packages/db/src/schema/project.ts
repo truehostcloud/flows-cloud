@@ -13,6 +13,7 @@ export const projects = pgTable(
       .references(() => organizations.id),
     name: text("name").notNull(),
     description: text("description"),
+    domains: text("domains").array().notNull(),
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at").notNull().defaultNow(),
   },

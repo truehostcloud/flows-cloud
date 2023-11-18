@@ -1,5 +1,5 @@
 {
-  "id": "d4f554ee-6df2-47d6-aa03-85bb7a551221",
+  "id": "c21e3a05-e084-4d9d-9deb-21e46d592527",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -203,6 +203,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "flow_type": {
+          "name": "flow_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "description": {
           "name": "description",
           "type": "text",
@@ -376,6 +382,12 @@
         "description": {
           "name": "description",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "domains": {
+          "name": "domains",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": false
         },

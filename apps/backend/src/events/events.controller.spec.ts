@@ -1,4 +1,3 @@
-import { BadRequestException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 
 import { SupabaseService } from "../supabase.service";
@@ -45,9 +44,7 @@ const createEventDto: CreateEventDto = {
 describe("Create", () => {
   it("should throw with error", async () => {
     supabase.insert.mockReturnValue({ error: { message: "error" } });
-    await expect(eventsController.create(createEventDto)).rejects.toThrow(
-      new BadRequestException("error"),
-    );
+    await expect(eventsController.create(createEventDto)).rejects.toThrow("error");
   });
   it("should insert into database", async () => {
     expect(await eventsController.create(createEventDto)).toBeUndefined();
