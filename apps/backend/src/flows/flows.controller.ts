@@ -10,8 +10,8 @@ export class FlowsController {
   @Get()
   getFlows(
     @Query("projectId") projectId: string,
-    @Headers("host") host: unknown,
+    @Headers("origin") origin: unknown,
   ): Promise<GetFlowsDto[]> {
-    return this.flowsService.getFlows({ projectId, requestDomain: host as string });
+    return this.flowsService.getFlows({ projectId, requestDomain: origin as string });
   }
 }
