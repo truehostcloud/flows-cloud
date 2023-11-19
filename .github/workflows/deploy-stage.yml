@@ -23,8 +23,6 @@ jobs:
         working-directory: "./stage-deploy"
       - run: |
           touch .env
-          echo BACKEND_SUPABASE_URL=${{ secrets.BACKEND_SUPABASE_URL }} >> .env
-          echo BACKEND_SUPABASE_SERVICE_ROLE_KEY=${{ secrets.BACKEND_SUPABASE_SERVICE_ROLE_KEY }} >> .env
           echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
         working-directory: "./stage-deploy/apps/backend"
       - run: docker build -t docker.flows.sh/backend-stage:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .

@@ -1,34 +1,23 @@
 import { Test } from "@nestjs/testing";
 
-import { SupabaseService } from "../supabase.service";
+import { DatabaseService } from "../database/database.service";
 import { EventsController } from "./events.controller";
 import type { CreateEventDto } from "./events.dto";
 import { EventsService } from "./events.service";
 
 let eventsController: EventsController;
-const supabase = {
-  from: jest.fn(),
-  insert: jest.fn(),
+const db = {
+  query: {
+    projects: {
+      findFirst: jest.fn(),
+    },
+    flows: {
+      findFirst: jest.fn(),
+    },
+  },
+  insert: jest.fn().mockReturnThis(),
+  values: jest.fn(),
 };
-
-beforeEach(async () => {
-  supabase.from.mockReturnThis();
-  supabase.insert.mockReturnThis();
-
-  const moduleRef = await Test.createTestingModule({
-    controllers: [EventsController],
-    providers: [EventsService],
-  })
-
-    .useMocker((token) => {
-      if (token === SupabaseService) {
-        return { supabase };
-      }
-    })
-    .compile();
-
-  eventsController = moduleRef.get(EventsController);
-});
 
 const createEventDto: CreateEventDto = {
   type: "a",
@@ -41,14 +30,50 @@ const createEventDto: CreateEventDto = {
   projectId: "g",
 };
 
+const project = {
+  id: "pid",
+};
+const flow = {
+  id: "fid",
+};
+
+beforeEach(async () => {
+  db.query.projects.findFirst.mockReturnValue(project);
+  db.query.flows.findFirst.mockReturnValue(flow);
+  db.values.mockReturnValue(null);
+
+  const moduleRef = await Test.createTestingModule({
+    controllers: [EventsController],
+    providers: [EventsService],
+  })
+
+    .useMocker((token) => {
+      if (token === DatabaseService) {
+        return { db };
+      }
+    })
+    .compile();
+
+  eventsController = moduleRef.get(EventsController);
+});
+
 describe("Create", () => {
-  it("should throw with error", async () => {
-    supabase.insert.mockReturnValue({ error: { message: "error" } });
-    await expect(eventsController.create(createEventDto)).rejects.toThrow("error");
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockReturnValue(null);
+    await expect(eventsController.create(createEventDto)).rejects.toThrow("project not found");
   });
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockReturnValue(null);
+    await expect(eventsController.create(createEventDto)).rejects.toThrow("flow not found");
+  });
+  it("should throw with error", async () => {
+    db.values.mockRejectedValue(new Error());
+    await expect(eventsController.create(createEventDto)).rejects.toThrow("error saving event");
+  });
+
   it("should insert into database", async () => {
     expect(await eventsController.create(createEventDto)).toBeUndefined();
-    expect(supabase.from).toHaveBeenCalledWith("user_event");
-    expect(supabase.insert).toHaveBeenCalled();
+    expect(db.insert).toHaveBeenCalled();
+    expect(db.values).toHaveBeenCalled();
   });
 });

@@ -15,6 +15,13 @@
       "when": 1700379292530,
       "tag": "0001_curly_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700402615123,
+      "tag": "0002_calm_bug",
+      "breakpoints": true
     }
   ]
 }
