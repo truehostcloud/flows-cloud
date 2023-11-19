@@ -4,12 +4,13 @@ import { ConfigModule } from "@nestjs/config";
 import cors from "cors";
 
 import { AppController } from "./app.controller";
+import { DatabaseModule } from "./database/database.module";
 import { EventsModule } from "./events/events.module";
 
 const publicRoutes: string[] = ["/events"];
 
 @Module({
-  imports: [ConfigModule.forRoot(), EventsModule],
+  imports: [ConfigModule.forRoot(), EventsModule, DatabaseModule],
   controllers: [AppController],
   providers: [],
 })

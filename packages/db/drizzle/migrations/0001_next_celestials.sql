@@ -1,0 +1,1 @@
+ALTER TABLE "flow" ADD COLUMN "flow_type" text NOT NULL;
