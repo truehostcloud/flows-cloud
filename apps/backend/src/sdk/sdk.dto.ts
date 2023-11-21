@@ -1,6 +1,12 @@
 import { Type } from "class-transformer";
 import { IsDate, IsOptional, IsString } from "class-validator";
 
+export class GetFlowsDto {
+  id: string;
+  element?: string;
+  steps: unknown[];
+}
+
 export class CreateEventDto {
   @Type(() => Date)
   @IsDate()
