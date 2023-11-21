@@ -8,7 +8,7 @@ import { DatabaseModule } from "./database/database.module";
 import { EventsModule } from "./events/events.module";
 import { FlowsModule } from "./flows/flows.module";
 
-const publicRoutes: string[] = ["/events"];
+const publicRoutes: string[] = ["/events", "/flows"];
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule, EventsModule, FlowsModule],

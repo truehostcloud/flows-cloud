@@ -25,6 +25,7 @@ export const projects = pgTable(
         table.organization_id,
         table.human_id,
       ),
+      domainIdx: index("domain_idx").on(table.domains),
     };
   },
 );

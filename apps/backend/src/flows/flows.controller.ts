@@ -12,6 +12,6 @@ export class FlowsController {
     @Query("projectId") projectId: string,
     @Headers("origin") origin: unknown,
   ): Promise<GetFlowsDto[]> {
-    return this.flowsService.getFlows({ projectId, requestDomain: origin as string });
+    return this.flowsService.getFlows({ projectId, requestOrigin: origin as string });
   }
 }

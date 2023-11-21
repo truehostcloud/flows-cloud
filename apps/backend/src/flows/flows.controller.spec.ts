@@ -49,11 +49,8 @@ describe("Get Flows", () => {
     db.query.projects.findFirst.mockReturnValue(null);
     await expect(flowsController.getFlows("a", "b")).rejects.toThrow("project not found");
   });
-  it("should throw with incorrect domain", async () => {
-    db.query.projects.findFirst.mockReturnValue({ id: "a", domains: ["b"] });
-    await expect(flowsController.getFlows("a", "c")).rejects.toThrow("domain not allowed");
-  });
   it("should return flows", async () => {
+    db.query.projects.findFirst.mockReturnValue({ id: "p1" });
     db.query.flows.findMany.mockReturnValue([
       { id: "f1", human_id: "f1h", name: "F1", version: { data: { steps: [], element: "e1" } } },
     ]);

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { flows, projects } from "db";
-import { and, eq, or } from "drizzle-orm";
+import { and, arrayContains, eq, or } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
 import type { GetFlowsDto } from "./flows.dto";
@@ -11,20 +11,21 @@ export class FlowsService {
 
   async getFlows({
     projectId,
-    requestDomain,
+    requestOrigin,
   }: {
     projectId: string;
-    requestDomain: string;
+    requestOrigin: string;
   }): Promise<GetFlowsDto[]> {
     if (!projectId) throw new BadRequestException("projectId is required");
-    if (!requestDomain) throw new BadRequestException("host is required");
+    if (!requestOrigin) throw new BadRequestException("host is required");
 
     const project = await this.databaseService.db.query.projects.findFirst({
-      where: or(eq(projects.human_id, projectId), eq(projects.human_id_alias, projectId)),
+      where: and(
+        or(eq(projects.human_id, projectId), eq(projects.human_id_alias, projectId)),
+        arrayContains(projects.domains, [requestOrigin]),
+      ),
     });
     if (!project) throw new BadRequestException("project not found");
-    if (!project.domains.includes(requestDomain))
-      throw new BadRequestException("domain not allowed");
 
     const dbFlows = await this.databaseService.db.query.flows.findMany({
       where: and(eq(flows.project_id, project.id), eq(flows.flow_type, "cloud")),
