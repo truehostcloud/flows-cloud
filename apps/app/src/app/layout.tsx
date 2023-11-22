@@ -2,6 +2,8 @@ import "./globals.css";
 
 import localFont from "next/font/local";
 
+import { Header } from "../components/header";
+
 const MonaSans = localFont({
   src: "../fonts/Mona-Sans.woff2",
   display: "swap",
@@ -17,7 +19,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
   return (
     <html className={`${MonaSans.variable}`} lang="en" suppressHydrationWarning>
       <body>
-        <main className="min-h-screen bg-background flex flex-col items-center">{children}</main>
+        <Header />
+        {children}
       </body>
     </html>
   );

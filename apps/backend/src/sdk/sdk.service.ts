@@ -77,7 +77,7 @@ export class SdkService {
     } catch (error) {
       // eslint-disable-next-line no-console -- useful for debugging
       console.log(error);
-      // TODO: log error
+      // TODO: add custom logger that doesnt log in test env
       if (error) throw new BadRequestException("error saving event", { cause: error });
     }
   }

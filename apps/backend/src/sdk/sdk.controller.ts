@@ -13,9 +13,9 @@ export class SdkController {
   @Get("flows")
   getFlows(
     @Query("projectId") projectId: string,
-    @Headers("origin") origin: unknown,
+    @Headers("origin") origin: string,
   ): Promise<GetFlowsDto[]> {
-    return this.sdkService.getFlows({ projectId, requestOrigin: origin as string });
+    return this.sdkService.getFlows({ projectId, requestOrigin: origin });
   }
 
   @Post("events")
