@@ -1,9 +1,9 @@
 import { css } from "@flows/styled-system/css";
+import { getAuth } from "auth/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Text } from "ui";
 
-import { getAuth } from "../../auth/server";
 import { api } from "../../lib/api";
 
 export default async function ProjectsPage(): Promise<JSX.Element> {
@@ -12,7 +12,7 @@ export default async function ProjectsPage(): Promise<JSX.Element> {
   const data = await api["/organizations/:organizationId/projects"](
     "a9493fa5-af60-40a5-b260-479a29a2dff8",
   )({
-    token: auth.token,
+    token: auth.access_token,
   });
 
   return (

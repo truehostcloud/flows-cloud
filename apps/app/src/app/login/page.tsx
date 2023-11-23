@@ -1,4 +1,5 @@
 import { css } from "@flows/styled-system/css";
+import { signIn, signUp } from "auth/server";
 import { Button, Input } from "ui";
 
 import Messages from "./messages";
@@ -6,7 +7,7 @@ import Messages from "./messages";
 export default function Login(): JSX.Element {
   return (
     <form
-      action="/auth/sign-in"
+      action={signIn}
       className={css({
         display: "flex",
         flexDirection: "column",
@@ -15,7 +16,6 @@ export default function Login(): JSX.Element {
         mx: "auto",
         my: "space64",
       })}
-      method="post"
     >
       <Input
         inputClassName={css({ width: "100%" })}
@@ -36,7 +36,7 @@ export default function Login(): JSX.Element {
       <Messages />
       <div className={css({ display: "flex", gap: "space12" })}>
         <Button type="submit">Sign In</Button>
-        <Button formAction="/auth/sign-up" type="submit" variant="black">
+        <Button formAction={signUp} type="submit" variant="black">
           Sign Up
         </Button>
       </div>

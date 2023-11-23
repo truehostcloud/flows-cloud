@@ -1,8 +1,6 @@
+import { createClient } from "auth/server";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-
-import { getRouteClient } from "../../../auth/server";
-
-export const dynamic = "force-dynamic";
 
 export async function GET(request: Request): Promise<NextResponse> {
   // The `/auth/callback` route is required for the server-side auth flow implemented
@@ -12,8 +10,8 @@ export async function GET(request: Request): Promise<NextResponse> {
   const code = requestUrl.searchParams.get("code");
 
   if (code) {
-    const client = getRouteClient();
-    await client.auth.exchangeCodeForSession(code);
+    const supabase = createClient(cookies());
+    await supabase.auth.exchangeCodeForSession(code);
   }
 
   // URL to redirect to after sign in process completes

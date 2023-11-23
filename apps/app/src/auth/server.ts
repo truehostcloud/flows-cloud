@@ -1,112 +1,92 @@
-import type { CookieMethods, CookieOptions } from "@supabase/ssr";
-import { createServerClient } from "@supabase/ssr";
+import { type CookieOptions, createServerClient } from "@supabase/ssr";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { cookies as nextHeadersCookies } from "next/headers";
-import { type NextRequest, NextResponse } from "next/server";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../lib/constants";
-import type { Auth } from "./types";
 
-type GetAuthReturn = Promise<Auth | undefined>;
-
-const getRouteCookies = (): CookieMethods => {
-  const cookieStore = nextHeadersCookies();
-  return {
-    get(name: string) {
-      return cookieStore.get(name)?.value;
-    },
-    set(name: string, value: string, options: CookieOptions) {
-      cookieStore.set({ name, value, ...options } as RequestCookie);
-    },
-    remove(name: string, options: CookieOptions) {
-      cookieStore.set({ name, value: "", ...options } as RequestCookie);
-    },
-  };
-};
-const getServerCmpCookies = (): CookieMethods => {
-  const cookieStore = nextHeadersCookies();
-  return {
-    get(name: string) {
-      return cookieStore.get(name)?.value;
-    },
-  };
-};
-
-export const getRouteClient = (): ReturnType<typeof createServerClient> => {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- not needed
+export const createClient = (cookieStore: ReturnType<typeof cookies>) => {
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies: getRouteCookies(),
-  });
-};
-
-const _getAuth = async (cookies: CookieMethods): GetAuthReturn => {
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies,
-  });
-
-  const result = await supabase.auth.getSession();
-
-  if (result.error) {
-    // TODO: handle error
-    // eslint-disable-next-line no-console -- useful for debugging
-    console.log(result.error);
-  }
-  if (!result.data.session) return;
-  const session = result.data.session;
-
-  return { token: session.access_token, user: { email: session.user.email ?? "" } };
-};
-
-export const getAuth = (): GetAuthReturn => _getAuth(getServerCmpCookies());
-
-export const getMiddlewareAuth = async (
-  request: NextRequest,
-): Promise<{ auth: Auth | undefined; response: NextResponse }> => {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  return {
-    response,
-    auth: await _getAuth({
+    cookies: {
       get(name: string) {
-        return request.cookies.get(name)?.value;
+        return cookieStore.get(name)?.value;
       },
       set(name: string, value: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value,
-          ...options,
-        } as RequestCookie);
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({
-          name,
-          value,
-          ...options,
-        } as RequestCookie);
+        try {
+          cookieStore.set({ name, value, ...options } as RequestCookie);
+        } catch (error) {
+          // The `set` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
       },
       remove(name: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value: "",
-          ...options,
-        } as RequestCookie);
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({
-          name,
-          value: "",
-          ...options,
-        } as RequestCookie);
+        try {
+          cookieStore.set({ name, value: "", ...options } as RequestCookie);
+        } catch (error) {
+          // The `delete` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
       },
-    }),
-  };
+    },
+  });
+};
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- not needed
+export const getAuth = async () => {
+  const supabase = createClient(cookies());
+  const { data } = await supabase.auth.getSession();
+  return data.session;
+};
+
+export const signOut = async (): Promise<void> => {
+  "use server";
+
+  const supabase = createClient(cookies());
+  await supabase.auth.signOut();
+  return redirect("/login");
+};
+
+export const signIn = async (formData: FormData): Promise<void> => {
+  "use server";
+
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const supabase = createClient(cookies());
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return redirect("/login?message=Could not authenticate user");
+  }
+
+  return redirect("/");
+};
+
+export const signUp = async (formData: FormData): Promise<void> => {
+  "use server";
+
+  const origin = headers().get("origin");
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const supabase = createClient(cookies());
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    return redirect("/login?message=Could not authenticate user");
+  }
+
+  return redirect("/login?message=Check email to continue sign in process");
 };

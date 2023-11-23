@@ -1,9 +1,8 @@
 import { css } from "@flows/styled-system/css";
+import { getAuth, signOut } from "auth/server";
 import Image from "next/image";
 import Link from "next/link";
 import { Button, Text } from "ui";
-
-import { getAuth } from "../../auth/server";
 
 export const Header = async (): Promise<JSX.Element> => {
   const auth = await getAuth();
@@ -57,7 +56,7 @@ export const Header = async (): Promise<JSX.Element> => {
           <Text color="muted" variant="bodyXs">
             {auth.user.email}
           </Text>
-          <form action="/auth/sign-out" method="post">
+          <form action={signOut}>
             <Button size="small" type="submit" variant="black">
               Logout
             </Button>

@@ -1,7 +1,7 @@
+import { getAuth } from "auth/server";
 import { redirect } from "next/navigation";
 import { Text } from "ui";
 
-import { getAuth } from "../../../auth/server";
 import { api } from "../../../lib/api";
 
 export default async function FlowsPage({
@@ -12,7 +12,7 @@ export default async function FlowsPage({
   const auth = await getAuth();
   if (!auth) return redirect("/login");
   const result = await api["/projects/:projectId/flows"](params.projectId)({
-    token: auth.token,
+    token: auth.access_token,
   });
 
   return (
