@@ -20,7 +20,7 @@ async function bootstrap(): Promise<void> {
   const config = new DocumentBuilder().addBearerAuth().build();
   await SwaggerModule.loadPluginMetadata(metadata);
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, document);
+  SwaggerModule.setup("docs", app, document, { swaggerOptions: { displayRequestDuration: true } });
 
   await app.listen(3005, "0.0.0.0");
 }

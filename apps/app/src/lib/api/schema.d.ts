@@ -17,6 +17,9 @@ export interface paths {
   "/projects/{projectId}/flows": {
     get: operations["FlowsControllers_getFlows"];
   };
+  "/flows/{flowId}": {
+    get: operations["FlowsControllers_getFlowDetail"];
+  };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
   };
@@ -54,6 +57,27 @@ export interface components {
       created_at: string;
       /** Format: date-time */
       updated_at: string;
+    };
+    StatBucketDto: {
+      /** Format: date-time */
+      date: string;
+      count: number;
+      type: string;
+    };
+    GetFlowDetailDto: {
+      id: string;
+      name: string;
+      description: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at: string;
+      project_id: string;
+      flow_type: string;
+      human_id: string;
+      human_id_alias: string | null;
+      data: Record<string, never>;
+      daily_stats: components["schemas"]["StatBucketDto"][];
     };
     GetProjectsDto: {
       id: string;
@@ -130,6 +154,20 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetFlowsDto"][];
+        };
+      };
+    };
+  };
+  FlowsControllers_getFlowDetail: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetFlowDetailDto"];
         };
       };
     };
