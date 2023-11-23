@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Headers, Post, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
-import type { GetFlowsDto } from "./sdk.dto";
+import type { GetSdkFlowsDto } from "./sdk.dto";
 import { CreateEventDto } from "./sdk.dto";
 import { SdkService } from "./sdk.service";
 
@@ -14,7 +14,7 @@ export class SdkController {
   getFlows(
     @Query("projectId") projectId: string,
     @Headers("origin") origin: string,
-  ): Promise<GetFlowsDto[]> {
+  ): Promise<GetSdkFlowsDto[]> {
     return this.sdkService.getFlows({ projectId, requestOrigin: origin });
   }
 

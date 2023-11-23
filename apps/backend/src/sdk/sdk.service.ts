@@ -3,7 +3,7 @@ import { events, flows, projects } from "db";
 import { and, arrayContains, eq, or } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
-import type { CreateEventDto, GetFlowsDto } from "./sdk.dto";
+import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
 
 @Injectable()
 export class SdkService {
@@ -15,7 +15,7 @@ export class SdkService {
   }: {
     projectId: string;
     requestOrigin: string;
-  }): Promise<GetFlowsDto[]> {
+  }): Promise<GetSdkFlowsDto[]> {
     if (!projectId) throw new BadRequestException("projectId is required");
     if (!requestOrigin) throw new BadRequestException("host is required");
 

@@ -6,12 +6,13 @@ import cors from "cors";
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
 import { FlowsModule } from "./flows/flows.module";
+import { ProjectsModule } from "./projects/projects.module";
 import { SdkModule } from "./sdk/sdk.module";
 
 const publicRoutes: string[] = ["/events", "/flows"];
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, SdkModule, FlowsModule],
+  imports: [ConfigModule.forRoot(), DatabaseModule, SdkModule, FlowsModule, ProjectsModule],
   controllers: [AppController],
   providers: [],
 })

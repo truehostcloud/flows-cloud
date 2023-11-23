@@ -1,30 +1,16 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { flows, organizations, projects } from "db";
 import { eq } from "drizzle-orm";
 
+import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import { verifyJwt } from "../lib/jwt";
 import type { GetFlowsDto } from "./flows.dto";
 
 @Injectable()
 export class FlowsService {
   constructor(private databaseService: DatabaseService) {}
 
-  async getFlows({
-    authorization,
-    projectId,
-  }: {
-    authorization: string;
-    projectId: string;
-  }): Promise<GetFlowsDto[]> {
-    const auth = verifyJwt(authorization);
-    if (!auth) throw new UnauthorizedException();
-
+  async getFlows({ auth, projectId }: { auth: Auth; projectId: string }): Promise<GetFlowsDto[]> {
     const project = await this.databaseService.db.query.projects.findFirst({
       where: eq(projects.id, projectId),
     });

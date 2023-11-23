@@ -17,7 +17,7 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  const config = new DocumentBuilder().build();
+  const config = new DocumentBuilder().addBearerAuth().build();
   await SwaggerModule.loadPluginMetadata(metadata);
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("docs", app, document);

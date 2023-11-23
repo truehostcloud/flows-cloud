@@ -9,6 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "tsc": "tsc",
+    "openapi:localhost": "npx openapi-typescript http://127.0.0.1:3005/docs-yaml -o ./src/lib/api/schema.d.ts",
+    "openapi:stage": "npx openapi-typescript https://api.stage.flows-cloud.com/docs-yaml -o ./src/lib/api/schema.d.ts",
+    "openapi:prod": "npx openapi-typescript https://api.flows-cloud.com/docs-yaml -o ./src/lib/api/schema.d.ts",
     "prepare": "panda codegen"
   },
   "dependencies": {

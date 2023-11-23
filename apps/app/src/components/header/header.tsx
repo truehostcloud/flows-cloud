@@ -33,8 +33,8 @@ export const Header = async (): Promise<JSX.Element> => {
         </Link>
 
         <nav>
-          <ul>
-            {["flows"].map((path) => (
+          <ul className={css({ display: "flex" })}>
+            {["projects"].map((path) => (
               <li key={path}>
                 <Text
                   as="span"
