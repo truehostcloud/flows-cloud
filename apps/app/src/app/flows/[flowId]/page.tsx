@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Text } from "ui";
 
+import { FlowEditForm } from "./flow-edit-form";
+
 type Props = {
   params: { flowId: string };
 };
@@ -37,6 +39,11 @@ export default async function FlowDetailPage({ params }: Props): Promise<JSX.Ele
           </div>
         );
       })}
+
+      <Text className={css({ mt: "space32" })} variant="titleL">
+        Edit
+      </Text>
+      <FlowEditForm flow={data} />
     </div>
   );
 }

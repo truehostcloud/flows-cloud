@@ -21,7 +21,12 @@ const db = {
   select: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
-  groupBy: jest.fn(),
+  groupBy: jest.fn().mockReturnThis(),
+  insert: jest.fn().mockReturnThis(),
+  values: jest.fn().mockReturnThis(),
+  returning: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  set: jest.fn().mockReturnThis(),
 };
 
 beforeEach(async () => {
@@ -31,7 +36,6 @@ beforeEach(async () => {
   db.query.organizations.findFirst.mockResolvedValue({
     organizationsToUsers: [{ user_id: "userId" }],
   });
-  db.groupBy.mockResolvedValue([{ count: 1 }]);
 
   const moduleRef = await Test.createTestingModule({
     controllers: [FlowsControllers],
@@ -75,6 +79,9 @@ describe("Get flows", () => {
 });
 
 describe("Get flow detail", () => {
+  beforeEach(() => {
+    db.groupBy.mockResolvedValue([{ count: 1 }]);
+  });
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
@@ -99,6 +106,52 @@ describe("Get flow detail", () => {
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).resolves.toEqual({
       id: "flowId",
       daily_stats: [{ count: 1 }],
+    });
+  });
+});
+
+describe("Update flow", () => {
+  beforeEach(() => {
+    db.returning.mockResolvedValue([{ id: "newVerId" }]);
+    db.where.mockResolvedValue(undefined);
+  });
+  const data = { name: "newName", data: JSON.stringify({ el: "newEl" }) };
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
+      "flow not found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should throw without new version", async () => {
+    db.returning.mockResolvedValue([]);
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
+      "failed to create new version",
+    );
+  });
+  it("should create new version and update flow", async () => {
+    await expect(
+      flowsController.updateFlow({ userId: "userId" }, "flowId", data),
+    ).resolves.toBeUndefined();
+    expect(db.insert).toHaveBeenCalled();
+    expect(db.update).toHaveBeenCalled();
+    expect(db.set).toHaveBeenCalledWith({
+      flow_version_id: "newVerId",
+      name: "newName",
+      updated_at: expect.any(Date),
     });
   });
 });

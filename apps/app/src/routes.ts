@@ -6,5 +6,5 @@ export const routes = {
   authCallback: "/auth/callback",
   organization: (params: { organizationId: string }) => `/organizations/${params.organizationId}`,
   project: (params: { projectId: string }) => `/projects/${params.projectId}`,
-  flow: (params: { flowId: string }) => `/flows/${params.flowId}`,
+  flow: (params: { flowId: string; message?: string }) => `/flows/${params.flowId}`,
 };

@@ -1,10 +1,10 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
-import { events, flows, organizations, organizationsToUsers, projects } from "db";
+import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
 import { eq, sql } from "drizzle-orm";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { GetFlowDetailDto, GetFlowsDto } from "./flows.dto";
+import type { GetFlowDetailDto, GetFlowsDto, UpdateFlowDto } from "./flows.dto";
 
 @Injectable()
 export class FlowsService {
@@ -94,5 +94,51 @@ export class FlowsService {
       data: flow.version?.data,
       daily_stats: dailyStats,
     };
+  }
+
+  async updateFlow({
+    auth,
+    data,
+    flowId,
+  }: {
+    auth: Auth;
+    flowId: string;
+    data: UpdateFlowDto;
+  }): Promise<void> {
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: eq(flows.id, flowId),
+    });
+    if (!flow) throw new BadRequestException("flow not found");
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, flow.project_id),
+    });
+    if (!project) throw new BadRequestException("project not found");
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const newVersion = await this.databaseService.db
+      .insert(flowVersions)
+      .values({ data: JSON.parse(data.data ?? ""), flow_id: flowId })
+      .returning({ id: flowVersions.id });
+    if (!newVersion.length) throw new BadRequestException("failed to create new version");
+    await this.databaseService.db
+      .update(flows)
+      .set({
+        name: data.name,
+        description: data.description,
+        human_id: data.human_id,
+        human_id_alias: data.human_id_alias,
+        updated_at: new Date(),
+        flow_version_id: newVersion[0].id,
+      })
+      .where(eq(flows.id, flowId));
   }
 }

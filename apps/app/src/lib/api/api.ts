@@ -4,11 +4,18 @@ import type { Endpoint } from "./types";
 
 type Schemas = components["schemas"];
 
+export type OrganizationPreview = Schemas["GetOrganizationsDto"];
+export type ProjectDetail = Schemas["GetProjectsDto"];
+export type FlowPreview = Schemas["GetFlowsDto"];
+export type FlowDetail = Schemas["GetFlowDetailDto"];
+export type UpdateFlow = Schemas["UpdateFlowDto"];
+
 type Api = {
-  "/organizations": Endpoint<Schemas["GetOrganizationsDto"][]>;
-  "/organizations/:organizationId/projects": Endpoint<Schemas["GetProjectsDto"][], [string]>;
-  "/projects/:projectId/flows": Endpoint<Schemas["GetFlowsDto"][], [string]>;
-  "/flows/:flowId": Endpoint<Schemas["GetFlowDetailDto"], [string]>;
+  "/organizations": Endpoint<OrganizationPreview[]>;
+  "/organizations/:organizationId/projects": Endpoint<ProjectDetail[], [string]>;
+  "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
+  "/flows/:flowId": Endpoint<FlowDetail, [string]>;
+  "PATCH /flows/:flowId": Endpoint<FlowDetail, [string, UpdateFlow]>;
 };
 
 export const api: Api = {
@@ -17,4 +24,5 @@ export const api: Api = {
     fetcher(`/organizations/${organizationId}/projects`),
   "/projects/:projectId/flows": (projectId) => fetcher(`/projects/${projectId}/flows`),
   "/flows/:flowId": (flowId) => fetcher(`/flows/${flowId}`),
+  "PATCH /flows/:flowId": (flowId, body) => fetcher(`/flows/${flowId}`, { method: "PATCH", body }),
 };

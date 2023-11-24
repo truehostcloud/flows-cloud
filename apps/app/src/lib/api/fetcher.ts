@@ -21,7 +21,13 @@ export const fetcher =
         ...init?.headers,
       },
     }).then(async (res) => {
-      const resBody = (await res.json()) as undefined | { message: string };
-      if (!res.ok) throw new ApiError(resBody?.message || res.statusText, res);
+      const text = await res.text();
+      const resBody = text ? JSON.parse(text) : undefined;
+
+      if (!res.ok)
+        throw new ApiError(
+          (resBody as undefined | { message: string })?.message || res.statusText,
+          res,
+        );
       return resBody as T;
     });

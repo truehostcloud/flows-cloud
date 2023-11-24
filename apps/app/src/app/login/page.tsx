@@ -23,6 +23,7 @@ export default function Login(): JSX.Element {
         name="email"
         placeholder="you@example.com"
         required
+        type="email"
         wrapperClassName={css({ display: "block", mt: "space4" })}
       />
       <Input
