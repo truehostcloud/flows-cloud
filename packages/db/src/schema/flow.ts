@@ -1,8 +1,19 @@
 import { relations } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
-import { index, json, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  json,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 import { projects } from "./project";
+
+export const flowTypeEnum = pgEnum("flow_type", ["cloud", "local"]);
 
 export const flows = pgTable(
   "flow",
@@ -15,7 +26,7 @@ export const flows = pgTable(
       .references(() => projects.id),
     name: text("name").notNull(),
     flow_version_id: uuid("flow_version_id").references((): AnyPgColumn => flowVersions.id),
-    flow_type: text("flow_type").notNull(),
+    flow_type: flowTypeEnum("flow_type").notNull(),
     description: text("description").notNull(),
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at").notNull().defaultNow(),

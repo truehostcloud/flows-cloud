@@ -15,7 +15,7 @@ type Props = {
 
 export const FlowEditForm: FC<Props> = ({ flow }) => {
   const defaultValues: UpdateFlow = {
-    data: JSON.stringify(flow.data, null, 2),
+    data: JSON.stringify((flow.data as FlowDetail["data"] | undefined) ?? {}, null, 2),
     description: flow.description,
     human_id: flow.human_id,
     human_id_alias: flow.human_id_alias ?? "",
@@ -25,7 +25,7 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
 
   const { loading, send } = useSend();
   const onSubmit: SubmitHandler<UpdateFlow> = async (data) => {
-    const apiData = { ...data, data: JSON.stringify(JSON.parse(data.data ?? "")) };
+    const apiData = { ...data, data: JSON.stringify(JSON.parse(data.data || "{}")) };
     await send(api["PATCH /flows/:flowId"](flow.id, apiData));
   };
 
@@ -40,7 +40,6 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
           alignItems: "flex-start",
         })}
       >
-        <input name="id" type="hidden" value={flow.id} />
         {(
           [
             { key: "name", label: "Name" },

@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/swagger";
-import { IsJSON, IsString } from "class-validator";
+import { IsJSON, IsString, Length } from "class-validator";
 
 export class GetFlowsDto {
   id: string;
@@ -39,11 +39,19 @@ export class CompleteUpdateFlowDto {
   @IsString()
   description: string;
   @IsString()
+  @Length(3, 32)
   human_id: string;
   @IsString()
+  @Length(3, 32)
   human_id_alias: string;
   @IsJSON()
   data: string;
 }
 
 export class UpdateFlowDto extends PartialType(CompleteUpdateFlowDto) {}
+
+export class CreateFlowDto {
+  @IsString()
+  @Length(3)
+  name: string;
+}

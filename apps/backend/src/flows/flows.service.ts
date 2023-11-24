@@ -1,10 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
 import { eq, sql } from "drizzle-orm";
+import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { GetFlowDetailDto, GetFlowsDto, UpdateFlowDto } from "./flows.dto";
+import type { CreateFlowDto, GetFlowDetailDto, GetFlowsDto, UpdateFlowDto } from "./flows.dto";
 
 @Injectable()
 export class FlowsService {
@@ -140,5 +141,56 @@ export class FlowsService {
         flow_version_id: newVersion[0].id,
       })
       .where(eq(flows.id, flowId));
+  }
+
+  async createFlow({
+    auth,
+    data,
+    projectId,
+  }: {
+    auth: Auth;
+    projectId: string;
+    data: CreateFlowDto;
+  }): Promise<GetFlowsDto> {
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
+    if (!project) throw new BadRequestException("project not found");
+
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const newFlows = await this.databaseService.db
+      .insert(flows)
+      .values({
+        name: data.name,
+        description: "",
+        project_id: projectId,
+        flow_type: "cloud",
+        human_id: slugify(data.name, { lower: true, strict: true }),
+      })
+      .returning();
+    const flow = newFlows.at(0);
+    if (!flow) throw new BadRequestException("failed to create flow");
+
+    return {
+      id: flow.id,
+      name: flow.name,
+      description: flow.description,
+      created_at: flow.created_at,
+      updated_at: flow.updated_at,
+      project_id: flow.project_id,
+      flow_type: flow.flow_type,
+      human_id: flow.human_id,
+      human_id_alias: flow.human_id_alias,
+    };
   }
 }

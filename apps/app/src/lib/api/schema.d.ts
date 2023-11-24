@@ -16,6 +16,7 @@ export interface paths {
   };
   "/projects/{projectId}/flows": {
     get: operations["FlowsControllers_getFlows"];
+    post: operations["FlowsControllers_createFlow"];
   };
   "/flows/{flowId}": {
     get: operations["FlowsControllers_getFlowDetail"];
@@ -89,6 +90,9 @@ export interface components {
       human_id?: string;
       human_id_alias?: string;
       data?: string;
+    };
+    CreateFlowDto: {
+      name: string;
     };
     GetProjectsDto: {
       id: string;
@@ -174,6 +178,25 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetFlowsDto"][];
+        };
+      };
+    };
+  };
+  FlowsControllers_createFlow: {
+    parameters: {
+      path: {
+        projectId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateFlowDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["GetFlowsDto"];
         };
       };
     };

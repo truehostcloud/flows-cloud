@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { Auth, Authorization } from "../auth";
 import type { GetFlowDetailDto, GetFlowsDto } from "./flows.dto";
-import { UpdateFlowDto } from "./flows.dto";
+import { CreateFlowDto, UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
 @ApiTags("flows")
@@ -35,5 +35,14 @@ export class FlowsControllers {
     @Body() body: UpdateFlowDto,
   ): Promise<void> {
     return this.flowsService.updateFlow({ auth, flowId, data: body });
+  }
+
+  @Post("projects/:projectId/flows")
+  createFlow(
+    @Authorization() auth: Auth,
+    @Param("projectId") projectId: string,
+    @Body() body: CreateFlowDto,
+  ): Promise<GetFlowsDto> {
+    return this.flowsService.createFlow({ auth, projectId, data: body });
   }
 }

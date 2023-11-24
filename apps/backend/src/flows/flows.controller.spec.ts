@@ -155,3 +155,27 @@ describe("Update flow", () => {
     });
   });
 });
+
+describe("Create flow", () => {
+  const data = { name: "newName", data: JSON.stringify({ el: "newEl" }) };
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should throw without new flow", async () => {
+    db.returning.mockResolvedValue([]);
+    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
+      "failed to create flow",
+    );
+  });
+});

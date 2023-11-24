@@ -36,6 +36,13 @@
       "when": 1700655083723,
       "tag": "0004_burly_sentinels",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1700833510126,
+      "tag": "0005_strange_starhawk",
+      "breakpoints": true
     }
   ]
 }

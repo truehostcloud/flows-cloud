@@ -6,6 +6,7 @@ import { routes } from "routes";
 import { Text } from "ui";
 
 import { api } from "../../../lib/api";
+import { CreateFlow } from "./create-flow";
 
 export default async function ProjectDetailPage({
   params,
@@ -20,9 +21,12 @@ export default async function ProjectDetailPage({
 
   return (
     <div>
-      <Text className={css({ mb: "space16" })} variant="title3xl">
-        Flows
-      </Text>
+      <div className={css({ display: "flex", alignItems: "center" })}>
+        <Text className={css({ mb: "space16", flex: 1 })} variant="title3xl">
+          Flows
+        </Text>
+        <CreateFlow projectId={params.projectId} />
+      </div>
       <div className={css({ display: "flex", flexDirection: "column", gap: "space12" })}>
         {data.map((flow) => (
           <div key={flow.id}>
