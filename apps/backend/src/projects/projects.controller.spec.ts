@@ -18,7 +18,7 @@ const db = {
 
 beforeEach(async () => {
   db.query.organizations.findFirst.mockResolvedValue({
-    usersToOrganizations: [{ user_id: "userId" }],
+    organizationsToUsers: [{ user_id: "userId" }],
   });
   db.query.projects.findMany.mockResolvedValue([{ id: "projId" }]);
 
@@ -41,15 +41,9 @@ afterEach(() => {
 });
 
 describe("Get projects", () => {
-  it("should throw without organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue(null);
-    await expect(projectsController.getProjects({ userId: "userId" }, "orgId")).rejects.toThrow(
-      "organization not found",
-    );
-  });
   it("should throw without access to organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue({
-      usersToOrganizations: [],
+      organizationsToUsers: [],
     });
     await expect(projectsController.getProjects({ userId: "userId" }, "orgId")).rejects.toThrow(
       "Forbidden",

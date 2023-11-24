@@ -29,7 +29,7 @@ beforeEach(async () => {
   db.query.flows.findMany.mockResolvedValue([{ id: "flowId" }]);
   db.query.flows.findFirst.mockResolvedValue({ id: "flowId" });
   db.query.organizations.findFirst.mockResolvedValue({
-    usersToOrganizations: [{ user_id: "userId" }],
+    organizationsToUsers: [{ user_id: "userId" }],
   });
   db.groupBy.mockResolvedValue([{ count: 1 }]);
 
@@ -59,15 +59,9 @@ describe("Get flows", () => {
       "project not found",
     );
   });
-  it("should throw without organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlows({ userId: "userId" }, "projId")).rejects.toThrow(
-      "organization not found",
-    );
-  });
   it("should throw without access to organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue({
-      usersToOrganizations: [{ user_id: "notUserId" }],
+      organizationsToUsers: [],
     });
     await expect(flowsController.getFlows({ userId: "userId" }, "projId")).rejects.toThrow(
       "Forbidden",
@@ -93,15 +87,9 @@ describe("Get flow detail", () => {
       "project not found",
     );
   });
-  it("should throw without organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "organization not found",
-    );
-  });
   it("should throw without access to organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue({
-      usersToOrganizations: [{ user_id: "notUserId" }],
+      organizationsToUsers: [],
     });
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
       "Forbidden",

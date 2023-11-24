@@ -23,6 +23,9 @@ export interface paths {
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
   };
+  "/organizations": {
+    get: operations["OrganizationsController_getOrganizations"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -87,6 +90,15 @@ export interface components {
       name: string;
       description: string | null;
       domains: string[];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    GetOrganizationsDto: {
+      id: string;
+      name: string;
+      description: string | null;
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
@@ -182,6 +194,15 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetProjectsDto"][];
+        };
+      };
+    };
+  };
+  OrganizationsController_getOrganizations: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetOrganizationsDto"][];
         };
       };
     };

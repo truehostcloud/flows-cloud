@@ -2,11 +2,11 @@ import { css } from "@flows/styled-system/css";
 import { getAuth, signOut } from "auth/server";
 import Image from "next/image";
 import Link from "next/link";
+import { routes } from "routes";
 import { Button, Text } from "ui";
 
 export const Header = async (): Promise<JSX.Element> => {
   const auth = await getAuth();
-
   return (
     <header
       className={css({
@@ -25,13 +25,13 @@ export const Header = async (): Promise<JSX.Element> => {
             alignItems: "center",
             gap: "space8",
           })}
-          href="/"
+          href={routes.home}
         >
           <Image alt="Logo" height={28} src="/logo.svg" width={28} />
           <Text variant="titleL">Flows</Text>
         </Link>
 
-        <nav>
+        {/* <nav>
           <ul className={css({ display: "flex" })}>
             {["projects"].map((path) => (
               <li key={path}>
@@ -48,7 +48,7 @@ export const Header = async (): Promise<JSX.Element> => {
               </li>
             ))}
           </ul>
-        </nav>
+        </nav> */}
       </div>
 
       {auth ? (
@@ -63,7 +63,7 @@ export const Header = async (): Promise<JSX.Element> => {
           </form>
         </div>
       ) : (
-        <Link href="/login">
+        <Link href={routes.login()}>
           <Button size="small" variant="black">
             Login
           </Button>

@@ -2,6 +2,7 @@ import { type CookieOptions, createServerClient } from "@supabase/ssr";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { routes } from "routes";
 
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../lib/constants";
 
@@ -46,7 +47,7 @@ export const signOut = async (): Promise<void> => {
 
   const supabase = createClient(cookies());
   await supabase.auth.signOut();
-  return redirect("/login");
+  return redirect(routes.login());
 };
 
 export const signIn = async (formData: FormData): Promise<void> => {
@@ -62,10 +63,10 @@ export const signIn = async (formData: FormData): Promise<void> => {
   });
 
   if (error) {
-    return redirect("/login?message=Could not authenticate user");
+    return redirect(routes.login({ message: "Could not authenticate user" }));
   }
 
-  return redirect("/");
+  return redirect(routes.home);
 };
 
 export const signUp = async (formData: FormData): Promise<void> => {
@@ -80,13 +81,13 @@ export const signUp = async (formData: FormData): Promise<void> => {
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: `${origin}${routes.authCallback}`,
     },
   });
 
   if (error) {
-    return redirect("/login?message=Could not authenticate user");
+    return redirect(routes.login({ message: "Could not authenticate user" }));
   }
 
-  return redirect("/login?message=Check email to continue sign in process");
+  return redirect(routes.login({ message: "Check email to continue sign in process" }));
 };

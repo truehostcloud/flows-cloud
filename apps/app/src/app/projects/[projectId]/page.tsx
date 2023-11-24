@@ -2,6 +2,7 @@ import { css } from "@flows/styled-system/css";
 import { getAuth } from "auth/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { routes } from "routes";
 import { Text } from "ui";
 
 import { api } from "../../../lib/api";
@@ -12,7 +13,7 @@ export default async function ProjectDetailPage({
   params: { projectId: string };
 }): Promise<JSX.Element> {
   const auth = await getAuth();
-  if (!auth) return redirect("/login");
+  if (!auth) return redirect(routes.login());
   const data = await api["/projects/:projectId/flows"](params.projectId)({
     token: auth.access_token,
   });
@@ -25,7 +26,7 @@ export default async function ProjectDetailPage({
       <div className={css({ display: "flex", flexDirection: "column", gap: "space12" })}>
         {data.map((flow) => (
           <div key={flow.id}>
-            <Link href={`/flows/${flow.id}`}>
+            <Link href={routes.flow({ flowId: flow.id })}>
               <Text
                 className={css({ _hover: { textDecoration: "underline" } })}
                 color="primary"

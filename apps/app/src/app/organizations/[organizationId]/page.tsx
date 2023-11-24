@@ -1,17 +1,19 @@
 import { css } from "@flows/styled-system/css";
 import { getAuth } from "auth/server";
+import { api } from "lib/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { routes } from "routes";
 import { Text } from "ui";
 
-import { api } from "../../lib/api";
+type Props = {
+  params: { organizationId: string };
+};
 
-export default async function ProjectsPage(): Promise<JSX.Element> {
+export default async function ProjectsPage({ params }: Props): Promise<JSX.Element> {
   const auth = await getAuth();
-  if (!auth) return redirect("/login");
-  const data = await api["/organizations/:organizationId/projects"](
-    "a9493fa5-af60-40a5-b260-479a29a2dff8",
-  )({
+  if (!auth) return redirect(routes.login());
+  const data = await api["/organizations/:organizationId/projects"](params.organizationId)({
     token: auth.access_token,
   });
 
@@ -22,7 +24,7 @@ export default async function ProjectsPage(): Promise<JSX.Element> {
       </Text>
       {data.map((project) => (
         <div key={project.id}>
-          <Link href={`/projects/${project.id}`}>
+          <Link href={routes.project({ projectId: project.id })}>
             <Text
               className={css({ _hover: { textDecoration: "underline" } })}
               color="primary"

@@ -5,12 +5,14 @@ import type { Endpoint } from "./types";
 type Schemas = components["schemas"];
 
 type Api = {
+  "/organizations": Endpoint<Schemas["GetOrganizationsDto"][]>;
   "/organizations/:organizationId/projects": Endpoint<Schemas["GetProjectsDto"][], [string]>;
   "/projects/:projectId/flows": Endpoint<Schemas["GetFlowsDto"][], [string]>;
   "/flows/:flowId": Endpoint<Schemas["GetFlowDetailDto"], [string]>;
 };
 
 export const api: Api = {
+  "/organizations": () => fetcher("/organizations"),
   "/organizations/:organizationId/projects": (organizationId) =>
     fetcher(`/organizations/${organizationId}/projects`),
   "/projects/:projectId/flows": (projectId) => fetcher(`/projects/${projectId}/flows`),

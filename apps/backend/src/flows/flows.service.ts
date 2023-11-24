@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
-import { events, flows, organizations, projects } from "db";
+import { events, flows, organizations, organizationsToUsers, projects } from "db";
 import { eq, sql } from "drizzle-orm";
 
 import type { Auth } from "../auth";
@@ -19,13 +19,12 @@ export class FlowsService {
     const org = await this.databaseService.db.query.organizations.findFirst({
       where: eq(organizations.id, project.organization_id),
       with: {
-        usersToOrganizations: true,
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
       },
     });
-    if (!org) throw new BadRequestException("organization not found");
-    const userHasAccessToOrg = org.usersToOrganizations.some(
-      (userToOrg) => userToOrg.user_id === auth.userId,
-    );
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
     const projectFlows = await this.databaseService.db.query.flows.findMany({
@@ -57,13 +56,12 @@ export class FlowsService {
     const org = await this.databaseService.db.query.organizations.findFirst({
       where: eq(organizations.id, project.organization_id),
       with: {
-        usersToOrganizations: true,
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
       },
     });
-    if (!org) throw new BadRequestException("organization not found");
-    const userHasAccessToOrg = org.usersToOrganizations.some(
-      (userToOrg) => userToOrg.user_id === auth.userId,
-    );
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
