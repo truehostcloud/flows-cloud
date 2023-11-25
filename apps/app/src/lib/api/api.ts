@@ -5,6 +5,7 @@ import type { Endpoint } from "./types";
 type Schemas = components["schemas"];
 
 export type OrganizationPreview = Schemas["GetOrganizationsDto"];
+export type OrganizationDetail = Schemas["GetOrganizationDetailDto"];
 export type ProjectPreview = Schemas["GetProjectsDto"];
 export type ProjectDetail = Schemas["GetProjectDetailDto"];
 export type FlowPreview = Schemas["GetFlowsDto"];
@@ -14,6 +15,7 @@ export type CreateFlow = Schemas["UpdateFlowDto"];
 
 type Api = {
   "/organizations": Endpoint<OrganizationPreview[]>;
+  "/organizations/:organizationId": Endpoint<OrganizationDetail, [string]>;
   "/organizations/:organizationId/projects": Endpoint<ProjectPreview[], [string]>;
   "/projects/:projectId": Endpoint<ProjectDetail, [string]>;
   "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
@@ -25,6 +27,7 @@ type Api = {
 
 export const api: Api = {
   "/organizations": () => fetcher("/organizations"),
+  "/organizations/:organizationId": (organizationId) => fetcher(`/organizations/${organizationId}`),
   "/organizations/:organizationId/projects": (organizationId) =>
     fetcher(`/organizations/${organizationId}/projects`),
   "/projects/:projectId": (projectId) => fetcher(`/projects/${projectId}`),

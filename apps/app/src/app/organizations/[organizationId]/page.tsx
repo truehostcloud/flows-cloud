@@ -12,15 +12,18 @@ type Props = {
 export default async function ProjectsPage({ params }: Props): Promise<JSX.Element> {
   const auth = await getAuth();
   if (!auth) return redirect(routes.login());
-  const projects = await api["/organizations/:organizationId/projects"](params.organizationId)({
-    token: auth.access_token,
-  });
+  const fetchCtx = { token: auth.access_token };
+  const projects = await api["/organizations/:organizationId/projects"](params.organizationId)(
+    fetchCtx,
+  );
   if (projects.length) return redirect(routes.project({ projectId: projects[0].id }));
+
+  const org = await api["/organizations/:organizationId"](params.organizationId)(fetchCtx);
 
   return (
     <>
       <Text className={css({ mb: "space16" })} variant="title3xl">
-        Organization
+        {org.name}
       </Text>
       <Text>No projects found</Text>
     </>

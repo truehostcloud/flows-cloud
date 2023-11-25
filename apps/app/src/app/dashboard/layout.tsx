@@ -7,7 +7,7 @@ type Props = {
   params: { organizationId: string };
 };
 
-export default function OrganizationDetailLayout({ children, params }: Props): JSX.Element {
+export default function DashboardLayout({ children, params }: Props): JSX.Element {
   return (
     <>
       <Header organizationId={params.organizationId} />

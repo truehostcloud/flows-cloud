@@ -10,10 +10,19 @@ const db = {
   from: jest.fn().mockReturnThis(),
   leftJoin: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
+  query: {
+    organizations: {
+      findFirst: jest.fn(),
+    },
+  },
 };
 
 beforeEach(async () => {
   db.where.mockResolvedValue([{ organization: { id: "org1" } }]);
+  db.query.organizations.findFirst.mockResolvedValue({
+    id: "org1",
+    organizationsToUsers: [{ user_id: "userId" }],
+  });
 
   const moduleRef = await Test.createTestingModule({
     controllers: [OrganizationsController],
@@ -39,5 +48,25 @@ describe("Get organizations", () => {
     await expect(organizationsController.getOrganizations({ userId: "userId" })).resolves.toEqual([
       { id: "org1" },
     ]);
+  });
+});
+
+describe("Get organization detail", () => {
+  it("should throw without organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue(null);
+    await expect(
+      organizationsController.getOrganizationDetail({ userId: "userId" }, "org1"),
+    ).rejects.toThrow("Not Found");
+  });
+  it("should throw without access", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    await expect(
+      organizationsController.getOrganizationDetail({ userId: "userId" }, "org1"),
+    ).rejects.toThrow("Forbidden");
+  });
+  it("should return organization", async () => {
+    await expect(
+      organizationsController.getOrganizationDetail({ userId: "userId" }, "org1"),
+    ).resolves.toEqual({ id: "org1" });
   });
 });

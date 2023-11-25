@@ -8,4 +8,5 @@ export const routes = {
   project: (params: { projectId: string }) => `/projects/${params.projectId}`,
   flow: (params: { flowId: string; projectId: string }) =>
     `/projects/${params.projectId}/flows/${params.flowId}`,
+  dashboard: "/dashboard",
 };

@@ -5,3 +5,5 @@ export class GetOrganizationsDto {
   created_at: Date;
   updated_at: Date;
 }
+
+export class GetOrganizationDetailDto extends GetOrganizationsDto {}
