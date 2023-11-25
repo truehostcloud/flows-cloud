@@ -24,6 +24,7 @@ jobs:
       - run: |
           touch .env
           echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
+          echo BACKEND_JWT_SECRET=${{ secrets.BACKEND_JWT_SECRET }} >> .env
         working-directory: "./stage-deploy/apps/backend"
       - run: docker build -t docker.flows.sh/backend-stage:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./stage-deploy"
