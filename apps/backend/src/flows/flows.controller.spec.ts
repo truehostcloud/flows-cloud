@@ -86,7 +86,7 @@ describe("Get flow detail", () => {
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "flow not found",
+      "Not Found",
     );
   });
   it("should throw without project", async () => {
@@ -120,7 +120,7 @@ describe("Update flow", () => {
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
-      "flow not found",
+      "Not Found",
     );
   });
   it("should throw without project", async () => {
@@ -185,7 +185,7 @@ describe("Delete flow", () => {
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "flow not found",
+      "Not Found",
     );
   });
   it("should throw without project", async () => {

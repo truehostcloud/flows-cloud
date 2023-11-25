@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
 import { eq, sql } from "drizzle-orm";
 import slugify from "slugify";
@@ -49,7 +54,7 @@ export class FlowsService {
     const plainFlow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
     });
-    if (!plainFlow) throw new BadRequestException("flow not found");
+    if (!plainFlow) throw new NotFoundException();
     const project = await this.databaseService.db.query.projects.findFirst({
       where: eq(projects.id, plainFlow.project_id),
     });
@@ -109,7 +114,7 @@ export class FlowsService {
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
     });
-    if (!flow) throw new BadRequestException("flow not found");
+    if (!flow) throw new NotFoundException();
     const project = await this.databaseService.db.query.projects.findFirst({
       where: eq(projects.id, flow.project_id),
     });
@@ -198,7 +203,7 @@ export class FlowsService {
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
     });
-    if (!flow) throw new BadRequestException("flow not found");
+    if (!flow) throw new NotFoundException();
     const project = await this.databaseService.db.query.projects.findFirst({
       where: eq(projects.id, flow.project_id),
     });

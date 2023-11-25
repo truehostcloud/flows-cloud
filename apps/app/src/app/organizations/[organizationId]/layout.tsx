@@ -1,5 +1,18 @@
 import { css } from "@flows/styled-system/css";
+import { Header } from "components/header";
+import type { ReactNode } from "react";
 
-export default function ProjectsLayout({ children }: { children: React.ReactNode }): JSX.Element {
-  return <div className={css({ maxWidth: "1100px", mx: "auto", py: "space32" })}>{children}</div>;
+type Props = {
+  children?: ReactNode;
+};
+
+export default function ProjectDetailLayout({ children }: Props): JSX.Element {
+  return (
+    <>
+      <Header />
+      <div className={css({ maxWidth: "1100px", mx: "auto", py: "space32", px: "space16" })}>
+        {children}
+      </div>
+    </>
+  );
 }

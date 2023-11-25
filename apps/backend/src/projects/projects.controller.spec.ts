@@ -9,6 +9,7 @@ const db = {
   query: {
     projects: {
       findMany: jest.fn(),
+      findFirst: jest.fn(),
     },
     organizations: {
       findFirst: jest.fn(),
@@ -21,6 +22,7 @@ beforeEach(async () => {
     organizationsToUsers: [{ user_id: "userId" }],
   });
   db.query.projects.findMany.mockResolvedValue([{ id: "projId" }]);
+  db.query.projects.findFirst.mockResolvedValue({ id: "projId" });
 
   const moduleRef = await Test.createTestingModule({
     controllers: [ProjectsController],
@@ -53,5 +55,27 @@ describe("Get projects", () => {
     await expect(projectsController.getProjects({ userId: "userId" }, "orgId")).resolves.toEqual([
       { id: "projId" },
     ]);
+  });
+});
+
+describe("Get project detail", () => {
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(
+      projectsController.getProjectDetail({ userId: "userId" }, "projId"),
+    ).rejects.toThrow("Not Found");
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(
+      projectsController.getProjectDetail({ userId: "userId" }, "projId"),
+    ).rejects.toThrow("Forbidden");
+  });
+  it("should return project", async () => {
+    await expect(
+      projectsController.getProjectDetail({ userId: "userId" }, "projId"),
+    ).resolves.toEqual({ id: "projId" });
   });
 });

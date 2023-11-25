@@ -26,6 +26,9 @@ export interface paths {
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
   };
+  "/projects/{projectId}": {
+    get: operations["ProjectsController_getProjectDetail"];
+  };
   "/organizations": {
     get: operations["OrganizationsController_getOrganizations"];
   };
@@ -72,16 +75,16 @@ export interface components {
     };
     GetFlowDetailDto: {
       id: string;
+      human_id: string;
+      human_id_alias: string | null;
+      project_id: string;
       name: string;
+      flow_type: string;
       description: string;
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
       updated_at: string;
-      project_id: string;
-      flow_type: string;
-      human_id: string;
-      human_id_alias: string | null;
       data: Record<string, never>;
       daily_stats: components["schemas"]["StatBucketDto"][];
     };
@@ -96,6 +99,19 @@ export interface components {
       name: string;
     };
     GetProjectsDto: {
+      id: string;
+      human_id: string;
+      human_id_alias: string | null;
+      organization_id: string;
+      name: string;
+      description: string | null;
+      domains: string[];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    GetProjectDetailDto: {
       id: string;
       human_id: string;
       human_id_alias: string | null;
@@ -255,6 +271,20 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetProjectsDto"][];
+        };
+      };
+    };
+  };
+  ProjectsController_getProjectDetail: {
+    parameters: {
+      path: {
+        projectId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetProjectDetailDto"];
         };
       };
     };

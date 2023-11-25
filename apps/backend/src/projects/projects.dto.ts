@@ -9,3 +9,5 @@ export class GetProjectsDto {
   created_at: Date;
   updated_at: Date;
 }
+
+export class GetProjectDetailDto extends GetProjectsDto {}

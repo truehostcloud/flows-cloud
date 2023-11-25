@@ -1,12 +1,30 @@
 import { css } from "@flows/styled-system/css";
 import { getAuth, signOut } from "auth/server";
+import { UserCircle24 } from "icons";
+import { api } from "lib/api";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { routes } from "routes";
-import { Button, Text } from "ui";
+import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
-export const Header = async (): Promise<JSX.Element> => {
+type Props = {
+  projectId?: string;
+};
+
+export const Header = async ({ projectId }: Props): Promise<JSX.Element> => {
   const auth = await getAuth();
+  if (!auth) return redirect(routes.login());
+  const fetchCtx = { token: auth.access_token };
+  const [project, organizations] = await Promise.all([
+    projectId ? api["/projects/:projectId"](projectId)(fetchCtx) : null,
+    api["/organizations"]()(fetchCtx),
+  ]);
+  const orgProjects = await (() => {
+    if (!project) return;
+    return api["/organizations/:organizationId/projects"](project.organization_id)(fetchCtx);
+  })();
+
   return (
     <header
       className={css({
@@ -51,24 +69,51 @@ export const Header = async (): Promise<JSX.Element> => {
         </nav> */}
       </div>
 
-      {auth ? (
-        <div className={css({ display: "flex", gap: "space8", alignItems: "center" })}>
-          <Text color="muted" variant="bodyXs">
-            {auth.user.email}
-          </Text>
-          <form action={signOut}>
-            <Button size="small" type="submit" variant="black">
-              Logout
-            </Button>
-          </form>
-        </div>
-      ) : (
-        <Link href={routes.login()}>
-          <Button size="small" variant="black">
-            Login
+      <div className={css({ display: "flex", gap: "space12", alignItems: "center" })}>
+        <Popover>
+          <PopoverTrigger>
+            <Icon className={css({ cursor: "pointer" })} icon={UserCircle24} />
+          </PopoverTrigger>
+          <PopoverContent>
+            <Text color="muted" variant="bodyXs">
+              {auth.user.email}
+            </Text>
+
+            {project && orgProjects ? (
+              <>
+                <Text variant="titleM">Projects</Text>
+                {orgProjects.map((proj) => {
+                  const active = proj.id === projectId;
+                  return (
+                    <Link href={routes.project({ projectId: proj.id })} key={proj.id}>
+                      <Text color={active ? "primary" : undefined} variant="bodyS">
+                        {proj.name}
+                      </Text>
+                    </Link>
+                  );
+                })}
+              </>
+            ) : null}
+
+            <Text variant="titleM">Organizations</Text>
+            {organizations.map((org) => {
+              const active = org.id === project?.organization_id;
+              return (
+                <Link href={routes.organization({ organizationId: org.id })} key={org.id}>
+                  <Text color={active ? "primary" : undefined} variant="bodyS">
+                    {org.name}
+                  </Text>
+                </Link>
+              );
+            })}
+          </PopoverContent>
+        </Popover>
+        <form action={signOut}>
+          <Button size="small" type="submit" variant="black">
+            Logout
           </Button>
-        </Link>
-      )}
+        </form>
+      </div>
     </header>
   );
 };

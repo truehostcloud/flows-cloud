@@ -29,7 +29,7 @@ export const CreateFlowDialog: FC<Props> = ({ projectId }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(api["POST /projects/:projectId/flows"](projectId, data));
     if (!res.data) return;
-    router.push(routes.flow({ flowId: res.data.id }));
+    router.push(routes.flow({ flowId: res.data.id, projectId }));
   };
 
   return (
