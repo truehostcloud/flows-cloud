@@ -1,12 +1,6 @@
 import "./globals.css";
 
-import localFont from "next/font/local";
-
-const MonaSans = localFont({
-  src: "../fonts/Mona-Sans.woff2",
-  display: "swap",
-  variable: "--font-mona-sans",
-});
+import { Providers } from "components/providers";
 
 export const metadata = {
   title: "Create Next App",
@@ -15,9 +9,9 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <html className={`${MonaSans.variable}`} lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <main className="min-h-screen bg-background flex flex-col items-center">{children}</main>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 import { Type } from "class-transformer";
 import { IsDate, IsOptional, IsString } from "class-validator";
 
-export class GetFlowsDto {
+export class GetSdkFlowsDto {
   id: string;
   element?: string;
   steps: unknown[];

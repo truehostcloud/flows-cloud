@@ -51,7 +51,7 @@ describe("Get flows", () => {
     ).rejects.toThrow("projectId is required");
   });
   it("should throw without requestDomain", async () => {
-    await expect(sdkController.getFlows("a", null)).rejects.toThrow("host is required");
+    await expect(sdkController.getFlows("a", "")).rejects.toThrow("host is required");
   });
   it("should throw without project", async () => {
     db.query.projects.findFirst.mockReturnValue(null);

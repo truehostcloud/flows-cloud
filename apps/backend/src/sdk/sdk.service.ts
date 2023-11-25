@@ -3,7 +3,7 @@ import { events, flows, projects } from "db";
 import { and, arrayContains, eq, or } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
-import type { CreateEventDto, GetFlowsDto } from "./sdk.dto";
+import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
 
 @Injectable()
 export class SdkService {
@@ -15,7 +15,7 @@ export class SdkService {
   }: {
     projectId: string;
     requestOrigin: string;
-  }): Promise<GetFlowsDto[]> {
+  }): Promise<GetSdkFlowsDto[]> {
     if (!projectId) throw new BadRequestException("projectId is required");
     if (!requestOrigin) throw new BadRequestException("host is required");
 
@@ -66,7 +66,6 @@ export class SdkService {
       type: event.type,
       flow_id: flow.id,
       user_hash: event.userHash,
-      project_id: project.id,
       step_index: event.stepIndex,
       flow_hash: event.flowHash,
       step_hash: event.stepHash,
@@ -77,7 +76,7 @@ export class SdkService {
     } catch (error) {
       // eslint-disable-next-line no-console -- useful for debugging
       console.log(error);
-      // TODO: log error
+      // TODO: add custom logger that doesnt log in test env
       if (error) throw new BadRequestException("error saving event", { cause: error });
     }
   }

@@ -9,13 +9,20 @@
     "start": "next start",
     "lint": "next lint",
     "tsc": "tsc",
+    "openapi:localhost": "npx openapi-typescript http://127.0.0.1:3005/docs-yaml -o ./src/lib/api/schema.d.ts",
+    "openapi:stage": "npx openapi-typescript https://api.stage.flows-cloud.com/docs-yaml -o ./src/lib/api/schema.d.ts",
+    "openapi:prod": "npx openapi-typescript https://api.flows-cloud.com/docs-yaml -o ./src/lib/api/schema.d.ts",
     "prepare": "panda codegen"
   },
   "dependencies": {
-    "@supabase/auth-helpers-nextjs": "^0.7.4",
+    "@monaco-editor/react": "^4.6.0",
+    "@supabase/ssr": "^0.0.10",
+    "icons": "workspace:*",
+    "monaco-editor": "^0.44.0",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.48.2",
     "ui": "workspace:*"
   },
   "devDependencies": {
