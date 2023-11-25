@@ -66,7 +66,6 @@ export class SdkService {
       type: event.type,
       flow_id: flow.id,
       user_hash: event.userHash,
-      project_id: project.id,
       step_index: event.stepIndex,
       flow_hash: event.flowHash,
       step_hash: event.stepHash,

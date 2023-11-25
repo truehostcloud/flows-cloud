@@ -6,8 +6,6 @@ import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Text } from "ui";
 
-export const dynamic = "force-dynamic";
-
 export default async function Index(): Promise<JSX.Element> {
   const auth = await getAuth();
   if (!auth) return redirect(routes.login());

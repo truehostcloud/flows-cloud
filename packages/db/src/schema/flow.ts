@@ -54,7 +54,7 @@ export const flowVersions = pgTable("flow_version", {
   id: uuid("id").notNull().unique().primaryKey().defaultRandom(),
   flow_id: uuid("flow_id")
     .notNull()
-    .references(() => flows.id),
+    .references(() => flows.id, { onDelete: "cascade" }),
   data: json("data").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });

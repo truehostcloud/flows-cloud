@@ -27,6 +27,7 @@ const db = {
   returning: jest.fn().mockReturnThis(),
   update: jest.fn().mockReturnThis(),
   set: jest.fn().mockReturnThis(),
+  delete: jest.fn().mockReturnThis(),
 };
 
 beforeEach(async () => {
@@ -177,5 +178,34 @@ describe("Create flow", () => {
     await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
       "failed to create flow",
     );
+  });
+});
+
+describe("Delete flow", () => {
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "flow not found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should delete flow", async () => {
+    await expect(
+      flowsController.deleteFlow({ userId: "userId" }, "flowId"),
+    ).resolves.toBeUndefined();
+    expect(db.delete).toHaveBeenCalled();
   });
 });

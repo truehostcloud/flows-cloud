@@ -25,8 +25,13 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
 
   const { loading, send } = useSend();
   const onSubmit: SubmitHandler<UpdateFlow> = async (data) => {
-    const apiData = { ...data, data: JSON.stringify(JSON.parse(data.data || "{}")) };
-    await send(api["PATCH /flows/:flowId"](flow.id, apiData));
+    await send(
+      api["PATCH /flows/:flowId"](flow.id, {
+        ...data,
+        human_id_alias: data.human_id_alias || undefined,
+        data: JSON.stringify(JSON.parse(data.data || "{}")),
+      }),
+    );
   };
 
   return (

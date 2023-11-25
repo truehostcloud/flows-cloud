@@ -193,4 +193,27 @@ export class FlowsService {
       human_id_alias: flow.human_id_alias,
     };
   }
+
+  async deleteFlow({ auth, flowId }: { auth: Auth; flowId: string }): Promise<void> {
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: eq(flows.id, flowId),
+    });
+    if (!flow) throw new BadRequestException("flow not found");
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, flow.project_id),
+    });
+    if (!project) throw new BadRequestException("project not found");
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    await this.databaseService.db.delete(flows).where(eq(flows.id, flowId));
+  }
 }

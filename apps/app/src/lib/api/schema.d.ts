@@ -20,6 +20,7 @@ export interface paths {
   };
   "/flows/{flowId}": {
     get: operations["FlowsControllers_getFlowDetail"];
+    delete: operations["FlowsControllers_deleteFlow"];
     patch: operations["FlowsControllers_updateFlow"];
   };
   "/organizations/{organizationId}/projects": {
@@ -212,6 +213,18 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["GetFlowDetailDto"];
         };
+      };
+    };
+  };
+  FlowsControllers_deleteFlow: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
       };
     };
   };

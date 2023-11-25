@@ -18,6 +18,7 @@ type Api = {
   "/flows/:flowId": Endpoint<FlowDetail, [string]>;
   "PATCH /flows/:flowId": Endpoint<FlowDetail, [string, UpdateFlow]>;
   "POST /projects/:projectId/flows": Endpoint<FlowPreview, [string, CreateFlow]>;
+  "DELETE /flows/:flowId": Endpoint<void, [string]>;
 };
 
 export const api: Api = {
@@ -29,4 +30,5 @@ export const api: Api = {
   "PATCH /flows/:flowId": (flowId, body) => fetcher(`/flows/${flowId}`, { method: "PATCH", body }),
   "POST /projects/:projectId/flows": (projectId, body) =>
     fetcher(`/projects/${projectId}/flows`, { method: "POST", body }),
+  "DELETE /flows/:flowId": (flowId) => fetcher(`/flows/${flowId}`, { method: "DELETE" }),
 };

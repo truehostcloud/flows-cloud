@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Text } from "ui";
 
+import { FlowDeleteDialog } from "./flow-delete-dialog";
 import { FlowEditForm } from "./flow-edit-form";
 
 type Props = {
@@ -18,9 +19,11 @@ export default async function FlowDetailPage({ params }: Props): Promise<JSX.Ele
 
   return (
     <div>
-      <Text className={css({ mb: "space16" })} variant="title3xl">
+      <Text className={css({ mb: "space16" })} id="panda-title" variant="title3xl">
         {data.name}
       </Text>
+
+      <FlowDeleteDialog flow={data} />
 
       <Text variant="titleL">Daily stats</Text>
       {data.daily_stats.map((stat) => {

@@ -20,7 +20,7 @@ type FormData = {
   humanId: string;
 };
 
-export const CreateFlow: FC<Props> = ({ projectId }) => {
+export const CreateFlowDialog: FC<Props> = ({ projectId }) => {
   const [open, setOpen] = useState(false);
   const { send, loading } = useSend();
   const router = useRouter();
