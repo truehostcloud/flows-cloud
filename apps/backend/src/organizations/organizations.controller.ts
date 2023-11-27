@@ -1,8 +1,9 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { Auth, Authorization } from "../auth";
 import type { GetOrganizationDetailDto, GetOrganizationsDto } from "./organizations.dto";
+import { CreateOrganizationDto } from "./organizations.dto";
 import { OrganizationsService } from "./organizations.service";
 
 @ApiTags("organizations")
@@ -22,5 +23,13 @@ export class OrganizationsController {
     @Param("organizationId") organizationId: string,
   ): Promise<GetOrganizationDetailDto> {
     return this.organizationsService.getOrganizationDetail({ auth, organizationId });
+  }
+
+  @Post("organizations")
+  createOrganization(
+    @Authorization() auth: Auth,
+    @Body() body: CreateOrganizationDto,
+  ): Promise<GetOrganizationDetailDto> {
+    return this.organizationsService.createOrganization({ auth, data: body });
   }
 }

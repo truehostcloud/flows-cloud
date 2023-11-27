@@ -1,8 +1,9 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { Auth, Authorization } from "../auth";
 import type { GetProjectDetailDto, GetProjectsDto } from "./projects.dto";
+import { CreateProjectDto } from "./projects.dto";
 import { ProjectsService } from "./projects.service";
 
 @ApiTags("projects")
@@ -25,5 +26,14 @@ export class ProjectsController {
     @Param("projectId") projectId: string,
   ): Promise<GetProjectDetailDto> {
     return this.projectsService.getProjectDetail({ auth, projectId });
+  }
+
+  @Post("organizations/:organizationId/projects")
+  createProject(
+    @Authorization() auth: Auth,
+    @Param("organizationId") organizationId: string,
+    @Body() body: CreateProjectDto,
+  ): Promise<GetProjectDetailDto> {
+    return this.projectsService.createProject({ auth, organizationId, data: body });
   }
 }

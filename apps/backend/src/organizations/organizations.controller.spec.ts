@@ -1,4 +1,5 @@
 import { Test } from "@nestjs/testing";
+import { organizations, organizationsToUsers } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { OrganizationsController } from "./organizations.controller";
@@ -6,6 +7,9 @@ import { OrganizationsService } from "./organizations.service";
 
 let organizationsController: OrganizationsController;
 const db = {
+  insert: jest.fn().mockReturnThis(),
+  values: jest.fn().mockReturnThis(),
+  returning: jest.fn(),
   select: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
   leftJoin: jest.fn().mockReturnThis(),
@@ -68,5 +72,24 @@ describe("Get organization detail", () => {
     await expect(
       organizationsController.getOrganizationDetail({ userId: "userId" }, "org1"),
     ).resolves.toEqual({ id: "org1" });
+  });
+});
+
+describe("Create organization", () => {
+  beforeEach(() => {
+    db.returning.mockResolvedValue([{ id: "org1" }]);
+  });
+  it("should throw without organization", async () => {
+    db.returning.mockResolvedValue([]);
+    await expect(
+      organizationsController.createOrganization({ userId: "userId" }, { name: "org1" }),
+    ).rejects.toThrow("Failed to create organization");
+  });
+  it("should create organization and user connection and return organization", async () => {
+    await expect(
+      organizationsController.createOrganization({ userId: "userId" }, { name: "org1" }),
+    ).resolves.toEqual({ id: "org1" });
+    expect(db.insert).toHaveBeenCalledWith(organizations);
+    expect(db.insert).toHaveBeenCalledWith(organizationsToUsers);
   });
 });

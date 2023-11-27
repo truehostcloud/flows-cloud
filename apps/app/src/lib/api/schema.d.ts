@@ -25,12 +25,14 @@ export interface paths {
   };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
+    post: operations["ProjectsController_createProject"];
   };
   "/projects/{projectId}": {
     get: operations["ProjectsController_getProjectDetail"];
   };
   "/organizations": {
     get: operations["OrganizationsController_getOrganizations"];
+    post: operations["OrganizationsController_createOrganization"];
   };
   "/organizations/{organizationId}": {
     get: operations["OrganizationsController_getOrganizationDetail"];
@@ -127,6 +129,9 @@ export interface components {
       /** Format: date-time */
       updated_at: string;
     };
+    CreateProjectDto: {
+      name: string;
+    };
     GetOrganizationsDto: {
       id: string;
       name: string;
@@ -144,6 +149,9 @@ export interface components {
       created_at: string;
       /** Format: date-time */
       updated_at: string;
+    };
+    CreateOrganizationDto: {
+      name: string;
     };
   };
   responses: never;
@@ -287,6 +295,25 @@ export interface operations {
       };
     };
   };
+  ProjectsController_createProject: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["GetProjectDetailDto"];
+        };
+      };
+    };
+  };
   ProjectsController_getProjectDetail: {
     parameters: {
       path: {
@@ -306,6 +333,20 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetOrganizationsDto"][];
+        };
+      };
+    };
+  };
+  OrganizationsController_createOrganization: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateOrganizationDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["GetOrganizationDetailDto"];
         };
       };
     };

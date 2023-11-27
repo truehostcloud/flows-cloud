@@ -4,34 +4,36 @@ import { css } from "@flows/styled-system/css";
 import { useSend } from "hooks/use-send";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
 import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
 
 type Props = {
-  projectId: string;
+  trigger: ReactNode;
+  organizationId: string;
 };
 
 type FormData = {
   name: string;
 };
 
-export const CreateFlowDialog: FC<Props> = ({ projectId }) => {
-  const { send, loading } = useSend();
+export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
+  const { handleSubmit, register } = useForm<FormData>();
   const router = useRouter();
-
-  const { register, handleSubmit } = useForm<FormData>();
+  const { send, loading } = useSend();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const res = await send(api["POST /projects/:projectId/flows"](projectId, data));
+    const res = await send(
+      api["POST /organizations/:organizationId/projects"](organizationId, data),
+    );
     if (!res.data) return;
-    router.push(routes.flow({ flowId: res.data.id, projectId }));
+    router.push(routes.project({ projectId: res.data.id }));
   };
 
   return (
-    <Dialog trigger={<Button>New Flow</Button>}>
-      <DialogTitle>Create Flow</DialogTitle>
+    <Dialog trigger={trigger}>
+      <DialogTitle>Create Project</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Input

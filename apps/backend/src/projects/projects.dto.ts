@@ -1,3 +1,5 @@
+import { IsString } from "class-validator";
+
 export class GetProjectsDto {
   id: string;
   human_id: string;
@@ -11,3 +13,8 @@ export class GetProjectsDto {
 }
 
 export class GetProjectDetailDto extends GetProjectsDto {}
+
+export class CreateProjectDto {
+  @IsString()
+  name: string;
+}

@@ -1,10 +1,16 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { organizations, organizationsToUsers, projects } from "db";
 import { eq } from "drizzle-orm";
+import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { GetProjectDetailDto, GetProjectsDto } from "./projects.dto";
+import type { CreateProjectDto, GetProjectDetailDto, GetProjectsDto } from "./projects.dto";
 
 @Injectable()
 export class ProjectsService {
@@ -66,6 +72,52 @@ export class ProjectsService {
     });
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    return {
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      created_at: project.created_at,
+      updated_at: project.updated_at,
+      organization_id: project.organization_id,
+      human_id: project.human_id,
+      human_id_alias: project.human_id_alias,
+      domains: project.domains,
+    };
+  }
+
+  async createProject({
+    auth,
+    data,
+    organizationId,
+  }: {
+    auth: Auth;
+    organizationId: string;
+    data: CreateProjectDto;
+  }): Promise<GetProjectDetailDto> {
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, organizationId),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    if (!org) throw new NotFoundException();
+    const userHasAccessToOrg = !!org.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const newProjs = await this.databaseService.db
+      .insert(projects)
+      .values({
+        name: data.name,
+        organization_id: organizationId,
+        domains: [],
+        human_id: slugify(data.name),
+      })
+      .returning();
+    const project = newProjs.at(0);
+    if (!project) throw new BadRequestException("Failed to create project");
 
     return {
       id: project.id,

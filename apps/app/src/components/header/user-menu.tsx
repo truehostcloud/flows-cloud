@@ -1,11 +1,13 @@
 import { css } from "@flows/styled-system/css";
 import { getAuth } from "auth/server";
+import { CreateOrganizationDialog } from "components/organizations";
+import { CreateProjectDialog } from "components/projects";
 import { UserCircle24 } from "icons";
 import { api } from "lib/api";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { routes } from "routes";
-import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
+import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
 type Props = {
   projectId?: string;
@@ -42,10 +44,10 @@ export const UserMenu = async ({ organizationId, projectId }: Props): Promise<JS
           {auth.user.email}
         </Text>
 
-        {project && orgProjects ? (
+        {orgId ? (
           <>
             <Text variant="titleM">Projects</Text>
-            {orgProjects.map((proj) => {
+            {orgProjects?.map((proj) => {
               const active = proj.id === projectId;
               return (
                 <Link href={routes.project({ projectId: proj.id })} key={proj.id}>
@@ -55,6 +57,10 @@ export const UserMenu = async ({ organizationId, projectId }: Props): Promise<JS
                 </Link>
               );
             })}
+            <CreateProjectDialog
+              organizationId={orgId}
+              trigger={<Button size="small">New Project</Button>}
+            />
           </>
         ) : null}
 
@@ -69,6 +75,8 @@ export const UserMenu = async ({ organizationId, projectId }: Props): Promise<JS
             </Link>
           );
         })}
+
+        <CreateOrganizationDialog trigger={<Button size="small">New Organization</Button>} />
       </PopoverContent>
     </Popover>
   );

@@ -43,6 +43,5 @@ export class UpdateFlowDto extends PartialType(CompleteUpdateFlowDto) {}
 
 export class CreateFlowDto {
   @IsString()
-  @Length(3)
   name: string;
 }

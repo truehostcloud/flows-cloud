@@ -1,10 +1,19 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { organizations, organizationsToUsers } from "db";
 import { eq } from "drizzle-orm";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { GetOrganizationDetailDto, GetOrganizationsDto } from "./organizations.dto";
+import type {
+  CreateOrganizationDto,
+  GetOrganizationDetailDto,
+  GetOrganizationsDto,
+} from "./organizations.dto";
 
 @Injectable()
 export class OrganizationsService {
@@ -45,6 +54,34 @@ export class OrganizationsService {
     const userHasAccessToOrg = !!org.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
+    return {
+      id: org.id,
+      name: org.name,
+      description: org.description,
+      created_at: org.created_at,
+      updated_at: org.updated_at,
+    };
+  }
+
+  async createOrganization({
+    auth,
+    data,
+  }: {
+    auth: Auth;
+    data: CreateOrganizationDto;
+  }): Promise<GetOrganizationDetailDto> {
+    const orgs = await this.databaseService.db
+      .insert(organizations)
+      .values({
+        name: data.name,
+      })
+      .returning();
+    const org = orgs.at(0);
+    if (!org) throw new BadRequestException("Failed to create organization");
+    await this.databaseService.db.insert(organizationsToUsers).values({
+      organization_id: org.id,
+      user_id: auth.userId,
+    });
     return {
       id: org.id,
       name: org.name,

@@ -1,3 +1,5 @@
+import { IsString, MinLength } from "class-validator";
+
 export class GetOrganizationsDto {
   id: string;
   name: string;
@@ -7,3 +9,9 @@ export class GetOrganizationsDto {
 }
 
 export class GetOrganizationDetailDto extends GetOrganizationsDto {}
+
+export class CreateOrganizationDto {
+  @IsString()
+  @MinLength(3)
+  name: string;
+}

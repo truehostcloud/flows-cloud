@@ -1,4 +1,5 @@
 import { Test } from "@nestjs/testing";
+import { projects } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { ProjectsController } from "./projects.controller";
@@ -6,6 +7,9 @@ import { ProjectsService } from "./projects.service";
 
 let projectsController: ProjectsController;
 const db = {
+  insert: jest.fn().mockReturnThis(),
+  values: jest.fn().mockReturnThis(),
+  returning: jest.fn(),
   query: {
     projects: {
       findMany: jest.fn(),
@@ -77,5 +81,37 @@ describe("Get project detail", () => {
     await expect(
       projectsController.getProjectDetail({ userId: "userId" }, "projId"),
     ).resolves.toEqual({ id: "projId" });
+  });
+});
+
+describe("Create project", () => {
+  beforeEach(() => {
+    db.returning.mockResolvedValue([{ id: "projId" }]);
+  });
+  it("should throw without organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue(null);
+    await expect(
+      projectsController.createProject({ userId: "userId" }, "orgId", { name: "Proj" }),
+    ).rejects.toThrow("Not Found");
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(
+      projectsController.createProject({ userId: "userId" }, "orgId", { name: "Proj" }),
+    ).rejects.toThrow("Forbidden");
+  });
+  it("should throw without new project", async () => {
+    db.returning.mockResolvedValue([]);
+    await expect(
+      projectsController.createProject({ userId: "userId" }, "orgId", { name: "Proj" }),
+    ).rejects.toThrow("Failed to create project");
+  });
+  it("should create project and return project", async () => {
+    await expect(
+      projectsController.createProject({ userId: "userId" }, "orgId", { name: "Proj" }),
+    ).resolves.toEqual({ id: "projId" });
+    expect(db.insert).toHaveBeenCalledWith(projects);
   });
 });
