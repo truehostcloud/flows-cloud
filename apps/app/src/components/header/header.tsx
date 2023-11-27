@@ -7,12 +7,7 @@ import { type FC } from "react";
 import { routes } from "routes";
 import { Button, Text } from "ui";
 
-type Props = {
-  projectId?: string;
-  organizationId?: string;
-};
-
-export const Header: FC<Props> = (props) => {
+export const Header: FC = () => {
   return (
     <header
       className={css({
@@ -58,7 +53,7 @@ export const Header: FC<Props> = (props) => {
       </div>
 
       <div className={css({ display: "flex", gap: "space12", alignItems: "center" })}>
-        <UserMenu {...props} />
+        <UserMenu />
         <form action={signOut}>
           <Button size="small" type="submit" variant="black">
             Logout

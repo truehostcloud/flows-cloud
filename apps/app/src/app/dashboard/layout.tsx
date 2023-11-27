@@ -4,13 +4,12 @@ import type { ReactNode } from "react";
 
 type Props = {
   children?: ReactNode;
-  params: { organizationId: string };
 };
 
-export default function DashboardLayout({ children, params }: Props): JSX.Element {
+export default function DashboardLayout({ children }: Props): JSX.Element {
   return (
     <>
-      <Header organizationId={params.organizationId} />
+      <Header />
       <div className={css({ maxWidth: "1100px", mx: "auto", py: "space32", px: "space16" })}>
         {children}
       </div>

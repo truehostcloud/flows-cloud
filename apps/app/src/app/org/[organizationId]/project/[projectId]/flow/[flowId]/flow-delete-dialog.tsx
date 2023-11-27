@@ -10,14 +10,15 @@ import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle,
 
 type Props = {
   flow: FlowPreview;
+  organizationId: string;
 };
 
-export const FlowDeleteDialog: FC<Props> = ({ flow }) => {
+export const FlowDeleteDialog: FC<Props> = ({ flow, organizationId }) => {
   const router = useRouter();
   const { send, loading } = useSend();
   const handleDelete = async (): Promise<void> => {
     const { error } = await send(api["DELETE /flows/:flowId"](flow.id));
-    if (!error) router.replace(routes.project({ projectId: flow.project_id }));
+    if (!error) router.replace(routes.project({ projectId: flow.project_id, organizationId }));
   };
 
   return (

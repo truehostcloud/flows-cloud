@@ -12,13 +12,14 @@ import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle,
 
 type Props = {
   projectId: string;
+  organizationId: string;
 };
 
 type FormData = {
   name: string;
 };
 
-export const CreateFlowDialog: FC<Props> = ({ projectId }) => {
+export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId }) => {
   const { send, loading } = useSend();
   const router = useRouter();
 
@@ -26,7 +27,7 @@ export const CreateFlowDialog: FC<Props> = ({ projectId }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(api["POST /projects/:projectId/flows"](projectId, data));
     if (!res.data) return;
-    router.push(routes.flow({ flowId: res.data.id, projectId }));
+    router.push(routes.flow({ flowId: res.data.id, projectId, organizationId }));
   };
 
   return (

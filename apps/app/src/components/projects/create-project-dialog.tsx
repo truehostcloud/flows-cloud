@@ -28,7 +28,7 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
       api["POST /organizations/:organizationId/projects"](organizationId, data),
     );
     if (!res.data) return;
-    router.push(routes.project({ projectId: res.data.id }));
+    router.push(routes.project({ projectId: res.data.id, organizationId }));
   };
 
   return (

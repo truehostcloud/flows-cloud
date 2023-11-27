@@ -9,7 +9,7 @@ import { FlowDeleteDialog } from "./flow-delete-dialog";
 import { FlowEditForm } from "./flow-edit-form";
 
 type Props = {
-  params: { flowId: string };
+  params: { flowId: string; projectId: string; organizationId: string };
 };
 
 export default async function FlowDetailPage({ params }: Props): Promise<JSX.Element> {
@@ -23,7 +23,7 @@ export default async function FlowDetailPage({ params }: Props): Promise<JSX.Ele
         {data.name}
       </Text>
 
-      <FlowDeleteDialog flow={data} />
+      <FlowDeleteDialog flow={data} organizationId={params.organizationId} />
 
       <Text variant="titleL">Daily stats</Text>
       {data.daily_stats.map((stat) => {

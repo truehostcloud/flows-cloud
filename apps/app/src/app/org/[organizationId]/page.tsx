@@ -16,7 +16,10 @@ export default async function ProjectsPage({ params }: Props): Promise<JSX.Eleme
   const projects = await api["/organizations/:organizationId/projects"](params.organizationId)(
     fetchCtx,
   );
-  if (projects.length) return redirect(routes.project({ projectId: projects[0].id }));
+  if (projects.length)
+    return redirect(
+      routes.project({ projectId: projects[0].id, organizationId: projects[0].organization_id }),
+    );
 
   const org = await api["/organizations/:organizationId"](params.organizationId)(fetchCtx);
 

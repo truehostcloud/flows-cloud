@@ -1,9 +1,19 @@
-import type { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 import { createClient } from "./auth/middleware";
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const { supabase, response } = createClient(request);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
+  const supabase = createClient(request, response);
 
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware

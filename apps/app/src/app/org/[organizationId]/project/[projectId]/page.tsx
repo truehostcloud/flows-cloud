@@ -29,12 +29,18 @@ export default async function ProjectDetailPage({
         <Text className={css({ mb: "space16", flex: 1 })} variant="title3xl">
           {project.name}
         </Text>
-        <CreateFlowDialog projectId={projectId} />
+        <CreateFlowDialog organizationId={project.organization_id} projectId={projectId} />
       </div>
       <div className={css({ display: "flex", flexDirection: "column", gap: "space12" })}>
         {data.map((flow) => (
           <div key={flow.id}>
-            <Link href={routes.flow({ flowId: flow.id, projectId })}>
+            <Link
+              href={routes.flow({
+                flowId: flow.id,
+                projectId,
+                organizationId: project.organization_id,
+              })}
+            >
               <Text
                 className={css({ _hover: { textDecoration: "underline" } })}
                 color="primary"
