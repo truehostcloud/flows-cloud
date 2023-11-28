@@ -90,4 +90,26 @@ export class OrganizationsService {
       updated_at: org.updated_at,
     };
   }
+
+  async deleteOrganization({
+    auth,
+    organizationId,
+  }: {
+    auth: Auth;
+    organizationId: string;
+  }): Promise<void> {
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, organizationId),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    if (!org) throw new NotFoundException();
+    const userHasAccessToOrg = !!org.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    await this.databaseService.db.delete(organizations).where(eq(organizations.id, organizationId));
+  }
 }

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Text } from "ui";
 
+import { OrganizationDeleteDialog } from "./organization-delete-dialog";
+
 type Props = {
   params: { organizationId: string };
 };
@@ -28,6 +30,9 @@ export default async function ProjectsPage({ params }: Props): Promise<JSX.Eleme
       <Text className={css({ mb: "space16" })} variant="title3xl">
         {org.name}
       </Text>
+
+      <OrganizationDeleteDialog organization={org} />
+
       <Text>No projects found</Text>
     </>
   );

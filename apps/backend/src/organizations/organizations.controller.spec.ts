@@ -14,6 +14,7 @@ const db = {
   from: jest.fn().mockReturnThis(),
   leftJoin: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
+  delete: jest.fn().mockReturnThis(),
   query: {
     organizations: {
       findFirst: jest.fn(),
@@ -91,5 +92,26 @@ describe("Create organization", () => {
     ).resolves.toEqual({ id: "org1" });
     expect(db.insert).toHaveBeenCalledWith(organizations);
     expect(db.insert).toHaveBeenCalledWith(organizationsToUsers);
+  });
+});
+
+describe("Delete organization", () => {
+  it("should throw without organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue(null);
+    await expect(
+      organizationsController.deleteOrganization({ userId: "userId" }, "org1"),
+    ).rejects.toThrow("Not Found");
+  });
+  it("should throw without access", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    await expect(
+      organizationsController.deleteOrganization({ userId: "userId" }, "org1"),
+    ).rejects.toThrow("Forbidden");
+  });
+  it("should delete organization", async () => {
+    await expect(
+      organizationsController.deleteOrganization({ userId: "userId" }, "org1"),
+    ).resolves.toBeUndefined();
+    expect(db.delete).toHaveBeenCalledWith(organizations);
   });
 });

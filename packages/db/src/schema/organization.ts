@@ -14,10 +14,10 @@ export const organizations = pgTable("organization", {
 export const organizationsToUsers = pgTable("organization_to_user", {
   organization_id: uuid("organization_id")
     .notNull()
-    .references(() => organizations.id),
+    .references(() => organizations.id, { onDelete: "cascade" }),
   user_id: uuid("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
 });
 
 export const organizationsRelations = relations(organizations, ({ many }) => ({

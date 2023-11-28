@@ -20,6 +20,7 @@ type Api = {
   "/organizations": Endpoint<OrganizationPreview[]>;
   "POST /organizations": Endpoint<OrganizationDetail, [CreateOrganization]>;
   "/organizations/:organizationId": Endpoint<OrganizationDetail, [string]>;
+  "DELETE /organizations/:organizationId": Endpoint<void, [string]>;
   "/organizations/:organizationId/projects": Endpoint<ProjectPreview[], [string]>;
   "/projects/:projectId": Endpoint<ProjectDetail, [string]>;
   "PATCH /projects/:projectId": Endpoint<ProjectDetail, [string, UpdateProject]>;
@@ -36,6 +37,8 @@ export const api: Api = {
   "/organizations": () => fetcher("/organizations"),
   "POST /organizations": (body) => fetcher("/organizations", { method: "POST", body }),
   "/organizations/:organizationId": (organizationId) => fetcher(`/organizations/${organizationId}`),
+  "DELETE /organizations/:organizationId": (organizationId) =>
+    fetcher(`/organizations/${organizationId}`, { method: "DELETE" }),
   "/organizations/:organizationId/projects": (organizationId) =>
     fetcher(`/organizations/${organizationId}/projects`),
   "/projects/:projectId": (projectId) => fetcher(`/projects/${projectId}`),
