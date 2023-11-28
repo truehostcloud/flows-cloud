@@ -188,4 +188,23 @@ export class ProjectsService {
       domains: updatedProj.domains,
     };
   }
+
+  async deleteProject({ auth, projectId }: { auth: Auth; projectId: string }): Promise<void> {
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
+    if (!project) throw new NotFoundException();
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    await this.databaseService.db.delete(projects).where(eq(projects.id, projectId));
+  }
 }

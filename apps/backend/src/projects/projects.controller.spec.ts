@@ -14,6 +14,7 @@ const db = {
   where: jest.fn().mockReturnThis(),
   set: jest.fn().mockReturnThis(),
   returning: jest.fn(),
+  delete: jest.fn().mockReturnThis(),
   query: {
     projects: {
       findMany: jest.fn(),
@@ -156,5 +157,28 @@ describe("Update project", () => {
       projectsController.updateProject({ userId: "userId" }, "projId", data),
     ).resolves.toEqual({ name: "New name" });
     expect(db.update).toHaveBeenCalledWith(projects);
+  });
+});
+
+describe("Delete project", () => {
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(projectsController.deleteProject({ userId: "userId" }, "projId")).rejects.toThrow(
+      "Not Found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(projectsController.deleteProject({ userId: "userId" }, "projId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should delete project", async () => {
+    await expect(
+      projectsController.deleteProject({ userId: "userId" }, "projId"),
+    ).resolves.toBeUndefined();
+    expect(db.delete).toHaveBeenCalledWith(projects);
   });
 });

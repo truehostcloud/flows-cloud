@@ -13,7 +13,7 @@ import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui"
 export const UserMenu = async (): Promise<JSX.Element> => {
   const pathname = headers().get("x-pathname") ?? "";
   const params = pathname.split("/").slice(1);
-  const { organizationId, projectId }: { organizationId: string; projectId?: string } = {
+  const { organizationId, projectId }: { organizationId?: string; projectId?: string } = {
     organizationId: params[1],
     projectId: params[3],
   };
@@ -24,7 +24,9 @@ export const UserMenu = async (): Promise<JSX.Element> => {
 
   const [organizations, projects] = await Promise.all([
     api["/organizations"]()(fetchCtx),
-    api["/organizations/:organizationId/projects"](organizationId)(fetchCtx),
+    organizationId
+      ? api["/organizations/:organizationId/projects"](organizationId)(fetchCtx)
+      : null,
   ]);
 
   return (
@@ -37,7 +39,7 @@ export const UserMenu = async (): Promise<JSX.Element> => {
           {auth.user.email}
         </Text>
 
-        {organizationId ? (
+        {organizationId && projects ? (
           <>
             <Text variant="titleM">Projects</Text>
             {projects.map((proj) => {

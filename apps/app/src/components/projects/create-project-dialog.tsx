@@ -4,7 +4,7 @@ import { css } from "@flows/styled-system/css";
 import { useSend } from "hooks/use-send";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
-import type { FC, ReactNode } from "react";
+import { type FC, type ReactNode, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
@@ -20,6 +20,7 @@ type FormData = {
 };
 
 export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
+  const [open, setOpen] = useState(false);
   const { handleSubmit, register } = useForm<FormData>();
   const router = useRouter();
   const { send, loading } = useSend();
@@ -28,11 +29,13 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
       api["POST /organizations/:organizationId/projects"](organizationId, data),
     );
     if (!res.data) return;
+    setOpen(false);
+
     router.push(routes.project({ projectId: res.data.id, organizationId }));
   };
 
   return (
-    <Dialog trigger={trigger}>
+    <Dialog onOpenChange={setOpen} open={open} trigger={trigger}>
       <DialogTitle>Create Project</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>

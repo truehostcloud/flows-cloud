@@ -3,6 +3,7 @@ import { api } from "lib/api";
 import { load } from "lib/load";
 import { Text } from "ui";
 
+import { ProjectDeleteDialog } from "./project-delete-dialog";
 import { ProjectEditForm } from "./project-edit-form";
 
 type Props = {
@@ -17,6 +18,8 @@ export default async function ProjectSettingsPage({ params }: Props): Promise<JS
       <Text className={css({ mb: "space16", flex: 1 })} variant="title3xl">
         {project.name}
       </Text>
+
+      <ProjectDeleteDialog project={project} />
 
       <ProjectEditForm project={project} />
     </>

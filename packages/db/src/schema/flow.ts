@@ -23,7 +23,7 @@ export const flows = pgTable(
     human_id_alias: text("human_id_alias"),
     project_id: uuid("project_id")
       .notNull()
-      .references(() => projects.id),
+      .references(() => projects.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     flow_version_id: uuid("flow_version_id").references((): AnyPgColumn => flowVersions.id),
     flow_type: flowTypeEnum("flow_type").notNull(),
