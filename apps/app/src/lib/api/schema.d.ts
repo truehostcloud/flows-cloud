@@ -29,6 +29,7 @@ export interface paths {
   };
   "/projects/{projectId}": {
     get: operations["ProjectsController_getProjectDetail"];
+    patch: operations["ProjectsController_updateProject"];
   };
   "/organizations": {
     get: operations["OrganizationsController_getOrganizations"];
@@ -131,6 +132,13 @@ export interface components {
     };
     CreateProjectDto: {
       name: string;
+    };
+    UpdateProjectDto: {
+      name: string;
+      description?: string;
+      domains: string[];
+      human_id: string;
+      human_id_alias?: string;
     };
     GetOrganizationsDto: {
       id: string;
@@ -318,6 +326,25 @@ export interface operations {
     parameters: {
       path: {
         projectId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetProjectDetailDto"];
+        };
+      };
+    };
+  };
+  ProjectsController_updateProject: {
+    parameters: {
+      path: {
+        projectId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectDto"];
       };
     };
     responses: {

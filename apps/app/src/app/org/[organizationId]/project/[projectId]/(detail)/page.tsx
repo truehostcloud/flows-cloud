@@ -1,12 +1,11 @@
 import { css } from "@flows/styled-system/css";
-import { getAuth } from "auth/server";
 import { api } from "lib/api";
+import { load } from "lib/load";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Text } from "ui";
 
-import { CreateFlowDialog } from "./create-flow-dialog";
+import { CreateFlowDialog } from "../create-flow-dialog";
 
 type Props = {
   params: { projectId: string };
@@ -15,24 +14,22 @@ type Props = {
 export default async function ProjectDetailPage({
   params: { projectId },
 }: Props): Promise<JSX.Element> {
-  const auth = await getAuth();
-  if (!auth) return redirect(routes.login());
-  const fetchCtx = { token: auth.access_token };
-  const [data, project] = await Promise.all([
-    api["/projects/:projectId/flows"](projectId)(fetchCtx),
-    api["/projects/:projectId"](projectId)(fetchCtx),
+  const [project, flows] = await Promise.all([
+    load(api["/projects/:projectId"](projectId)),
+    load(api["/projects/:projectId/flows"](projectId)),
   ]);
 
   return (
-    <div>
+    <>
       <div className={css({ display: "flex", alignItems: "center" })}>
         <Text className={css({ mb: "space16", flex: 1 })} variant="title3xl">
           {project.name}
         </Text>
         <CreateFlowDialog organizationId={project.organization_id} projectId={projectId} />
       </div>
+
       <div className={css({ display: "flex", flexDirection: "column", gap: "space12" })}>
-        {data.map((flow) => (
+        {flows.map((flow) => (
           <div key={flow.id}>
             <Link
               href={routes.flow({
@@ -54,6 +51,6 @@ export default async function ProjectDetailPage({
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 }

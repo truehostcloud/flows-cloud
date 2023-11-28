@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { Auth, Authorization } from "../auth";
 import type { GetProjectDetailDto, GetProjectsDto } from "./projects.dto";
-import { CreateProjectDto } from "./projects.dto";
+import { CreateProjectDto, UpdateProjectDto } from "./projects.dto";
 import { ProjectsService } from "./projects.service";
 
 @ApiTags("projects")
@@ -35,5 +35,14 @@ export class ProjectsController {
     @Body() body: CreateProjectDto,
   ): Promise<GetProjectDetailDto> {
     return this.projectsService.createProject({ auth, organizationId, data: body });
+  }
+
+  @Patch("projects/:projectId")
+  updateProject(
+    @Authorization() auth: Auth,
+    @Param("projectId") projectId: string,
+    @Body() body: UpdateProjectDto,
+  ): Promise<GetProjectDetailDto> {
+    return this.projectsService.updateProject({ auth, projectId, data: body });
   }
 }

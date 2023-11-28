@@ -3,12 +3,16 @@ import { projects } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { ProjectsController } from "./projects.controller";
+import type { UpdateProjectDto } from "./projects.dto";
 import { ProjectsService } from "./projects.service";
 
 let projectsController: ProjectsController;
 const db = {
   insert: jest.fn().mockReturnThis(),
   values: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  set: jest.fn().mockReturnThis(),
   returning: jest.fn(),
   query: {
     projects: {
@@ -113,5 +117,44 @@ describe("Create project", () => {
       projectsController.createProject({ userId: "userId" }, "orgId", { name: "Proj" }),
     ).resolves.toEqual({ id: "projId" });
     expect(db.insert).toHaveBeenCalledWith(projects);
+  });
+});
+
+describe("Update project", () => {
+  const data: UpdateProjectDto = {
+    name: "New name",
+    description: "desc",
+    domains: ["new domain"],
+    human_id: "new-human-id",
+    human_id_alias: "new-human-id-alias",
+  };
+  beforeEach(() => {
+    db.returning.mockResolvedValue([{ name: "New name" }]);
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(
+      projectsController.updateProject({ userId: "userId" }, "projId", data),
+    ).rejects.toThrow("Not Found");
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(
+      projectsController.updateProject({ userId: "userId" }, "projId", data),
+    ).rejects.toThrow("Forbidden");
+  });
+  it("should throw without updated project", async () => {
+    db.returning.mockResolvedValue([]);
+    await expect(
+      projectsController.updateProject({ userId: "userId" }, "projId", data),
+    ).rejects.toThrow("Failed to update project");
+  });
+  it("should update project and return project", async () => {
+    await expect(
+      projectsController.updateProject({ userId: "userId" }, "projId", data),
+    ).resolves.toEqual({ name: "New name" });
+    expect(db.update).toHaveBeenCalledWith(projects);
   });
 });

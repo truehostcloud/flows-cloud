@@ -10,7 +10,12 @@ import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { CreateProjectDto, GetProjectDetailDto, GetProjectsDto } from "./projects.dto";
+import type {
+  CreateProjectDto,
+  GetProjectDetailDto,
+  GetProjectsDto,
+  UpdateProjectDto,
+} from "./projects.dto";
 
 @Injectable()
 export class ProjectsService {
@@ -129,6 +134,58 @@ export class ProjectsService {
       human_id: project.human_id,
       human_id_alias: project.human_id_alias,
       domains: project.domains,
+    };
+  }
+
+  async updateProject({
+    auth,
+    data,
+    projectId,
+  }: {
+    auth: Auth;
+    projectId: string;
+    data: UpdateProjectDto;
+  }): Promise<GetProjectDetailDto> {
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
+    if (!project) throw new NotFoundException();
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const updatedProjects = await this.databaseService.db
+      .update(projects)
+      .set({
+        updated_at: new Date(),
+        description: data.description,
+        domains: data.domains,
+        human_id: data.human_id,
+        human_id_alias: data.human_id_alias,
+        name: data.name,
+      })
+      .where(eq(projects.id, projectId))
+      .returning();
+    const updatedProj = updatedProjects.at(0);
+    if (!updatedProj) throw new BadRequestException("Failed to update project");
+
+    return {
+      id: updatedProj.id,
+      name: updatedProj.name,
+      description: updatedProj.description,
+      created_at: updatedProj.created_at,
+      updated_at: updatedProj.updated_at,
+      organization_id: updatedProj.organization_id,
+      human_id: updatedProj.human_id,
+      human_id_alias: updatedProj.human_id_alias,
+      domains: updatedProj.domains,
     };
   }
 }

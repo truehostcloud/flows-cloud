@@ -7,6 +7,8 @@ export const routes = {
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
   project: (params: { projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}`,
+  projectSettings: (params: { projectId: string; organizationId: string }) =>
+    `/org/${params.organizationId}/project/${params.projectId}/settings`,
   flow: (params: { flowId: string; projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}`,
   dashboard: "/dashboard",
