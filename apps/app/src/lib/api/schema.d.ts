@@ -20,8 +20,8 @@ export interface paths {
   };
   "/flows/{flowId}": {
     get: operations["FlowsControllers_getFlowDetail"];
+    put: operations["FlowsControllers_updateFlow"];
     delete: operations["FlowsControllers_deleteFlow"];
-    patch: operations["FlowsControllers_updateFlow"];
   };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
@@ -29,7 +29,8 @@ export interface paths {
   };
   "/projects/{projectId}": {
     get: operations["ProjectsController_getProjectDetail"];
-    patch: operations["ProjectsController_updateProject"];
+    put: operations["ProjectsController_updateProject"];
+    delete: operations["ProjectsController_deleteProject"];
   };
   "/organizations": {
     get: operations["OrganizationsController_getOrganizations"];
@@ -37,6 +38,7 @@ export interface paths {
   };
   "/organizations/{organizationId}": {
     get: operations["OrganizationsController_getOrganizationDetail"];
+    delete: operations["OrganizationsController_deleteOrganization"];
   };
 }
 
@@ -61,17 +63,20 @@ export interface components {
       flowHash: string;
     };
     GetFlowsDto: {
+      /** @enum {string} */
+      flow_type: "cloud" | "local";
       id: string;
       human_id: string;
       human_id_alias: string | null;
       project_id: string;
       name: string;
-      flow_type: string;
       description: string;
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
       updated_at: string;
+      /** Format: date-time */
+      published_at: string | null;
     };
     StatBucketDto: {
       /** Format: date-time */
@@ -80,25 +85,29 @@ export interface components {
       type: string;
     };
     GetFlowDetailDto: {
+      /** @enum {string} */
+      flow_type: "cloud" | "local";
       id: string;
       human_id: string;
       human_id_alias: string | null;
       project_id: string;
       name: string;
-      flow_type: string;
       description: string;
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
       updated_at: string;
+      /** Format: date-time */
+      published_at: string | null;
       data: Record<string, never>;
       daily_stats: components["schemas"]["StatBucketDto"][];
     };
     UpdateFlowDto: {
-      name?: string;
+      name: string;
       description?: string;
-      human_id?: string;
+      human_id: string;
       human_id_alias?: string;
+      published: boolean;
       data?: string;
     };
     CreateFlowDto: {
@@ -260,18 +269,6 @@ export interface operations {
       };
     };
   };
-  FlowsControllers_deleteFlow: {
-    parameters: {
-      path: {
-        flowId: string;
-      };
-    };
-    responses: {
-      200: {
-        content: never;
-      };
-    };
-  };
   FlowsControllers_updateFlow: {
     parameters: {
       path: {
@@ -281,6 +278,18 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["UpdateFlowDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  FlowsControllers_deleteFlow: {
+    parameters: {
+      path: {
+        flowId: string;
       };
     };
     responses: {
@@ -355,6 +364,18 @@ export interface operations {
       };
     };
   };
+  ProjectsController_deleteProject: {
+    parameters: {
+      path: {
+        projectId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
   OrganizationsController_getOrganizations: {
     responses: {
       200: {
@@ -389,6 +410,18 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["GetOrganizationDetailDto"];
         };
+      };
+    };
+  };
+  OrganizationsController_deleteOrganization: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
       };
     };
   };

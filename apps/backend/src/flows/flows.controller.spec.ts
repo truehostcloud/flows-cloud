@@ -2,6 +2,7 @@ import { Test } from "@nestjs/testing";
 
 import { DatabaseService } from "../database/database.service";
 import { FlowsControllers } from "./flows.controller";
+import type { UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
 let flowsController: FlowsControllers;
@@ -116,7 +117,13 @@ describe("Update flow", () => {
     db.returning.mockResolvedValue([{ id: "newVerId" }]);
     db.where.mockResolvedValue(undefined);
   });
-  const data = { name: "newName", data: JSON.stringify({ el: "newEl" }) };
+  const data: UpdateFlowDto = {
+    name: "newName",
+    data: JSON.stringify({ el: "newEl" }),
+    human_id: "new human id",
+    published: true,
+    description: "new description",
+  };
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
@@ -153,6 +160,9 @@ describe("Update flow", () => {
       flow_version_id: "newVerId",
       name: "newName",
       updated_at: expect.any(Date),
+      description: "new description",
+      published_at: expect.any(Date),
+      human_id: "new human id",
     });
   });
 });

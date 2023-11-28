@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { Auth, Authorization } from "../auth";
@@ -28,7 +28,7 @@ export class FlowsControllers {
     return this.flowsService.getFlowDetail({ auth, flowId });
   }
 
-  @Patch("flows/:flowId")
+  @Put("flows/:flowId")
   updateFlow(
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,

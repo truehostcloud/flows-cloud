@@ -43,6 +43,7 @@ export class FlowsService {
       description: flow.description,
       created_at: flow.created_at,
       updated_at: flow.updated_at,
+      published_at: flow.published_at,
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
@@ -93,6 +94,7 @@ export class FlowsService {
       description: flow.description,
       created_at: flow.created_at,
       updated_at: flow.updated_at,
+      published_at: flow.published_at,
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
@@ -135,6 +137,11 @@ export class FlowsService {
       .values({ data: JSON.parse(data.data ?? ""), flow_id: flowId })
       .returning({ id: flowVersions.id });
     if (!newVersion.length) throw new BadRequestException("failed to create new version");
+    const published_at = (() => {
+      if (flow.published_at && data.published) return undefined;
+      if (!flow.published_at && data.published) return new Date();
+      if (flow.published_at && !data.published) return null;
+    })();
     await this.databaseService.db
       .update(flows)
       .set({
@@ -144,6 +151,7 @@ export class FlowsService {
         human_id_alias: data.human_id_alias,
         updated_at: new Date(),
         flow_version_id: newVersion[0].id,
+        published_at,
       })
       .where(eq(flows.id, flowId));
   }
@@ -192,6 +200,7 @@ export class FlowsService {
       description: flow.description,
       created_at: flow.created_at,
       updated_at: flow.updated_at,
+      published_at: flow.published_at,
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,

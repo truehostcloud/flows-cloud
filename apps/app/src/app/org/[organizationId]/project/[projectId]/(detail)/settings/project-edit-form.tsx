@@ -34,7 +34,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
   const { send, loading } = useSend();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     await send(
-      api["PATCH /projects/:projectId"](project.id, {
+      api["PUT /projects/:projectId"](project.id, {
         domains: data.domains.map((d) => d.value),
         description: project.description || undefined,
         name: project.name,
