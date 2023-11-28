@@ -132,12 +132,19 @@ export class FlowsService {
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
-    const newVersion = await this.databaseService.db
-      .insert(flowVersions)
-      .values({ data: JSON.parse(data.data ?? ""), flow_id: flowId })
-      .returning({ id: flowVersions.id });
-    if (!newVersion.length) throw new BadRequestException("failed to create new version");
+    const newVersion = await (async () => {
+      if (!data.data) return;
+      const versions = await this.databaseService.db
+        .insert(flowVersions)
+        .values({ data: JSON.parse(data.data), flow_id: flowId })
+        .returning({ id: flowVersions.id });
+      const version = versions.at(0);
+      if (!version) throw new BadRequestException("failed to create new version");
+      return version;
+    })();
+
     const published_at = (() => {
+      if (data.published === undefined) return undefined;
       if (flow.published_at && data.published) return undefined;
       if (!flow.published_at && data.published) return new Date();
       if (flow.published_at && !data.published) return null;
@@ -150,7 +157,7 @@ export class FlowsService {
         human_id: data.human_id,
         human_id_alias: data.human_id_alias,
         updated_at: new Date(),
-        flow_version_id: newVersion[0].id,
+        flow_version_id: newVersion ? newVersion.id : undefined,
         published_at,
       })
       .where(eq(flows.id, flowId));

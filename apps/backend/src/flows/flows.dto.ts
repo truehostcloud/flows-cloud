@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsJSON, IsOptional, IsString, Length } from "class-validator";
+import { ApiProperty, PartialType } from "@nestjs/swagger";
+import { IsBoolean, IsJSON, IsString, Length } from "class-validator";
 import { flowTypeEnum } from "db";
 
 export class GetFlowsDto {
@@ -27,7 +27,7 @@ export class GetFlowDetailDto extends GetFlowsDto {
   daily_stats: StatBucketDto[];
 }
 
-export class UpdateFlowDto {
+export class CompleteUpdateFlowDto {
   @IsString()
   name: string;
   @IsString()
@@ -37,14 +37,14 @@ export class UpdateFlowDto {
   human_id: string;
   @IsString()
   @Length(3, 32)
-  @IsOptional()
-  human_id_alias?: string;
+  human_id_alias: string;
   @IsBoolean()
   published: boolean;
   @IsJSON()
-  @IsOptional()
-  data?: string;
+  data: string;
 }
+
+export class UpdateFlowDto extends PartialType(CompleteUpdateFlowDto) {}
 
 export class CreateFlowDto {
   @IsString()

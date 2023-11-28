@@ -11,5 +11,9 @@ export const routes = {
     `/org/${params.organizationId}/project/${params.projectId}/settings`,
   flow: (params: { flowId: string; projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}`,
+  flowSteps: (params: { flowId: string; projectId: string; organizationId: string }) =>
+    `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}/steps`,
+  flowSettings: (params: { flowId: string; projectId: string; organizationId: string }) =>
+    `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}/settings`,
   dashboard: "/dashboard",
 };

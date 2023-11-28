@@ -150,6 +150,12 @@ describe("Update flow", () => {
       "failed to create new version",
     );
   });
+  it("should not create new version without data", async () => {
+    await expect(
+      flowsController.updateFlow({ userId: "userId" }, "flowId", { ...data, data: undefined }),
+    ).resolves.toBeUndefined();
+    expect(db.insert).not.toHaveBeenCalled();
+  });
   it("should create new version and update flow", async () => {
     await expect(
       flowsController.updateFlow({ userId: "userId" }, "flowId", data),

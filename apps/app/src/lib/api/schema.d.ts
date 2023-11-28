@@ -20,8 +20,8 @@ export interface paths {
   };
   "/flows/{flowId}": {
     get: operations["FlowsControllers_getFlowDetail"];
-    put: operations["FlowsControllers_updateFlow"];
     delete: operations["FlowsControllers_deleteFlow"];
+    patch: operations["FlowsControllers_updateFlow"];
   };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
@@ -103,11 +103,11 @@ export interface components {
       daily_stats: components["schemas"]["StatBucketDto"][];
     };
     UpdateFlowDto: {
-      name: string;
+      name?: string;
       description?: string;
-      human_id: string;
+      human_id?: string;
       human_id_alias?: string;
-      published: boolean;
+      published?: boolean;
       data?: string;
     };
     CreateFlowDto: {
@@ -269,6 +269,18 @@ export interface operations {
       };
     };
   };
+  FlowsControllers_deleteFlow: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
   FlowsControllers_updateFlow: {
     parameters: {
       path: {
@@ -278,18 +290,6 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["UpdateFlowDto"];
-      };
-    };
-    responses: {
-      200: {
-        content: never;
-      };
-    };
-  };
-  FlowsControllers_deleteFlow: {
-    parameters: {
-      path: {
-        flowId: string;
       };
     };
     responses: {
