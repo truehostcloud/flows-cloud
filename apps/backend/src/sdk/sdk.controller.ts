@@ -19,7 +19,10 @@ export class SdkController {
   }
 
   @Post("events")
-  createEvent(@Body() createEventDto: CreateEventDto): Promise<void> {
-    return this.sdkService.createEvent(createEventDto);
+  createEvent(
+    @Headers("origin") origin: string,
+    @Body() createEventDto: CreateEventDto,
+  ): Promise<void> {
+    return this.sdkService.createEvent({ event: createEventDto, requestOrigin: origin });
   }
 }

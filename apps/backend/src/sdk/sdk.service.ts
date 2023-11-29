@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { events, flows, projects } from "db";
 import { and, arrayContains, eq, isNotNull, or } from "drizzle-orm";
 
@@ -16,8 +16,8 @@ export class SdkService {
     projectId: string;
     requestOrigin: string;
   }): Promise<GetSdkFlowsDto[]> {
-    if (!projectId) throw new BadRequestException("projectId is required");
-    if (!requestOrigin) throw new BadRequestException("host is required");
+    if (!projectId) throw new NotFoundException();
+    if (!requestOrigin) throw new BadRequestException("Origin is required");
 
     const project = await this.databaseService.db.query.projects.findFirst({
       where: and(
@@ -25,7 +25,7 @@ export class SdkService {
         arrayContains(projects.domains, [requestOrigin]),
       ),
     });
-    if (!project) throw new BadRequestException("project not found");
+    if (!project) throw new NotFoundException();
 
     const dbFlows = await this.databaseService.db.query.flows.findMany({
       where: and(
@@ -49,21 +49,44 @@ export class SdkService {
     });
   }
 
-  async createEvent(event: CreateEventDto): Promise<void> {
+  async createEvent({
+    event,
+    requestOrigin,
+  }: {
+    event: CreateEventDto;
+    requestOrigin: string;
+  }): Promise<void> {
+    if (!requestOrigin) throw new BadRequestException("Origin is required");
+
     const project = await this.databaseService.db.query.projects.findFirst({
-      where: or(
-        eq(projects.human_id, event.projectId),
-        eq(projects.human_id_alias, event.projectId),
+      where: and(
+        or(eq(projects.human_id, event.projectId), eq(projects.human_id_alias, event.projectId)),
+        arrayContains(projects.domains, [requestOrigin]),
       ),
     });
     if (!project) throw new BadRequestException("project not found");
-    const flow = await this.databaseService.db.query.flows.findFirst({
-      where: and(
-        eq(flows.project_id, project.id),
-        or(eq(flows.human_id, event.flowId), eq(flows.human_id_alias, event.flowId)),
-      ),
-    });
-    if (!flow) throw new BadRequestException("flow not found");
+    const flow = await (async () => {
+      const existingFlow = await this.databaseService.db.query.flows.findFirst({
+        where: and(
+          eq(flows.project_id, project.id),
+          or(eq(flows.human_id, event.flowId), eq(flows.human_id_alias, event.flowId)),
+        ),
+      });
+      if (existingFlow) return existingFlow;
+      const newFlows = await this.databaseService.db
+        .insert(flows)
+        .values({
+          human_id: event.flowId,
+          project_id: project.id,
+          flow_type: "local",
+          description: "",
+          name: event.flowId,
+        })
+        .returning();
+      const newFlow = newFlows.at(0);
+      if (!newFlow) throw new BadRequestException("error creating flow");
+      return newFlow;
+    })();
 
     const newEvent: typeof events.$inferInsert = {
       event_time: event.eventTime,

@@ -1,4 +1,5 @@
 import { Test } from "@nestjs/testing";
+import { events, flows } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { SdkController } from "./sdk.controller";
@@ -17,7 +18,8 @@ const db = {
     },
   },
   insert: jest.fn().mockReturnThis(),
-  values: jest.fn(),
+  values: jest.fn().mockReturnThis(),
+  returning: jest.fn(),
 };
 
 beforeEach(async () => {
@@ -41,21 +43,21 @@ afterEach(() => {
 });
 
 describe("Get flows", () => {
-  const flows = [{ id: "f1h", steps: [], element: "e1" }];
+  const mockFlows = [{ id: "f1h", steps: [], element: "e1" }];
 
   it("should throw without projectId", async () => {
     await expect(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- part of the test
       // @ts-expect-error
       sdkController.getFlows(null),
-    ).rejects.toThrow("projectId is required");
+    ).rejects.toThrow("Not Found");
   });
   it("should throw without requestDomain", async () => {
-    await expect(sdkController.getFlows("a", "")).rejects.toThrow("host is required");
+    await expect(sdkController.getFlows("a", "")).rejects.toThrow("Origin is required");
   });
   it("should throw without project", async () => {
     db.query.projects.findFirst.mockReturnValue(null);
-    await expect(sdkController.getFlows("a", "b")).rejects.toThrow("project not found");
+    await expect(sdkController.getFlows("a", "b")).rejects.toThrow("Not Found");
   });
   it("should return flows", async () => {
     db.query.projects.findFirst.mockReturnValue({ id: "p1" });
@@ -63,7 +65,7 @@ describe("Get flows", () => {
       { id: "f1", human_id: "f1h", name: "F1", version: { data: { steps: [], element: "e1" } } },
     ]);
     const result = await sdkController.getFlows("a", "b");
-    expect(result).toEqual(flows);
+    expect(result).toEqual(mockFlows);
   });
 });
 
@@ -87,25 +89,34 @@ describe("Create event", () => {
   beforeEach(() => {
     db.query.projects.findFirst.mockReturnValue(project);
     db.query.flows.findFirst.mockReturnValue(flow);
-    db.values.mockReturnValue(null);
+    db.returning.mockReturnValue([{ id: "newFlowId" }]);
   });
 
+  it("should throw without requestDomain", async () => {
+    await expect(sdkController.createEvent("", createEventDto)).rejects.toThrow(
+      "Origin is required",
+    );
+  });
   it("should throw without project", async () => {
     db.query.projects.findFirst.mockReturnValue(null);
-    await expect(sdkController.createEvent(createEventDto)).rejects.toThrow("project not found");
+    await expect(sdkController.createEvent("origin", createEventDto)).rejects.toThrow(
+      "project not found",
+    );
   });
-  it("should throw without flow", async () => {
+  it("should create local flow if it doesn't exists", async () => {
     db.query.flows.findFirst.mockReturnValue(null);
-    await expect(sdkController.createEvent(createEventDto)).rejects.toThrow("flow not found");
+    await expect(sdkController.createEvent("origin", createEventDto)).resolves.toBeUndefined();
+    expect(db.insert).toHaveBeenCalledWith(flows);
   });
   it("should throw with error", async () => {
-    db.values.mockRejectedValue(new Error());
-    await expect(sdkController.createEvent(createEventDto)).rejects.toThrow("error saving event");
+    db.values.mockRejectedValueOnce(new Error());
+    await expect(sdkController.createEvent("origin", createEventDto)).rejects.toThrow(
+      "error saving event",
+    );
   });
-
   it("should insert into database", async () => {
-    expect(await sdkController.createEvent(createEventDto)).toBeUndefined();
-    expect(db.insert).toHaveBeenCalled();
+    await expect(sdkController.createEvent("origin", createEventDto)).resolves.toBeUndefined();
+    expect(db.insert).toHaveBeenCalledWith(events);
     expect(db.values).toHaveBeenCalled();
   });
 });
