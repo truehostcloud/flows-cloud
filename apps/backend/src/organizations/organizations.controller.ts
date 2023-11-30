@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
-import { Auth, Authorization } from "../auth";
+import { type Auth, Authorization } from "../auth";
 import type { GetOrganizationDetailDto, GetOrganizationsDto } from "./organizations.dto";
 import { CreateOrganizationDto } from "./organizations.dto";
 import { OrganizationsService } from "./organizations.service";

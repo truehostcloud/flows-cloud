@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
-import { Auth, Authorization } from "../auth";
+import { type Auth, Authorization } from "../auth";
 import type { GetFlowDetailDto, GetFlowsDto } from "./flows.dto";
 import { CreateFlowDto, UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
