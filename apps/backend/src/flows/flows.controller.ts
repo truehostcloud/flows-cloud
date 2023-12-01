@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/commo
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
-import type { GetFlowDetailDto, GetFlowsDto } from "./flows.dto";
+import type { GetFlowDetailDto, GetFlowsDto, GetFlowVersionsDto } from "./flows.dto";
 import { CreateFlowDto, UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
@@ -49,5 +49,13 @@ export class FlowsControllers {
   @Delete("flows/:flowId")
   deleteFlow(@Authorization() auth: Auth, @Param("flowId") flowId: string): Promise<void> {
     return this.flowsService.deleteFlow({ auth, flowId });
+  }
+
+  @Get("flows/:flowId/versions")
+  getFlowVersions(
+    @Authorization() auth: Auth,
+    @Param("flowId") flowId: string,
+  ): Promise<GetFlowVersionsDto[]> {
+    return this.flowsService.getFlowVersions({ auth, flowId });
   }
 }

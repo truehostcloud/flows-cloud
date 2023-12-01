@@ -50,3 +50,9 @@ export class CreateFlowDto {
   @IsString()
   name: string;
 }
+
+export class GetFlowVersionsDto {
+  id: string;
+  created_at: Date;
+  data: unknown;
+}

@@ -13,6 +13,7 @@ export type UpdateProject = Schemas["UpdateProjectDto"];
 export type CreateProject = Schemas["CreateProjectDto"];
 export type FlowPreview = Schemas["GetFlowsDto"];
 export type FlowDetail = Schemas["GetFlowDetailDto"];
+export type FlowVersion = Schemas["GetFlowVersionsDto"];
 export type UpdateFlow = Schemas["UpdateFlowDto"];
 export type CreateFlow = Schemas["CreateFlowDto"];
 
@@ -28,6 +29,7 @@ type Api = {
   "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
   "POST /organizations/:organizationId/projects": Endpoint<ProjectDetail, [string, CreateProject]>;
   "/flows/:flowId": Endpoint<FlowDetail, [string]>;
+  "/flows/:flowId/versions": Endpoint<FlowVersion[], [string]>;
   "PATCH /flows/:flowId": Endpoint<FlowDetail, [string, UpdateFlow]>;
   "POST /projects/:projectId/flows": Endpoint<FlowPreview, [string, CreateFlow]>;
   "DELETE /flows/:flowId": Endpoint<void, [string]>;
@@ -50,6 +52,7 @@ export const api: Api = {
     fetcher(`/organizations/${organizationId}/projects`, { method: "POST", body }),
   "/projects/:projectId/flows": (projectId) => fetcher(`/projects/${projectId}/flows`),
   "/flows/:flowId": (flowId) => fetcher(`/flows/${flowId}`),
+  "/flows/:flowId/versions": (flowId) => fetcher(`/flows/${flowId}/versions`),
   "PATCH /flows/:flowId": (flowId, body) => fetcher(`/flows/${flowId}`, { method: "PATCH", body }),
   "POST /projects/:projectId/flows": (projectId, body) =>
     fetcher(`/projects/${projectId}/flows`, { method: "POST", body }),

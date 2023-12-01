@@ -23,6 +23,9 @@ export interface paths {
     delete: operations["FlowsControllers_deleteFlow"];
     patch: operations["FlowsControllers_updateFlow"];
   };
+  "/flows/{flowId}/versions": {
+    get: operations["FlowsControllers_getFlowVersions"];
+  };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
     post: operations["ProjectsController_createProject"];
@@ -112,6 +115,12 @@ export interface components {
     };
     CreateFlowDto: {
       name: string;
+    };
+    GetFlowVersionsDto: {
+      id: string;
+      /** Format: date-time */
+      created_at: string;
+      data: Record<string, never>;
     };
     GetProjectsDto: {
       id: string;
@@ -211,6 +220,11 @@ export interface operations {
     };
   };
   SdkController_createEvent: {
+    parameters: {
+      header: {
+        origin: string;
+      };
+    };
     requestBody: {
       content: {
         "application/json": components["schemas"]["CreateEventDto"];
@@ -295,6 +309,20 @@ export interface operations {
     responses: {
       200: {
         content: never;
+      };
+    };
+  };
+  FlowsControllers_getFlowVersions: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetFlowVersionsDto"][];
+        };
       };
     };
   };

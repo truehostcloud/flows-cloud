@@ -5,12 +5,18 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { CreateFlowDto, GetFlowDetailDto, GetFlowsDto, UpdateFlowDto } from "./flows.dto";
+import type {
+  CreateFlowDto,
+  GetFlowDetailDto,
+  GetFlowsDto,
+  GetFlowVersionsDto,
+  UpdateFlowDto,
+} from "./flows.dto";
 
 @Injectable()
 export class FlowsService {
@@ -236,5 +242,43 @@ export class FlowsService {
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
     await this.databaseService.db.delete(flows).where(eq(flows.id, flowId));
+  }
+
+  async getFlowVersions({
+    auth,
+    flowId,
+  }: {
+    auth: Auth;
+    flowId: string;
+  }): Promise<GetFlowVersionsDto[]> {
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: eq(flows.id, flowId),
+    });
+    if (!flow) throw new NotFoundException();
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, flow.project_id),
+    });
+    if (!project) throw new BadRequestException("project not found");
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const versions = await this.databaseService.db.query.flowVersions.findMany({
+      where: eq(flowVersions.flow_id, flowId),
+      orderBy: [desc(flowVersions.created_at)],
+    });
+
+    return versions.map((version) => ({
+      id: version.id,
+      created_at: version.created_at,
+      data: version.data,
+    }));
   }
 }

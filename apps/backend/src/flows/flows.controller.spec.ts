@@ -18,6 +18,9 @@ const db = {
       findMany: jest.fn(),
       findFirst: jest.fn(),
     },
+    flowVersions: {
+      findMany: jest.fn(),
+    },
   },
   select: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
@@ -223,5 +226,36 @@ describe("Delete flow", () => {
       flowsController.deleteFlow({ userId: "userId" }, "flowId"),
     ).resolves.toBeUndefined();
     expect(db.delete).toHaveBeenCalled();
+  });
+});
+
+describe("Get flow versions", () => {
+  beforeEach(() => {
+    db.query.flowVersions.findMany.mockResolvedValue([{ id: "flowVerId" }]);
+  });
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Not Found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should return flow versions", async () => {
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).resolves.toEqual([
+      { id: "flowVerId" },
+    ]);
   });
 });

@@ -1,8 +1,8 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
-import { Editor } from "@monaco-editor/react";
 import { isValidFlow, validateFlow } from "@rbnd/flows";
+import { CodeEditor } from "components/ui/code-editor";
 import { useSend } from "hooks/use-send";
 import { useStickyValue } from "hooks/use-sticky-value";
 import { api, type FlowDetail } from "lib/api";
@@ -57,23 +57,7 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
         name="data"
         render={({ field, fieldState }) => (
           <div className={css({ mb: "space24" })}>
-            <div
-              className={css({
-                borderWidth: 1,
-                borderStyle: "solid",
-                borderColor: "border",
-                borderRadius: "radius8",
-                overflow: "hidden",
-              })}
-            >
-              <Editor
-                defaultValue={defaultValues.data}
-                height="400px"
-                language="json"
-                onChange={(v) => field.onChange(v ?? "")}
-                options={{ minimap: { enabled: false }, tabSize: 2 }}
-              />
-            </div>
+            <CodeEditor defaultValue={defaultValues.data} onChange={(v) => field.onChange(v)} />
             {fieldState.error ? <Text>{fieldState.error.message}</Text> : null}
           </div>
         )}

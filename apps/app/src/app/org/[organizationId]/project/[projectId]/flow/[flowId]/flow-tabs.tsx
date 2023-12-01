@@ -8,10 +8,10 @@ import { routes } from "routes";
 import { Button } from "ui";
 
 type Props = {
-  showSteps: boolean;
+  cloudFlow?: boolean;
 };
 
-export const FlowTabs: FC<Props> = ({ showSteps }) => {
+export const FlowTabs: FC<Props> = ({ cloudFlow }) => {
   const { projectId, organizationId, flowId } = useParams<{
     projectId: string;
     organizationId: string;
@@ -23,12 +23,22 @@ export const FlowTabs: FC<Props> = ({ showSteps }) => {
     <div className={css({ display: "flex", gap: "space8", mb: "space16" })}>
       {[
         { title: "Analytics", href: routes.flow({ organizationId, projectId, flowId }) },
-        ...(showSteps
-          ? [{ title: "Steps", href: routes.flowSteps({ organizationId, projectId, flowId }) }]
+        ...(cloudFlow
+          ? [
+              { title: "Steps", href: routes.flowSteps({ organizationId, projectId, flowId }) },
+              {
+                title: "Versions",
+                href: routes.flowVersions({ organizationId, projectId, flowId }),
+                active: pathname.startsWith(
+                  routes.flowVersions({ organizationId, projectId, flowId }),
+                ),
+              },
+            ]
           : []),
+
         { title: "Settings", href: routes.flowSettings({ organizationId, projectId, flowId }) },
       ].map((tab) => {
-        const active = tab.href === pathname;
+        const active = tab.active ?? tab.href === pathname;
         return (
           <Link href={tab.href} key={tab.href}>
             <Button size="small" variant={active ? "primary" : "secondary"}>
