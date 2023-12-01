@@ -1,9 +1,10 @@
 import { css } from "@flows/styled-system/css";
 import { getAuth } from "auth/server";
+import { CreateProjectDialog } from "components/projects";
 import { api } from "lib/api";
 import { redirect } from "next/navigation";
 import { routes } from "routes";
-import { Text } from "ui";
+import { Button, Text } from "ui";
 
 import { OrganizationDeleteDialog } from "./organization-delete-dialog";
 
@@ -27,11 +28,17 @@ export default async function ProjectsPage({ params }: Props): Promise<JSX.Eleme
 
   return (
     <>
-      <Text className={css({ mb: "space16" })} variant="title3xl">
-        {org.name}
-      </Text>
+      <div className={css({ display: "flex", alignItems: "center", gap: "space8" })}>
+        <Text className={css({ mb: "space16", flex: 1 })} variant="title3xl">
+          {org.name}
+        </Text>
 
-      <OrganizationDeleteDialog organization={org} />
+        <CreateProjectDialog
+          organizationId={params.organizationId}
+          trigger={<Button>New Project</Button>}
+        />
+        <OrganizationDeleteDialog organization={org} />
+      </div>
 
       <Text>No projects found</Text>
     </>
