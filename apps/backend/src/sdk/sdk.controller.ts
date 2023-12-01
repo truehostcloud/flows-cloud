@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Headers, Post, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { minutes, Throttle } from "@nestjs/throttler";
 
 import type { GetSdkFlowsDto } from "./sdk.dto";
 import { CreateEventDto } from "./sdk.dto";
@@ -11,6 +12,7 @@ export class SdkController {
   constructor(private sdkService: SdkService) {}
 
   @Get("flows")
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   getFlows(
     @Query("projectId") projectId: string,
     @Headers("origin") origin: string,

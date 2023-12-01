@@ -7,6 +7,11 @@ import request from "supertest";
 import { AppModule } from "../src/app.module";
 import { DatabaseService } from "../src/database/database.service";
 
+jest.mock("@nestjs/throttler", (): unknown => ({
+  ...jest.requireActual("@nestjs/throttler"),
+  ThrottlerGuard: jest.fn(() => ({ canActivate: () => true })),
+}));
+
 describe("AppController (e2e)", () => {
   let app: NestFastifyApplication;
 

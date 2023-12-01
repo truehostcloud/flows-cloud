@@ -1,6 +1,8 @@
 import type { MiddlewareConsumer, NestModule } from "@nestjs/common";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
+import { minutes, ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import cors from "cors";
 
 import { AppController } from "./app.controller";
@@ -10,11 +12,17 @@ import { OrganizationsModule } from "./organizations/organizations.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { SdkModule } from "./sdk/sdk.module";
 
-const publicRoutes: string[] = ["/events", "/flows"];
+const publicRoutes: string[] = ["/sdk/*"];
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        ttl: minutes(1),
+        limit: 100,
+      },
+    ]),
     DatabaseModule,
     SdkModule,
     FlowsModule,
@@ -22,7 +30,12 @@ const publicRoutes: string[] = ["/events", "/flows"];
     OrganizationsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
