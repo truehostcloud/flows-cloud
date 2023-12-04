@@ -20,6 +20,11 @@ const db = {
   insert: jest.fn().mockReturnThis(),
   values: jest.fn().mockReturnThis(),
   returning: jest.fn(),
+  selectDistinctOn: jest.fn().mockReturnThis(),
+  from: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  groupBy: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
 };
 
 beforeEach(async () => {
@@ -43,29 +48,46 @@ afterEach(() => {
 });
 
 describe("Get flows", () => {
-  const mockFlows = [{ id: "f1h", steps: [], element: "e1" }];
-
+  beforeEach(() => {
+    db.query.projects.findFirst.mockReturnValue({ id: "p1" });
+    db.query.flows.findMany.mockReturnValue([
+      {
+        id: "f1",
+        human_id: "f1h",
+        name: "F1",
+        frequency: "once",
+        version: { data: { steps: [], element: "e1" } },
+      },
+      {
+        id: "f2",
+        human_id: "f2h",
+        name: "F2",
+        frequency: "every-time",
+        version: { data: { steps: [], element: "e2" } },
+      },
+    ]);
+  });
   it("should throw without projectId", async () => {
-    await expect(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- part of the test
-      // @ts-expect-error
-      sdkController.getFlows(null),
-    ).rejects.toThrow("Not Found");
+    await expect(sdkController.getFlows("origin", "")).rejects.toThrow("Not Found");
   });
   it("should throw without requestDomain", async () => {
-    await expect(sdkController.getFlows("a", "")).rejects.toThrow("Origin is required");
+    await expect(sdkController.getFlows("", "projId")).rejects.toThrow("Origin is required");
   });
   it("should throw without project", async () => {
     db.query.projects.findFirst.mockReturnValue(null);
-    await expect(sdkController.getFlows("a", "b")).rejects.toThrow("Not Found");
+    await expect(sdkController.getFlows("origin", "projId")).rejects.toThrow("Not Found");
   });
   it("should return flows", async () => {
-    db.query.projects.findFirst.mockReturnValue({ id: "p1" });
-    db.query.flows.findMany.mockReturnValue([
-      { id: "f1", human_id: "f1h", name: "F1", version: { data: { steps: [], element: "e1" } } },
+    await expect(sdkController.getFlows("origin", "projId")).resolves.toEqual([
+      { id: "f1h", steps: [], element: "e1", frequency: "once" },
+      { id: "f2h", steps: [], element: "e2", frequency: "every-time" },
     ]);
-    const result = await sdkController.getFlows("a", "b");
-    expect(result).toEqual(mockFlows);
+  });
+  it("should not return flows if user already seen it", async () => {
+    db.orderBy.mockResolvedValue([{ flow_id: "f1", event_time: new Date() }]);
+    await expect(sdkController.getFlows("origin", "projId", "userHash")).resolves.toEqual([
+      { id: "f2h", steps: [], element: "e2", frequency: "every-time" },
+    ]);
   });
 });
 

@@ -1,8 +1,12 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsDate, IsOptional, IsString } from "class-validator";
+import { type FlowFrequency, FlowFrequencyEnum } from "db";
 
 export class GetSdkFlowsDto {
   id: string;
+  @ApiProperty({ enum: FlowFrequencyEnum, required: false })
+  frequency: FlowFrequency | null;
   element?: string;
   steps: unknown[];
 }

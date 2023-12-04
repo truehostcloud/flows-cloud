@@ -50,6 +50,8 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     GetSdkFlowsDto: {
+      /** @enum {string} */
+      frequency: "once" | "every-time";
       id: string;
       element?: string;
       steps: Record<string, never>[];
@@ -68,6 +70,8 @@ export interface components {
     GetFlowsDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
+      /** @enum {string|null} */
+      frequency?: "once" | "every-time" | null;
       id: string;
       human_id: string;
       human_id_alias: string | null;
@@ -90,6 +94,8 @@ export interface components {
     GetFlowDetailDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
+      /** @enum {string|null} */
+      frequency?: "once" | "every-time" | null;
       id: string;
       human_id: string;
       human_id_alias: string | null;
@@ -106,6 +112,8 @@ export interface components {
       daily_stats: components["schemas"]["StatBucketDto"][];
     };
     UpdateFlowDto: {
+      /** @enum {string} */
+      frequency?: "once" | "every-time";
       name?: string;
       description?: string;
       human_id?: string;
@@ -206,6 +214,7 @@ export interface operations {
     parameters: {
       query: {
         projectId: string;
+        userHash?: string;
       };
       header: {
         origin: string;

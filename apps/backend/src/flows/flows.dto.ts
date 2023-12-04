@@ -1,6 +1,7 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { IsBoolean, IsJSON, IsString, Length } from "class-validator";
-import { flowTypeEnum } from "db";
+import { IsBoolean, IsEnum, IsJSON, IsString, Length } from "class-validator";
+import type { FlowFrequency } from "db";
+import { FlowFrequencyEnum, FlowType, FlowTypeEnum } from "db";
 
 export class GetFlowsDto {
   id: string;
@@ -8,12 +9,14 @@ export class GetFlowsDto {
   human_id_alias: string | null;
   project_id: string;
   name: string;
-  @ApiProperty({ enum: flowTypeEnum.enumValues })
-  flow_type: string;
+  @ApiProperty({ enum: FlowTypeEnum })
+  flow_type: FlowType;
   description: string;
   created_at: Date;
   updated_at: Date;
   published_at: Date | null;
+  @ApiProperty({ enum: FlowFrequencyEnum, required: false })
+  frequency: FlowFrequency | null;
 }
 
 export class StatBucketDto {
@@ -42,6 +45,9 @@ export class CompleteUpdateFlowDto {
   published: boolean;
   @IsJSON()
   data: string;
+  @IsEnum(FlowFrequencyEnum)
+  @ApiProperty({ enum: FlowFrequencyEnum })
+  frequency: FlowFrequencyEnum;
 }
 
 export class UpdateFlowDto extends PartialType(CompleteUpdateFlowDto) {}

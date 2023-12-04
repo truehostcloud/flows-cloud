@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { events, flows, projects } from "db";
-import { and, arrayContains, eq, isNotNull, or } from "drizzle-orm";
+import { and, arrayContains, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
 import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
@@ -12,9 +12,11 @@ export class SdkService {
   async getFlows({
     projectId,
     requestOrigin,
+    userHash,
   }: {
     projectId: string;
     requestOrigin: string;
+    userHash?: string;
   }): Promise<GetSdkFlowsDto[]> {
     if (!projectId) throw new NotFoundException();
     if (!requestOrigin) throw new BadRequestException("Origin is required");
@@ -38,15 +40,48 @@ export class SdkService {
       },
     });
 
-    return dbFlows.flatMap((f) => {
-      const data = f.version?.data as undefined | { steps: unknown[]; element?: string };
-      if (!data) return [];
-      return {
-        id: f.human_id,
-        steps: data.steps,
-        element: data.element,
-      };
-    });
+    const seenEvents = await (() => {
+      if (!userHash) return;
+      return this.databaseService.db
+        .selectDistinctOn([events.flow_id], {
+          flow_id: events.flow_id,
+          event_time: events.event_time,
+        })
+        .from(events)
+        .where(
+          and(
+            eq(events.user_hash, userHash),
+            inArray(events.type, ["finishFlow", "cancelFlow"]),
+            inArray(
+              events.flow_id,
+              dbFlows.map((f) => f.id),
+            ),
+          ),
+        )
+        .groupBy(events.flow_id, events.event_time)
+        .orderBy(events.flow_id, desc(events.event_time));
+    })();
+
+    const seenEventsByFlowId = new Map(seenEvents?.map((e) => [e.flow_id, e]));
+
+    return dbFlows
+      .filter((flow) => {
+        if (!userHash) return true;
+        if (flow.frequency === "every-time") return true;
+        const event = seenEventsByFlowId.get(flow.id);
+        if (flow.frequency === "once" && event) return false;
+        return true;
+      })
+      .flatMap((f) => {
+        const data = f.version?.data as undefined | { steps: unknown[]; element?: string };
+        if (!data) return [];
+        return {
+          id: f.human_id,
+          steps: data.steps,
+          element: data.element,
+          frequency: f.frequency,
+        };
+      });
   }
 
   async createEvent({

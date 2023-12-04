@@ -12,7 +12,7 @@ import { OrganizationsModule } from "./organizations/organizations.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { SdkModule } from "./sdk/sdk.module";
 
-const publicRoutes: string[] = ["/sdk/*"];
+const publicRoutes: string[] = ["/sdk/flows", "/sdk/events"];
 
 @Module({
   imports: [
@@ -42,12 +42,7 @@ export class AppModule implements NestModule {
     consumer
       .apply(
         cors({
-          origin: [
-            "https://app.flows.sh",
-            "https://app.stage.flows.sh",
-            "http://localhost:3000",
-            "http://localhost:3001",
-          ],
+          origin: ["https://app.flows.sh", "https://app.stage.flows.sh", "http://localhost:6001"],
         }),
       )
       .exclude(...publicRoutes)

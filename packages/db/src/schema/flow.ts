@@ -14,6 +14,18 @@ import {
 import { projects } from "./project";
 
 export const flowTypeEnum = pgEnum("flow_type", ["cloud", "local"]);
+export type FlowType = (typeof flowTypeEnum.enumValues)[number];
+export enum FlowTypeEnum {
+  CLOUD = "cloud",
+  LOCAL = "local",
+}
+
+export const flowFrequencyEnum = pgEnum("flow_frequency", ["once", "every-time"]);
+export type FlowFrequency = (typeof flowFrequencyEnum.enumValues)[number];
+export enum FlowFrequencyEnum {
+  ONCE = "once",
+  EVERYTIME = "every-time",
+}
 
 export const flows = pgTable(
   "flow",
@@ -30,6 +42,7 @@ export const flows = pgTable(
     description: text("description").notNull(),
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at").notNull().defaultNow(),
+    frequency: flowFrequencyEnum("frequency"),
     published_at: timestamp("published_at"),
   },
   (table) => {
