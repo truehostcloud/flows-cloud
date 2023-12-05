@@ -1,8 +1,6 @@
 import { type CookieOptions, createServerClient } from "@supabase/ssr";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { routes } from "routes";
+import { cookies } from "next/headers";
 
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../lib/constants";
 
@@ -40,54 +38,4 @@ export const getAuth = async () => {
   const supabase = createClient(cookies());
   const { data } = await supabase.auth.getSession();
   return data.session;
-};
-
-export const signOut = async (): Promise<void> => {
-  "use server";
-
-  const supabase = createClient(cookies());
-  await supabase.auth.signOut();
-  return redirect(routes.login());
-};
-
-export const signIn = async (formData: FormData): Promise<void> => {
-  "use server";
-
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const supabase = createClient(cookies());
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    return redirect(routes.login({ message: "Could not authenticate user" }));
-  }
-
-  return redirect(routes.home);
-};
-
-export const signUp = async (formData: FormData): Promise<void> => {
-  "use server";
-
-  const origin = headers().get("x-forwarded-host");
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const supabase = createClient(cookies());
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}${routes.authCallback}`,
-    },
-  });
-
-  if (error) {
-    return redirect(routes.login({ message: "Could not authenticate user" }));
-  }
-
-  return redirect(routes.login({ message: "Check email to continue sign in process" }));
 };
