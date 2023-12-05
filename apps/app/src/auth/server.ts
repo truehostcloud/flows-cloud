@@ -72,7 +72,7 @@ export const signIn = async (formData: FormData): Promise<void> => {
 export const signUp = async (formData: FormData): Promise<void> => {
   "use server";
 
-  const origin = headers().get("origin");
+  const origin = headers().get("x-forwarded-host");
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const supabase = createClient(cookies());
