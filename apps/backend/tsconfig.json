@@ -1,12 +1,13 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "../../packages/tsconfig/base.json",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "baseUrl": "./",
     "outDir": "./dist",
     "module": "CommonJS",
-    "strictPropertyInitialization": false
+    "moduleResolution": "Node",
+    "strictPropertyInitialization": false,
+    "noEmit": false
   },
   "include": ["src/**/*", "test/**/*"]
 }

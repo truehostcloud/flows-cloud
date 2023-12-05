@@ -4,23 +4,32 @@ on:
   push:
     branches:
       - dev
-      - feat/backend
 
 jobs:
   build:
+    environment: staging
     runs-on: [self-hosted, stage-env]
     steps:
       - uses: actions/checkout@v3
         with:
           path: "./stage-deploy"
-      - run: echo ${{ secrets.APP_STAGE_ENV }} | base64 --decode > apps/app/.env
-        working-directory: "./stage-deploy"
+      - run: |
+          touch .env
+          echo NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} >> .env
+          echo NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} >> .env
+          echo NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} >> .env
+        working-directory: "./stage-deploy/apps/app"
       - run: docker build -t docker.flows.sh/app-frontend-stage:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
         working-directory: "./stage-deploy"
       - run: docker build -t docker.flows.sh/web-frontend-stage:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=web .
         working-directory: "./stage-deploy"
       - run: docker build -t docker.flows.sh/docs-frontend-stage:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=docs .
         working-directory: "./stage-deploy"
+      - run: |
+          touch .env
+          echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
+          echo BACKEND_JWT_SECRET=${{ secrets.BACKEND_JWT_SECRET }} >> .env
+        working-directory: "./stage-deploy/apps/backend"
       - run: docker build -t docker.flows.sh/backend-stage:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./stage-deploy"
 
@@ -39,4 +48,4 @@ jobs:
       - run: docker run -d --restart always -p 6003:3000 --name flows-docs-frontend-stage docker.flows.sh/docs-frontend-stage:${{github.sha}}
       - run: docker stop flows-backend-stage
       - run: docker rm flows-backend-stage
-      - run: docker run -d --restart always -p 6005:3000 --name flows-backend-stage docker.flows.sh/backend-stage:${{github.sha}}
+      - run: docker run -d --restart always -p 6005:3005 --network flows_supabase_bridge --name flows-backend-stage docker.flows.sh/backend-stage:${{github.sha}}

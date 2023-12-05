@@ -4,23 +4,32 @@ on:
   push:
     branches:
       - main
-      - feat/backend
 
 jobs:
   build:
+    environment: production
     runs-on: [self-hosted, stage-env]
     steps:
       - uses: actions/checkout@v3
         with:
           path: "./prod-deploy"
-      - run: echo ${{ secrets.APP_PROD_ENV }} | base64 --decode > apps/app/.env
-        working-directory: "./prod-deploy"
+      - run: |
+          touch .env
+          echo NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} >> .env
+          echo NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} >> .env
+          echo NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} >> .env
+        working-directory: "./prod-deploy/apps/app"
       - run: docker build -t docker.flows.sh/app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
         working-directory: "./prod-deploy"
       - run: docker build -t docker.flows.sh/web-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=web .
         working-directory: "./prod-deploy"
       - run: docker build -t docker.flows.sh/docs-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=docs .
         working-directory: "./prod-deploy"
+      - run: |
+          touch .env
+          echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
+          echo BACKEND_JWT_SECRET=${{ secrets.BACKEND_JWT_SECRET }} >> .env
+        working-directory: "./prod-deploy/apps/backend"
       - run: docker build -t docker.flows.sh/backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./prod-deploy"
       - run: docker push docker.flows.sh/app-frontend-prod:${{github.sha}}
@@ -47,4 +56,4 @@ jobs:
       - run: docker run -d --restart always -p 6003:3000 --name flows-docs-frontend-prod docker.flows.sh/docs-frontend-prod:${{github.sha}}
       - run: docker stop flows-backend-prod
       - run: docker rm flows-backend-prod
-      - run: docker run -d --restart always -p 6005:3000 --name flows-backend-prod docker.flows.sh/backend-prod:${{github.sha}}
+      - run: docker run -d --restart always -p 6005:3005 --name flows-backend-prod docker.flows.sh/backend-prod:${{github.sha}}
