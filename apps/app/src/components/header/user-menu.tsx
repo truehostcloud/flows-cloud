@@ -4,16 +4,16 @@ import { CreateOrganizationDialog } from "components/organizations";
 import { CreateProjectDialog } from "components/projects";
 import { UserCircle24 } from "icons";
 import { api } from "lib/api";
+import { load } from "lib/load";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
 import { LogoutButton } from "./logout-button";
 import { ThemeSwitch } from "./theme-switch";
 
-export const UserMenu = async (): Promise<JSX.Element> => {
+export const UserMenu = async (): Promise<JSX.Element | null> => {
   const pathname = headers().get("x-pathname") ?? "";
   const params = pathname.split("/").slice(1);
   const { organizationId, projectId }: { organizationId?: string; projectId?: string } = {
@@ -22,14 +22,11 @@ export const UserMenu = async (): Promise<JSX.Element> => {
   };
 
   const auth = await getAuth();
-  if (!auth) return redirect(routes.login());
-  const fetchCtx = { token: auth.access_token };
+  if (!auth) return null;
 
   const [organizations, projects] = await Promise.all([
-    api["/organizations"]()(fetchCtx),
-    organizationId
-      ? api["/organizations/:organizationId/projects"](organizationId)(fetchCtx)
-      : null,
+    load(api["/organizations"]()),
+    organizationId ? load(api["/organizations/:organizationId/projects"](organizationId)) : null,
   ]);
 
   return (

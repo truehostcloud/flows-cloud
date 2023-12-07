@@ -1,8 +1,6 @@
 import { css } from "@flows/styled-system/css";
-import { getAuth } from "auth/server";
 import { api } from "lib/api";
-import { redirect } from "next/navigation";
-import { routes } from "routes";
+import { load } from "lib/load";
 import { Text } from "ui";
 
 type Props = {
@@ -10,9 +8,7 @@ type Props = {
 };
 
 export default async function FlowDetailPage({ params }: Props): Promise<JSX.Element> {
-  const auth = await getAuth();
-  if (!auth) return redirect(routes.login());
-  const data = await api["/flows/:flowId"](params.flowId)({ token: auth.access_token });
+  const data = await load(api["/flows/:flowId"](params.flowId));
 
   return (
     <div>

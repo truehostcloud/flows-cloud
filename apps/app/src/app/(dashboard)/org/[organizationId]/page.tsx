@@ -1,7 +1,8 @@
 import { css } from "@flows/styled-system/css";
-import { getAuth } from "auth/server";
 import { CreateProjectDialog } from "components/projects";
 import { api } from "lib/api";
+import { load } from "lib/load";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Button, Text } from "ui";
@@ -12,19 +13,24 @@ type Props = {
   params: { organizationId: string };
 };
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const org = await load(api["/organizations/:organizationId"](params.organizationId));
+
+  return {
+    title: `${org.name} | Flows`,
+  };
+}
+
 export default async function ProjectsPage({ params }: Props): Promise<JSX.Element> {
-  const auth = await getAuth();
-  if (!auth) return redirect(routes.login());
-  const fetchCtx = { token: auth.access_token };
-  const projects = await api["/organizations/:organizationId/projects"](params.organizationId)(
-    fetchCtx,
+  const projects = await load(
+    api["/organizations/:organizationId/projects"](params.organizationId),
   );
   if (projects.length)
     return redirect(
       routes.project({ projectId: projects[0].id, organizationId: projects[0].organization_id }),
     );
 
-  const org = await api["/organizations/:organizationId"](params.organizationId)(fetchCtx);
+  const org = await load(api["/organizations/:organizationId"](params.organizationId));
 
   return (
     <>

@@ -20,7 +20,7 @@ const publicRoutes: string[] = ["/sdk/flows", "/sdk/events"];
     ThrottlerModule.forRoot([
       {
         ttl: minutes(1),
-        limit: 100,
+        limit: 250,
       },
     ]),
     DatabaseModule,

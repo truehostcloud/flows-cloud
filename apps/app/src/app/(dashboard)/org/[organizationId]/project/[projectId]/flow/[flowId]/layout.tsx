@@ -1,6 +1,7 @@
 import { css } from "@flows/styled-system/css";
 import { api } from "lib/api";
 import { load } from "lib/load";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Text } from "ui";
 
@@ -10,6 +11,14 @@ type Props = {
   children: ReactNode;
   params: { flowId: string; projectId: string; organizationId: string };
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const flow = await load(api["/flows/:flowId"](params.flowId));
+
+  return {
+    title: `${flow.name} | Flows`,
+  };
+}
 
 export default async function FlowLayout({ children, params }: Props): Promise<JSX.Element> {
   const flow = await load(api["/flows/:flowId"](params.flowId));
