@@ -5,7 +5,6 @@ export const routes = {
   authCallback: "/auth/callback",
 
   home: "/",
-  dashboard: "/dashboard",
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
 
   project: (params: { projectId: string; organizationId: string }) =>

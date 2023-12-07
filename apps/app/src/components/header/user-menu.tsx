@@ -1,6 +1,5 @@
 import { css } from "@flows/styled-system/css";
 import { getAuth } from "auth/server";
-import { ThemeSwitch } from "components/header/theme-switch";
 import { CreateOrganizationDialog } from "components/organizations";
 import { CreateProjectDialog } from "components/projects";
 import { UserCircle24 } from "icons";
@@ -10,6 +9,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { routes } from "routes";
 import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
+
+import { LogoutButton } from "./logout-button";
+import { ThemeSwitch } from "./theme-switch";
 
 export const UserMenu = async (): Promise<JSX.Element> => {
   const pathname = headers().get("x-pathname") ?? "";
@@ -76,6 +78,10 @@ export const UserMenu = async (): Promise<JSX.Element> => {
 
         <div className={css({ mt: "space24" })}>
           <ThemeSwitch />
+        </div>
+
+        <div className={css({ mt: "space8" })}>
+          <LogoutButton />
         </div>
       </PopoverContent>
     </Popover>

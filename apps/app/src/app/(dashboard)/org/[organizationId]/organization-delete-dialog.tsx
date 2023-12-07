@@ -17,7 +17,7 @@ export const OrganizationDeleteDialog: FC<Props> = ({ organization }) => {
   const { send, loading } = useSend();
   const handleDelete = async (): Promise<void> => {
     const { error } = await send(api["DELETE /organizations/:organizationId"](organization.id));
-    if (!error) router.replace(routes.dashboard);
+    if (!error) router.replace(routes.home);
   };
 
   return (
