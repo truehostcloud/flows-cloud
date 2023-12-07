@@ -1,13 +1,30 @@
+"use client";
+
 import { css } from "@flows/styled-system/css";
-import { signIn, signUp } from "auth/server";
+import { signIn, signUp } from "auth/server-actions";
+import { useTransition } from "react";
 import { Button, Input } from "ui";
 
 import Messages from "./messages";
 
 export default function Login(): JSX.Element {
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    const action = (event.nativeEvent as { submitter?: { name: string } }).submitter?.name as
+      | "sign-in"
+      | "sign-up";
+    const formData = new FormData(event.currentTarget);
+
+    startTransition(() => {
+      if (action === "sign-up") void signUp(formData);
+      else void signIn(formData);
+    });
+  };
+
   return (
     <form
-      action={signIn}
       className={css({
         display: "flex",
         flexDirection: "column",
@@ -16,6 +33,7 @@ export default function Login(): JSX.Element {
         mx: "auto",
         my: "space64",
       })}
+      onSubmit={handleSubmit}
     >
       <Input
         inputClassName={css({ width: "100%" })}
@@ -36,8 +54,10 @@ export default function Login(): JSX.Element {
       />
       <Messages />
       <div className={css({ display: "flex", gap: "space12" })}>
-        <Button type="submit">Sign In</Button>
-        <Button formAction={signUp} type="submit" variant="black">
+        <Button loading={isPending} name="sign-in" type="submit">
+          Sign In
+        </Button>
+        <Button loading={isPending} name="sign-up" type="submit" variant="black">
           Sign Up
         </Button>
       </div>

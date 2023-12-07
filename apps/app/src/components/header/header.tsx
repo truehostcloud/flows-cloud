@@ -1,11 +1,12 @@
 import { css } from "@flows/styled-system/css";
-import { signOut } from "auth/server";
 import { UserMenu } from "components/header/user-menu";
 import Image from "next/image";
 import Link from "next/link";
 import { type FC } from "react";
 import { routes } from "routes";
-import { Button, Text } from "ui";
+import { Text } from "ui";
+
+import { LogoutButton } from "./logout-button";
 
 export const Header: FC = () => {
   return (
@@ -54,11 +55,7 @@ export const Header: FC = () => {
 
       <div className={css({ display: "flex", gap: "space12", alignItems: "center" })}>
         <UserMenu />
-        <form action={signOut}>
-          <Button size="small" type="submit" variant="black">
-            Logout
-          </Button>
-        </form>
+        <LogoutButton />
       </div>
     </header>
   );

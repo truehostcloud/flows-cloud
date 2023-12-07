@@ -1,6 +1,7 @@
 import { createClient } from "auth/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { routes } from "routes";
 
 export async function GET(request: Request): Promise<NextResponse> {
   // The `/auth/callback` route is required for the server-side auth flow implemented
@@ -15,5 +16,5 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin);
+  return NextResponse.redirect(routes.home);
 }
