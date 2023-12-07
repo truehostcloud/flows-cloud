@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import { Providers } from "components/providers";
+import Script from "next/script";
 
 export const metadata = {
   title: "Create Next App",
@@ -13,6 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
       <body>
         <Providers>{children}</Providers>
       </body>
+      <Script
+        data-api="/box/event"
+        data-domain="app.flows.sh"
+        defer
+        src="https://flows.sh/box/script.js"
+      />
     </html>
   );
 }
