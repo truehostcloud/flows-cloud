@@ -35,6 +35,9 @@ importers:
       '@rbnd/flows':
         specifier: 0.0.19
         version: 0.0.19
+      '@rbnd/react-dark-mode':
+        specifier: ^2.0.1
+        version: 2.0.1(react@18.2.0)
       '@supabase/ssr':
         specifier: ^0.0.10
         version: 0.0.10(@supabase/supabase-js@2.38.5)

@@ -1,5 +1,6 @@
 import "./globals.css";
 
+import { css } from "@flows/styled-system/css";
 import { Providers } from "components/providers";
 import Script from "next/script";
 
@@ -11,10 +12,19 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <head>
+        {/* eslint-disable-next-line @next/next/no-sync-scripts -- needed for noflash script */}
+        <script src="/noflash.min.js" />
+      </head>
+      <body className={css({ background: "bg" })}>
         <Providers>{children}</Providers>
       </body>
-      <Script data-api="/box/event" data-domain="app.flows.sh" defer src="/box/script.js" />
+      <Script
+        data-api="https://flows.sh/box/event"
+        data-domain="app.flows.sh"
+        defer
+        src="https://flows.sh/box/script.js"
+      />
     </html>
   );
 }

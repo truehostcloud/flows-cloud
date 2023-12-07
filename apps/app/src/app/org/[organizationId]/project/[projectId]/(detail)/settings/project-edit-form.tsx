@@ -36,10 +36,10 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
     await send(
       api["PUT /projects/:projectId"](project.id, {
         domains: data.domains.map((d) => d.value),
-        description: project.description || undefined,
-        name: project.name,
-        human_id: project.human_id,
-        human_id_alias: project.human_id_alias || undefined,
+        description: data.description || undefined,
+        name: data.name,
+        human_id: data.human_id,
+        human_id_alias: data.human_id_alias || undefined,
       }),
     );
   };

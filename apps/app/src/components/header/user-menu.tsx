@@ -1,5 +1,6 @@
 import { css } from "@flows/styled-system/css";
 import { getAuth } from "auth/server";
+import { ThemeSwitch } from "components/header/theme-switch";
 import { CreateOrganizationDialog } from "components/organizations";
 import { CreateProjectDialog } from "components/projects";
 import { UserCircle24 } from "icons";
@@ -72,6 +73,10 @@ export const UserMenu = async (): Promise<JSX.Element> => {
         })}
 
         <CreateOrganizationDialog trigger={<Button size="small">New Organization</Button>} />
+
+        <div className={css({ mt: "space24" })}>
+          <ThemeSwitch />
+        </div>
       </PopoverContent>
     </Popover>
   );
