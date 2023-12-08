@@ -2,6 +2,7 @@ import "./globals.css";
 
 import { css } from "@flows/styled-system/css";
 import { Providers } from "components/providers";
+import { PRODUCTION } from "lib/constants";
 import Script from "next/script";
 
 export const metadata = {
@@ -39,12 +40,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
       <body className={css({ background: "bg" })}>
         <Providers>{children}</Providers>
       </body>
-      <Script
-        data-api="https://flows.sh/box/event"
-        data-domain="app.flows.sh"
-        defer
-        src="https://flows.sh/box/script.js"
-      />
+      {PRODUCTION ? (
+        <Script
+          data-api="https://flows.sh/box/event"
+          data-domain="app.flows.sh"
+          defer
+          src="https://flows.sh/box/script.js"
+        />
+      ) : null}
     </html>
   );
 }
