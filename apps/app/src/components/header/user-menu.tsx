@@ -1,33 +1,41 @@
+"use client";
+
 import { css } from "@flows/styled-system/css";
-import { getAuth } from "auth/server";
+import { useAuth } from "auth/client";
 import { CreateOrganizationDialog } from "components/organizations";
 import { CreateProjectDialog } from "components/projects";
 import { UserCircle24 } from "icons";
 import { api } from "lib/api";
-import { load } from "lib/load";
-import { headers } from "next/headers";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import type { FC } from "react";
 import { routes } from "routes";
+import useSWR from "swr";
 import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
 import { LogoutButton } from "./logout-button";
 import { ThemeSwitch } from "./theme-switch";
 
-export const UserMenu = async (): Promise<JSX.Element | null> => {
-  const pathname = headers().get("x-pathname") ?? "";
-  const params = pathname.split("/").slice(1);
-  const { organizationId, projectId }: { organizationId?: string; projectId?: string } = {
-    organizationId: params[1],
-    projectId: params[3],
-  };
+export const UserMenu: FC = () => {
+  const { organizationId, projectId } = useParams<{
+    organizationId?: string;
+    projectId?: string;
+  }>();
 
-  const auth = await getAuth();
+  const auth = useAuth();
+
+  const { data: organizations } = useSWR(
+    "/organizations",
+    auth ? () => api["/organizations"]()({ token: auth.token }) : null,
+  );
+  const { data: projects } = useSWR(
+    organizationId ? `/organizations/${organizationId}/projects` : null,
+    auth && organizationId
+      ? () => api["/organizations/:organizationId/projects"](organizationId)({ token: auth.token })
+      : null,
+  );
+
   if (!auth) return null;
-
-  const [organizations, projects] = await Promise.all([
-    load(api["/organizations"]()),
-    organizationId ? load(api["/organizations/:organizationId/projects"](organizationId)) : null,
-  ]);
 
   return (
     <Popover>
@@ -60,7 +68,7 @@ export const UserMenu = async (): Promise<JSX.Element | null> => {
         ) : null}
 
         <Text variant="titleM">Organizations</Text>
-        {organizations.map((org) => {
+        {organizations?.map((org) => {
           const active = org.id === organizationId;
           return (
             <Link href={routes.organization({ organizationId: org.id })} key={org.id}>

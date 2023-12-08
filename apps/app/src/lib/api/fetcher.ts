@@ -19,6 +19,7 @@ export const fetcher =
         Authorization: context.token ? `Bearer ${context.token}` : "",
         "Content-Type": "application/json",
         ...init?.headers,
+        cache: "no-store",
       },
     }).then(async (res) => {
       const text = await res.text();

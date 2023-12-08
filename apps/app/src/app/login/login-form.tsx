@@ -33,9 +33,6 @@ export const LoginForm: FC = () => {
         display: "flex",
         flexDirection: "column",
         gap: "space16",
-        maxWidth: "320px",
-        mx: "auto",
-        my: "space64",
       })}
       onSubmit={handleSubmit}
     >
@@ -43,7 +40,6 @@ export const LoginForm: FC = () => {
         inputClassName={css({ width: "100%" })}
         label="Email"
         name="email"
-        placeholder="you@example.com"
         required
         type="email"
         wrapperClassName={css({ display: "block", mt: "space4" })}
@@ -51,6 +47,7 @@ export const LoginForm: FC = () => {
       <Input
         inputClassName={css({ width: "100%" })}
         label="Password"
+        minLength={8}
         name="password"
         required
         type="password"

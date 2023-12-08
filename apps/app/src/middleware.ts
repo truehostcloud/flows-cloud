@@ -4,14 +4,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "./auth/middleware";
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", request.nextUrl.pathname);
-
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  const response = NextResponse.next();
 
   const supabase = createClient(request, response);
 

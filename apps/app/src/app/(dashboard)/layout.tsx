@@ -6,6 +6,8 @@ type Props = {
   children?: ReactNode;
 };
 
+export const dynamic = "force-dynamic";
+
 export default function DashboardLayout({ children }: Props): JSX.Element {
   return (
     <>

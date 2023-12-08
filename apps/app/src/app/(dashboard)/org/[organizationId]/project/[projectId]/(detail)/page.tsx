@@ -5,7 +5,7 @@ import Link from "next/link";
 import { routes } from "routes";
 import { Text } from "ui";
 
-import { CreateFlowDialog } from "../create-flow-dialog";
+import { CreateFlowDialog } from "./create-flow-dialog";
 
 type Props = {
   params: { projectId: string };
