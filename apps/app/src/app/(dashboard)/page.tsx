@@ -5,6 +5,7 @@ import { load } from "lib/load";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { routes } from "routes";
+import { t } from "translations";
 import { Button, Text } from "ui";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default async function DashboardPage(): Promise<JSX.Element> {
     return (
       <div className={css({ display: "flex" })}>
         <Text className={css({ flex: "1" })}>No organizations found</Text>
-        <CreateOrganizationDialog trigger={<Button>New Organization</Button>} />
+        <CreateOrganizationDialog trigger={<Button>{t.actions.newOrg}</Button>} />
       </div>
     );
 

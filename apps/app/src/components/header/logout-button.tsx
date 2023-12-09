@@ -3,7 +3,9 @@
 import { signOut } from "auth/server-actions";
 import type { FC } from "react";
 import { useTransition } from "react";
-import { Button } from "ui";
+import { t } from "translations";
+
+import { MenuItem } from "./menu-item";
 
 export const LogoutButton: FC = () => {
   const [isPending, startTransition] = useTransition();
@@ -13,8 +15,8 @@ export const LogoutButton: FC = () => {
     });
 
   return (
-    <Button loading={isPending} onClick={handleLogout} size="small" type="submit" variant="black">
-      Logout
-    </Button>
+    <button disabled={isPending} onClick={handleLogout} type="submit">
+      <MenuItem>{t.actions.logout}</MenuItem>
+    </button>
   );
 };

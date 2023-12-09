@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { type FC } from "react";
 import { routes } from "routes";
-import { Text } from "ui";
+
+import { ProjectsMenu } from "./projects-menu";
 
 export const Header: FC = () => {
   return (
@@ -12,7 +13,7 @@ export const Header: FC = () => {
       className={css({
         display: "flex",
         px: "space24",
-        py: "space12",
+        py: "space8",
         borderBottomWidth: "1px",
         borderStyle: "solid",
         borderColor: "border",
@@ -27,8 +28,7 @@ export const Header: FC = () => {
           })}
           href={routes.home}
         >
-          <Image alt="Logo" height={28} src="/logo.svg" width={28} />
-          <Text variant="titleL">Flows</Text>
+          <Image alt="Logo" height={32} src="/logo.svg" width={32} />
         </Link>
 
         {/* <nav>
@@ -53,6 +53,7 @@ export const Header: FC = () => {
 
       <div className={css({ display: "flex", gap: "space12", alignItems: "center" })}>
         <UserMenu />
+        <ProjectsMenu />
       </div>
     </header>
   );

@@ -2,91 +2,72 @@
 
 import { css } from "@flows/styled-system/css";
 import { useAuth } from "auth/client";
-import { CreateOrganizationDialog } from "components/organizations";
-import { CreateProjectDialog } from "components/projects";
-import { UserCircle24 } from "icons";
-import { api } from "lib/api";
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import { Settings16 } from "icons";
 import type { FC } from "react";
-import { routes } from "routes";
-import useSWR from "swr";
-import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
+import { t } from "translations";
+import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
 import { LogoutButton } from "./logout-button";
+import { MenuSection } from "./menu-section";
 import { ThemeSwitch } from "./theme-switch";
 
 export const UserMenu: FC = () => {
-  const { organizationId, projectId } = useParams<{
-    organizationId?: string;
-    projectId?: string;
-  }>();
-
   const auth = useAuth();
-
-  const { data: organizations } = useSWR(
-    "/organizations",
-    auth ? () => api["/organizations"]()({ token: auth.token }) : null,
-  );
-  const { data: projects } = useSWR(
-    organizationId ? `/organizations/${organizationId}/projects` : null,
-    auth && organizationId
-      ? () => api["/organizations/:organizationId/projects"](organizationId)({ token: auth.token })
-      : null,
-  );
 
   if (!auth) return null;
 
   return (
     <Popover>
       <PopoverTrigger>
-        <Icon className={css({ cursor: "pointer" })} icon={UserCircle24} />
+        <div
+          className={css({
+            cursor: "pointer",
+            padding: "space8",
+            borderStyle: "solid",
+            borderWidth: "1px",
+            borderColor: "border",
+            borderRadius: "radius8",
+            backgroundColor: "bg.muted",
+            transitionDuration: "fast",
+            transitionTimingFunction: "easeInOut",
+            transitionProperty: "background-color",
+            "&:hover": {
+              bg: "bg.hover",
+            },
+          })}
+        >
+          <Icon icon={Settings16} />
+        </div>
       </PopoverTrigger>
       <PopoverContent>
-        <Text color="muted" variant="bodyXs">
-          {auth.user.email}
-        </Text>
+        <div
+          className={css({
+            minWidth: "280px",
+          })}
+        >
+          <MenuSection background="bg.muted" bottomBorder header>
+            <Text variant="titleS">John Doe</Text>
+            <Text color="muted" variant="bodyXs">
+              {auth.user.email}
+            </Text>
+          </MenuSection>
+          <MenuSection bottomBorder>
+            <div
+              className={css({
+                display: "flex",
+                gap: "space48",
+                p: "space8",
+                alignItems: "center",
+              })}
+            >
+              <Text variant="bodyS">{t.settings.theme}</Text>
+              <ThemeSwitch />
+            </div>
+          </MenuSection>
 
-        {organizationId && projects ? (
-          <>
-            <Text variant="titleM">Projects</Text>
-            {projects.map((proj) => {
-              const active = proj.id === projectId;
-              return (
-                <Link href={routes.project({ projectId: proj.id, organizationId })} key={proj.id}>
-                  <Text color={active ? "primary" : undefined} variant="bodyS">
-                    {proj.name}
-                  </Text>
-                </Link>
-              );
-            })}
-            <CreateProjectDialog
-              organizationId={organizationId}
-              trigger={<Button size="small">New Project</Button>}
-            />
-          </>
-        ) : null}
-
-        <Text variant="titleM">Organizations</Text>
-        {organizations?.map((org) => {
-          const active = org.id === organizationId;
-          return (
-            <Link href={routes.organization({ organizationId: org.id })} key={org.id}>
-              <Text color={active ? "primary" : undefined} variant="bodyS">
-                {org.name}
-              </Text>
-            </Link>
-          );
-        })}
-
-        <CreateOrganizationDialog trigger={<Button size="small">New Organization</Button>} />
-
-        <div className={css({ mt: "space24" })}>
-          <ThemeSwitch />
-        </div>
-
-        <div className={css({ mt: "space8" })}>
-          <LogoutButton />
+          <MenuSection background="bg.muted">
+            <LogoutButton />
+          </MenuSection>
         </div>
       </PopoverContent>
     </Popover>
