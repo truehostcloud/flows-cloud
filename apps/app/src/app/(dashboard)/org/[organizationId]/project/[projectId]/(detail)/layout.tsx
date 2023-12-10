@@ -3,8 +3,6 @@ import { load } from "lib/load";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { ProjectTabs } from "./project-tabs";
-
 type Props = {
   children?: ReactNode;
   params: { projectId: string };
@@ -19,10 +17,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default function ProjectDetailLayout({ children }: Props): JSX.Element {
-  return (
-    <>
-      <ProjectTabs />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

@@ -3,15 +3,35 @@
 import { css } from "@flows/styled-system/css";
 import { useAuth } from "auth/client";
 import { Settings16 } from "icons";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import type { FC } from "react";
+import { routes } from "routes";
 import { t } from "translations";
 import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
 import { LogoutButton } from "./logout-button";
+import { MenuItem } from "./menu-item";
 import { MenuSection } from "./menu-section";
 import { ThemeSwitch } from "./theme-switch";
 
-export const UserMenu: FC = () => {
+export const SettingsMenu: FC = () => {
+  const { projectId, organizationId } = useParams<{ projectId: string; organizationId: string }>();
+
+  const SETTINGS_MENU_OPTIONS = [
+    {
+      label: "Personal settings TODO",
+      href: "",
+    },
+    {
+      label: "Project settings",
+      href: routes.projectSettings({ organizationId, projectId }),
+    },
+    {
+      label: "Organization settings TODO",
+      href: routes.organizationSettings({ organizationId }),
+    },
+  ];
   const auth = useAuth();
 
   if (!auth) return null;
@@ -50,6 +70,15 @@ export const UserMenu: FC = () => {
             <Text color="muted" variant="bodyXs">
               {auth.user.email}
             </Text>
+          </MenuSection>
+          <MenuSection bottomBorder>
+            {SETTINGS_MENU_OPTIONS.map((option) => (
+              <Link href={option.href} key={option.label}>
+                <MenuItem>
+                  <Text variant="bodyS">{option.label}</Text>
+                </MenuItem>
+              </Link>
+            ))}
           </MenuSection>
           <MenuSection bottomBorder>
             <div

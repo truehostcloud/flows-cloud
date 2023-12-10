@@ -44,6 +44,9 @@ importers:
       cookies-next:
         specifier: ^4.1.0
         version: 4.1.0
+      dayjs:
+        specifier: ^1.11.10
+        version: 1.11.10
       icons:
         specifier: workspace:*
         version: link:../../packages/icons

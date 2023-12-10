@@ -1,13 +1,26 @@
+"use client";
+
 import { css } from "@flows/styled-system/css";
-import { UserMenu } from "components/header/user-menu";
+import { SettingsMenu } from "components/header/settings-menu";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { type FC } from "react";
 import { routes } from "routes";
+import { Text } from "ui";
 
 import { ProjectsMenu } from "./projects-menu";
 
 export const Header: FC = () => {
+  const { projectId, organizationId } = useParams<{ projectId: string; organizationId: string }>();
+
+  const HEADER_ITEMS = [
+    {
+      label: "Home",
+      href: routes.project({ organizationId, projectId }),
+    },
+  ];
+
   return (
     <header
       className={css({
@@ -31,28 +44,21 @@ export const Header: FC = () => {
           <Image alt="Logo" height={32} src="/logo.svg" width={32} />
         </Link>
 
-        {/* <nav>
+        <nav>
           <ul className={css({ display: "flex" })}>
-            {["projects"].map((path) => (
-              <li key={path}>
-                <Text
-                  as="span"
-                  className={css({ textTransform: "capitalize" })}
-                  color="primary"
-                  variant="bodyS"
-                >
-                  <Link className={css({ p: "space12" })} href={`/${path}`}>
-                    {path}
-                  </Link>
-                </Text>
+            {HEADER_ITEMS.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href}>
+                  <Text variant="titleM">{item.label}</Text>
+                </Link>
               </li>
             ))}
           </ul>
-        </nav> */}
+        </nav>
       </div>
 
       <div className={css({ display: "flex", gap: "space12", alignItems: "center" })}>
-        <UserMenu />
+        <SettingsMenu />
         <ProjectsMenu />
       </div>
     </header>

@@ -6,6 +6,8 @@ export const routes = {
 
   home: "/",
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
+  organizationSettings: (params: { organizationId: string }) =>
+    `/org/${params.organizationId}/settings`,
 
   project: (params: { projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}`,

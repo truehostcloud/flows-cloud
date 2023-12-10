@@ -25,11 +25,11 @@ export default async function FlowLayout({ children, params }: Props): Promise<J
 
   return (
     <>
-      <FlowTabs cloudFlow={flow.flow_type === "cloud"} />
-
-      <Text className={css({ mb: "space16" })} id="panda-title" variant="title3xl">
+      <Text className={css({ mb: "space16" })} id="panda-title" variant="titleXl">
         {flow.name}
       </Text>
+
+      <FlowTabs cloudFlow={flow.flow_type === "cloud"} />
 
       {children}
     </>

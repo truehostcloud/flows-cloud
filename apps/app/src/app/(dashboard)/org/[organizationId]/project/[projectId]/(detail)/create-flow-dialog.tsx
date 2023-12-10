@@ -31,7 +31,7 @@ export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId }) => {
   };
 
   return (
-    <Dialog trigger={<Button>New Flow</Button>}>
+    <Dialog trigger={<Button variant="black">New flow</Button>}>
       <DialogTitle>Create Flow</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
