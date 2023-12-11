@@ -8,7 +8,16 @@ import type { FC, ReactNode } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Input,
+  toast,
+} from "ui";
 
 type Props = {
   trigger: ReactNode;
@@ -41,6 +50,43 @@ export const CreateOrganizationDialog: FC<Props> = ({ trigger }) => {
           />
         </DialogContent>
         <DialogActions>
+          <Button
+            onClick={() => {
+              toast("Tu ahoj!", {
+                duration: 5000000,
+              });
+              toast.success("Tu sukces!", {
+                duration: 5000000,
+              });
+              toast.error("Tu je error!", {
+                duration: 5000000,
+              });
+              toast.custom(
+                <div
+                  className={css({
+                    border: "1px solid red",
+                    padding: "space8",
+                    display: "flex",
+                    gap: "space8",
+                  })}
+                >
+                  Tu custom
+                  <Button>Button</Button>
+                </div>,
+                {
+                  duration: 5000000,
+                },
+              );
+
+              toast.loading("Tu loading", {
+                duration: 5000000,
+              });
+            }}
+            type="button"
+            variant="secondary"
+          >
+            Gimme Toast
+          </Button>
           <DialogClose asChild>
             <Button size="small" variant="black">
               Close
