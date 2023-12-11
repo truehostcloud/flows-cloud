@@ -43,6 +43,19 @@ export interface paths {
     get: operations["OrganizationsController_getOrganizationDetail"];
     delete: operations["OrganizationsController_deleteOrganization"];
   };
+  "/organizations/{organizationId}/users": {
+    get: operations["OrganizationsController_getUsers"];
+    post: operations["OrganizationsController_inviteUser"];
+  };
+  "/organizations/{organizationId}/users/{userId}": {
+    delete: operations["OrganizationsController_removeUser"];
+  };
+  "/me": {
+    get: operations["UsersController_me"];
+  };
+  "/invites/{inviteId}/accept": {
+    post: operations["UsersController_acceptInvite"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -50,8 +63,8 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     GetSdkFlowsDto: {
-      /** @enum {string} */
-      frequency: "once" | "every-time";
+      /** @enum {string|null} */
+      frequency?: "once" | "every-time" | null;
       id: string;
       element?: string;
       steps: Record<string, never>[];
@@ -186,6 +199,22 @@ export interface components {
     };
     CreateOrganizationDto: {
       name: string;
+    };
+    InviteUserDto: {
+      email: string;
+    };
+    GetOrganizationMembersDto: {
+      id: string;
+      email: string;
+    };
+    Invite: {
+      id: string;
+      /** Format: date-time */
+      expires_at: string;
+      organizationName: string;
+    };
+    GetMeDto: {
+      pendingInvites: components["schemas"]["Invite"][];
     };
   };
   responses: never;
@@ -458,6 +487,71 @@ export interface operations {
     };
     responses: {
       200: {
+        content: never;
+      };
+    };
+  };
+  OrganizationsController_getUsers: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetOrganizationMembersDto"][];
+        };
+      };
+    };
+  };
+  OrganizationsController_inviteUser: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InviteUserDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: never;
+      };
+    };
+  };
+  OrganizationsController_removeUser: {
+    parameters: {
+      path: {
+        organizationId: string;
+        userId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  UsersController_me: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetMeDto"];
+        };
+      };
+    };
+  };
+  UsersController_acceptInvite: {
+    parameters: {
+      path: {
+        inviteId: string;
+      };
+    };
+    responses: {
+      201: {
         content: never;
       };
     };

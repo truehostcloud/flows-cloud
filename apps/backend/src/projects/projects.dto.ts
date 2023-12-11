@@ -1,4 +1,4 @@
-import { IsOptional, IsString, Length } from "class-validator";
+import { IsOptional, IsString, Length, MinLength } from "class-validator";
 
 export class GetProjectsDto {
   id: string;
@@ -16,6 +16,7 @@ export class GetProjectDetailDto extends GetProjectsDto {}
 
 export class CreateProjectDto {
   @IsString()
+  @MinLength(3)
   name: string;
 }
 

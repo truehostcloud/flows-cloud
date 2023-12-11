@@ -15,7 +15,7 @@ export default async function ProjectSettingsPage({ params }: Props): Promise<JS
 
   return (
     <>
-      <Text className={css({ mb: "space16", flex: 1 })} variant="title3xl">
+      <Text className={css({ mb: "space16" })} variant="title3xl">
         {project.name}
       </Text>
 

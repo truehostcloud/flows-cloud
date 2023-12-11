@@ -3,7 +3,7 @@ import { CreateOrganizationDialog } from "components/organizations";
 import { api } from "lib/api";
 import { load } from "lib/load";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { routes } from "routes";
 import { t } from "translations";
 import { Button, Text } from "ui";
@@ -23,5 +23,8 @@ export default async function DashboardPage(): Promise<JSX.Element> {
       </div>
     );
 
-  return redirect(routes.organization({ organizationId: organizations[0].id }));
+  return redirect(
+    routes.organization({ organizationId: organizations[0].id }),
+    RedirectType.replace,
+  );
 }

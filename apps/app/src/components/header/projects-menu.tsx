@@ -4,13 +4,12 @@ import { css } from "@flows/styled-system/css";
 import { useAuth } from "auth/client";
 import { CreateOrganizationDialog } from "components/organizations";
 import { CreateProjectDialog } from "components/projects";
+import { useFetch } from "hooks/use-fetch";
 import { ChevronDown16, Plus16 } from "icons";
-import { api } from "lib/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { FC } from "react";
 import { routes } from "routes";
-import useSWR from "swr";
 import { t } from "translations";
 import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 
@@ -22,23 +21,19 @@ export const ProjectsMenu: FC = () => {
     organizationId?: string;
     projectId?: string;
   }>();
+  const { data: organizations } = useFetch("/organizations");
+  const { data: projects } = useFetch(
+    "/organizations/:organizationId/projects",
+    organizationId ? [organizationId] : null,
+  );
 
   const auth = useAuth();
-  const { data: organizations } = useSWR(
-    auth ? [auth.token, "/organizations"] : null,
-    auth ? () => api["/organizations"]()({ token: auth.token }) : null,
-  );
-  const { data: projects } = useSWR(
-    auth && organizationId ? [auth.token, `/organizations/${organizationId}/projects`] : null,
-    auth && organizationId
-      ? () => api["/organizations/:organizationId/projects"](organizationId)({ token: auth.token })
-      : null,
-  );
+  if (!auth) return null;
 
   const currentOrg = organizations?.find((org) => org.id === organizationId);
   const currentProject = projects?.find((proj) => proj.id === projectId);
 
-  if (!auth) return null;
+  // TODO: add empty state label
 
   return (
     <Popover>
@@ -94,7 +89,7 @@ export const ProjectsMenu: FC = () => {
         </div>
         <Icon icon={ChevronDown16} />
       </PopoverTrigger>
-      <PopoverContent>
+      <PopoverContent align="end">
         <div
           className={css({
             minWidth: "300px",

@@ -28,7 +28,7 @@ export const SettingsMenu: FC = () => {
       href: routes.projectSettings({ organizationId, projectId }),
     },
     {
-      label: "Organization settings TODO",
+      label: "Organization settings",
       href: routes.organizationSettings({ organizationId }),
     },
   ];
@@ -59,7 +59,7 @@ export const SettingsMenu: FC = () => {
           <Icon icon={Settings16} />
         </div>
       </PopoverTrigger>
-      <PopoverContent>
+      <PopoverContent align="end">
         <div
           className={css({
             minWidth: "280px",

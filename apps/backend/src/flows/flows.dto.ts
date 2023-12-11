@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { IsBoolean, IsEnum, IsJSON, IsString, Length } from "class-validator";
+import { IsBoolean, IsEnum, IsJSON, IsString, Length, MinLength } from "class-validator";
 import type { FlowFrequency } from "db";
 import { FlowFrequencyEnum, FlowType, FlowTypeEnum } from "db";
 
@@ -54,6 +54,7 @@ export class UpdateFlowDto extends PartialType(CompleteUpdateFlowDto) {}
 
 export class CreateFlowDto {
   @IsString()
+  @MinLength(3)
   name: string;
 }
 

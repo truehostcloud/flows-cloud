@@ -1,4 +1,4 @@
-import { IsString, MinLength } from "class-validator";
+import { IsEmail, IsString, MinLength } from "class-validator";
 
 export class GetOrganizationsDto {
   id: string;
@@ -14,4 +14,14 @@ export class CreateOrganizationDto {
   @IsString()
   @MinLength(3)
   name: string;
+}
+
+export class InviteUserDto {
+  @IsEmail()
+  email: string;
+}
+
+export class GetOrganizationMembersDto {
+  id: string;
+  email: string;
 }

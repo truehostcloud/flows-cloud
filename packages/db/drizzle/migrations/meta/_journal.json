@@ -92,6 +92,13 @@
       "when": 1701680977112,
       "tag": "0012_brave_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1702115943078,
+      "tag": "0013_daily_cerise",
+      "breakpoints": true
     }
   ]
 }

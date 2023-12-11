@@ -1,7 +1,7 @@
 import { css } from "@flows/styled-system/css";
 import { api } from "lib/api";
 import { load } from "lib/load";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { routes } from "routes";
 
 import { VersionList } from "./version-list";
@@ -16,7 +16,10 @@ export default async function FlowVersionsPage({ params }: Props): Promise<JSX.E
   const versions = await load(api["/flows/:flowId/versions"](flowId));
   const versionId = versionIds?.at(0);
   if (!versionId && versions.length)
-    redirect(routes.flowVersions({ flowId, organizationId, projectId, versionId: versions[0].id }));
+    redirect(
+      routes.flowVersions({ flowId, organizationId, projectId, versionId: versions[0].id }),
+      RedirectType.replace,
+    );
 
   const version = versions.find((v) => v.id === versionId);
 
