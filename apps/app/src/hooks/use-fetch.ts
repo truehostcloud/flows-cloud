@@ -1,6 +1,6 @@
 import { useAuth } from "auth/client";
 import { useCallback, useMemo } from "react";
-import useSWR from "swr";
+import useSWR, { mutate as swrMutate } from "swr";
 
 import { type Api, api } from "../lib/api";
 
@@ -36,3 +36,8 @@ export const useFetch = <
 
   return useSWR<Return>(_key, { fetcher });
 };
+
+export const mutate = <Key extends keyof Api, Args extends Parameters<Api[Key]>>(
+  key: Key,
+  args: Args = DEFAULT_ARGS as Args,
+): Promise<void> => swrMutate([key, ...args]);

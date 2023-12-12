@@ -4,7 +4,17 @@ import { useSend } from "hooks/use-send";
 import { api, type OrganizationDetail, type OrganizationUser } from "lib/api";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Text } from "ui";
+import { t } from "translations";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Text,
+  toast,
+} from "ui";
 
 type Props = {
   organization: OrganizationDetail;
@@ -19,6 +29,7 @@ export const MemberRemoveDialog: FC<Props> = ({ organization, user }) => {
       api["DELETE /organizations/:organizationId/users/:userId"](organization.id, user.id),
     );
     if (res.error) return;
+    toast.success(t.toasts.memberRemoved);
     router.refresh();
   };
 

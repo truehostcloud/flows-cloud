@@ -19,6 +19,7 @@ export type FlowVersion = Schemas["GetFlowVersionsDto"];
 export type UpdateFlow = Schemas["UpdateFlowDto"];
 export type CreateFlow = Schemas["CreateFlowDto"];
 export type Me = Schemas["GetMeDto"];
+export type AcceptInviteResponse = Schemas["AcceptInviteResponseDto"];
 
 export type Api = {
   "/organizations": Endpoint<OrganizationPreview[]>;
@@ -40,7 +41,7 @@ export type Api = {
   "POST /projects/:projectId/flows": Endpoint<FlowPreview, [string, CreateFlow]>;
   "DELETE /flows/:flowId": Endpoint<void, [string]>;
   "/me": Endpoint<Me>;
-  "POST /invites/:inviteId/accept": Endpoint<void, [string]>;
+  "POST /invites/:inviteId/accept": Endpoint<AcceptInviteResponse, [string]>;
 };
 
 export const api: Api = {

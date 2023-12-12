@@ -216,6 +216,9 @@ export interface components {
     GetMeDto: {
       pendingInvites: components["schemas"]["Invite"][];
     };
+    AcceptInviteResponseDto: {
+      organization_id: string;
+    };
   };
   responses: never;
   parameters: never;
@@ -552,7 +555,9 @@ export interface operations {
     };
     responses: {
       201: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["AcceptInviteResponseDto"];
+        };
       };
     };
   };

@@ -9,7 +9,8 @@ import { api, type FlowDetail } from "lib/api";
 import { type FC, useCallback, useMemo } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
-import { Button, Text } from "ui";
+import { t } from "translations";
+import { Button, Text, toast } from "ui";
 
 import { StepsPreview } from "./steps-preview";
 
@@ -29,11 +30,13 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
 
   const { loading, send } = useSend();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    await send(
+    const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
         data: JSON.stringify(JSON.parse(data.data || "{}")),
       }),
     );
+    if (res.error) return;
+    toast.success(t.toasts.updateFlowSuccess);
   };
   const parseFlow = useCallback(
     (data: string): unknown => ({ ...JSON.parse(data), id: flow.id }),

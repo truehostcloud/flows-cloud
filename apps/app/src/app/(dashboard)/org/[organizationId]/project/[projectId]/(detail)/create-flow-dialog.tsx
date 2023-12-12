@@ -8,7 +8,17 @@ import type { FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
+import { t } from "translations";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Input,
+  toast,
+} from "ui";
 
 type Props = {
   projectId: string;
@@ -27,6 +37,7 @@ export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(api["POST /projects/:projectId/flows"](projectId, data));
     if (!res.data) return;
+    toast.success(t.toasts.createFlowSuccess);
     router.push(routes.flow({ flowId: res.data.id, projectId, organizationId }));
   };
 

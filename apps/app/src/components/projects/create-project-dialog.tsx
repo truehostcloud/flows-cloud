@@ -1,6 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
@@ -8,7 +9,17 @@ import { type FC, type ReactNode, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
+import { t } from "translations";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Input,
+  toast,
+} from "ui";
 
 type Props = {
   trigger: ReactNode;
@@ -30,7 +41,8 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
     );
     if (!res.data) return;
     setOpen(false);
-
+    toast.success(t.toasts.createProjectSuccess);
+    void mutate("/organizations/:organizationId/projects", [organizationId]);
     router.push(routes.project({ projectId: res.data.id, organizationId }));
   };
 

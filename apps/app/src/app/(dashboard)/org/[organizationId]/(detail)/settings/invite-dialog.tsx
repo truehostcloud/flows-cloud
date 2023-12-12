@@ -7,7 +7,17 @@ import { useRouter } from "next/navigation";
 import { type FC, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
+import { t } from "translations";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Input,
+  toast,
+} from "ui";
 
 type Props = {
   organizationId: string;
@@ -26,6 +36,7 @@ export const InviteDialog: FC<Props> = ({ organizationId }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(api["POST /organizations/:organizationId/users"](organizationId, data));
     if (res.error) return;
+    toast.success(t.toasts.inviteSent);
     router.refresh();
     setOpen(false);
   };

@@ -4,10 +4,12 @@ import { css } from "@flows/styled-system/css";
 import { useSend } from "hooks/use-send";
 import type { FlowDetail, UpdateFlow } from "lib/api";
 import { api } from "lib/api";
+import { useRouter } from "next/navigation";
 import { type FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
-import { Button, Checkbox, Input, Select, Text } from "ui";
+import { t } from "translations";
+import { Button, Checkbox, Input, Select, Text, toast } from "ui";
 
 type Props = {
   flow: FlowDetail;
@@ -34,14 +36,18 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
   const { register, handleSubmit, control } = useForm<FormData>({ defaultValues });
 
   const { loading, send } = useSend();
+  const router = useRouter();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    await send(
+    const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
         ...data,
         human_id_alias: data.human_id_alias || undefined,
         frequency: data.frequency || undefined,
       }),
     );
+    if (res.error) return;
+    toast.success(t.toasts.updateFlowSuccess);
+    router.refresh();
   };
 
   const isCloud = flow.flow_type === "cloud";

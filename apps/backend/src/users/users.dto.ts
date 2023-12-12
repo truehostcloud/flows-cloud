@@ -7,3 +7,7 @@ export class Invite {
 export class GetMeDto {
   pendingInvites: Invite[];
 }
+
+export class AcceptInviteResponseDto {
+  organization_id: string;
+}

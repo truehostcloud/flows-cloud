@@ -39,6 +39,7 @@ beforeEach(async () => {
   db.query.userInvite.findFirst.mockResolvedValue({
     id: "inviteId",
     expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+    organization_id: "orgId",
     email: "email",
   });
 
@@ -129,9 +130,9 @@ describe("Accept invite", () => {
     );
   });
   it("should accept invite", async () => {
-    await expect(usersController.acceptInvite({ userId: "userId" }, "inviteId")).resolves.toEqual(
-      undefined,
-    );
+    await expect(usersController.acceptInvite({ userId: "userId" }, "inviteId")).resolves.toEqual({
+      organization_id: "orgId",
+    });
     expect(db.insert).toHaveBeenCalledWith(organizationsToUsers);
     expect(db.delete).toHaveBeenCalledWith(userInvite);
   });

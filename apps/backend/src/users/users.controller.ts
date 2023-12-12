@@ -2,7 +2,7 @@ import { Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
-import type { GetMeDto } from "./users.dto";
+import type { AcceptInviteResponseDto, GetMeDto } from "./users.dto";
 import { UsersService } from "./users.service";
 
 @ApiTags("users")
@@ -17,7 +17,10 @@ export class UsersController {
   }
 
   @Post("invites/:inviteId/accept")
-  acceptInvite(@Authorization() auth: Auth, @Param("inviteId") inviteId: string): Promise<void> {
+  acceptInvite(
+    @Authorization() auth: Auth,
+    @Param("inviteId") inviteId: string,
+  ): Promise<AcceptInviteResponseDto> {
     return this.usersService.acceptInvite({ auth, inviteId });
   }
 }

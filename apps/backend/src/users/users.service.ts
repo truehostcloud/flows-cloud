@@ -4,7 +4,7 @@ import { and, eq, gt } from "drizzle-orm";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { GetMeDto } from "./users.dto";
+import type { AcceptInviteResponseDto, GetMeDto } from "./users.dto";
 
 @Injectable()
 export class UsersService {
@@ -35,7 +35,13 @@ export class UsersService {
     };
   }
 
-  async acceptInvite({ auth, inviteId }: { auth: Auth; inviteId: string }): Promise<void> {
+  async acceptInvite({
+    auth,
+    inviteId,
+  }: {
+    auth: Auth;
+    inviteId: string;
+  }): Promise<AcceptInviteResponseDto> {
     const invite = await this.databaseService.db.query.userInvite.findFirst({
       where: eq(userInvite.id, inviteId),
     });
@@ -56,5 +62,9 @@ export class UsersService {
     });
 
     await this.databaseService.db.delete(userInvite).where(eq(userInvite.id, inviteId));
+
+    return {
+      organization_id: invite.organization_id,
+    };
   }
 }

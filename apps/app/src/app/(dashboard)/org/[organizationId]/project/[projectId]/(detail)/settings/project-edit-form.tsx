@@ -1,12 +1,15 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
 import { api, type ProjectDetail } from "lib/api";
+import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Button, Input, Text } from "ui";
+import { t } from "translations";
+import { Button, Input, Text, toast } from "ui";
 
 type Props = {
   project: ProjectDetail;
@@ -32,8 +35,9 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
   const { append, fields, remove } = useFieldArray({ control, name: "domains" });
 
   const { send, loading } = useSend();
+  const router = useRouter();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    await send(
+    const res = await send(
       api["PUT /projects/:projectId"](project.id, {
         domains: data.domains.map((d) => d.value),
         description: data.description || undefined,
@@ -42,6 +46,10 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
         human_id_alias: data.human_id_alias || undefined,
       }),
     );
+    if (res.error) return;
+    toast.success(t.toasts.updateProjectSuccess);
+    void mutate("/organizations/:organizationId/projects", [project.organization_id]);
+    router.refresh();
   };
 
   return (
