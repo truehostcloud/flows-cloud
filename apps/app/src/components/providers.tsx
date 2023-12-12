@@ -2,7 +2,7 @@
 import { DarkModeProvider } from "@rbnd/react-dark-mode";
 import { AuthProvider } from "auth/client";
 import { type FC, type ReactNode } from "react";
-import { ToastWarmer } from "ui";
+import { ToastProvider } from "ui";
 
 type Props = {
   children?: ReactNode;
@@ -10,7 +10,7 @@ type Props = {
 export const Providers: FC<Props> = ({ children }) => {
   return (
     <DarkModeProvider>
-      <ToastWarmer />
+      <ToastProvider />
       <AuthProvider>{children}</AuthProvider>
     </DarkModeProvider>
   );
