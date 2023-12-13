@@ -4,6 +4,7 @@ import { useSend } from "hooks/use-send";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
+import React from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
@@ -22,13 +23,14 @@ import {
 type Props = {
   projectId: string;
   organizationId: string;
+  trigger: React.ReactNode;
 };
 
 type FormData = {
   name: string;
 };
 
-export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId }) => {
+export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId, trigger }) => {
   const { send, loading } = useSend();
   const router = useRouter();
 
@@ -41,7 +43,7 @@ export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId }) => {
   };
 
   return (
-    <Dialog trigger={<Button variant="black">New flow</Button>}>
+    <Dialog trigger={trigger}>
       <DialogTitle>Create Flow</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>

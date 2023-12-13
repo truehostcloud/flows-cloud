@@ -1,7 +1,7 @@
 import { css } from "@flows/styled-system/css";
 import { api } from "lib/api";
 import { load } from "lib/load";
-import { Text } from "ui";
+import { Button, Text } from "ui";
 
 import { CreateFlowDialog } from "./create-flow-dialog";
 import { FlowsList } from "./flows-list";
@@ -21,7 +21,11 @@ export default async function ProjectDetailPage({
         <Text className={css({ mb: "space16", flex: 1 })} variant="titleXl">
           {project.name}
         </Text>
-        <CreateFlowDialog organizationId={project.organization_id} projectId={projectId} />
+        <CreateFlowDialog
+          organizationId={project.organization_id}
+          projectId={projectId}
+          trigger={<Button variant="black">New flow</Button>}
+        />
       </div>
 
       <FlowsList projectId={projectId} />
