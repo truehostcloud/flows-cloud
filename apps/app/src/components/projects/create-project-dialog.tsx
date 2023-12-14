@@ -1,6 +1,5 @@
 "use client";
 
-import { css } from "@flows/styled-system/css";
 import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
 import { api } from "lib/api";
@@ -51,12 +50,7 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
       <DialogTitle>Create Project</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Input
-            {...register("name")}
-            inputClassName={css({ width: "100%" })}
-            label="Name"
-            wrapperClassName={css({ display: "block", mt: "space4" })}
-          />
+          <Input {...register("name")} fullWidth label="Name" />
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>

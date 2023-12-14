@@ -71,12 +71,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
             { key: "human_id_alias", label: "Human ID Alias" },
           ] as const
         ).map(({ key, label }) => (
-          <Input
-            {...register(key)}
-            key={key}
-            label={label}
-            wrapperClassName={css({ display: "block", mt: "space4" })}
-          />
+          <Input {...register(key)} key={key} label={label} />
         ))}
       </div>
       <div

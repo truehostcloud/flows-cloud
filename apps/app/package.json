@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
-    "@rbnd/flows": "0.0.19",
+    "@rbnd/flows": "0.0.20",
     "@rbnd/react-dark-mode": "^2.0.1",
     "@supabase/ssr": "^0.0.10",
     "cookies-next": "^4.1.0",

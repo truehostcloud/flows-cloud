@@ -19,4 +19,12 @@ export const t = {
     inviteSent: "Invite sent",
     memberRemoved: "Member removed",
   },
+  targeting: {
+    targeting: "Targeting",
+    addGroup: "Add group",
+    addMatcher: "Add matcher",
+    group: "Group",
+    value: "Value",
+    or: "or",
+  },
 };

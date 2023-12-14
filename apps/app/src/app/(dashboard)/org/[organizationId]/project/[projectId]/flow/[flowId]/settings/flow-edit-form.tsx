@@ -2,7 +2,7 @@
 
 import { css } from "@flows/styled-system/css";
 import { useSend } from "hooks/use-send";
-import type { FlowDetail, UpdateFlow } from "lib/api";
+import type { FlowDetail } from "lib/api";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
 import { type FC } from "react";
@@ -11,38 +11,36 @@ import { Controller, useForm } from "react-hook-form";
 import { t } from "translations";
 import { Button, Checkbox, Input, Select, Text, toast } from "ui";
 
+import type { FlowEditFormData, MatchGroup } from "./flow-edit-types";
+import { FlowMatchGroup } from "./targeting";
+
 type Props = {
   flow: FlowDetail;
 };
 
-type FormData = {
-  name: string;
-  description: string;
-  human_id: string;
-  human_id_alias: string;
-  published: boolean;
-  frequency?: UpdateFlow["frequency"];
-};
-
 export const FlowEditForm: FC<Props> = ({ flow }) => {
-  const defaultValues: FormData = {
+  const defaultValues: FlowEditFormData = {
     description: flow.description,
     human_id: flow.human_id,
     human_id_alias: flow.human_id_alias ?? "",
     name: flow.name,
     published: !!flow.published_at,
     frequency: flow.frequency || "once",
+    userProperties: (flow.data.userProperties as MatchGroup[] | undefined) ?? [[]],
   };
-  const { register, handleSubmit, control } = useForm<FormData>({ defaultValues });
+  const { register, handleSubmit, control, setValue, watch } = useForm<FlowEditFormData>({
+    defaultValues,
+  });
 
   const { loading, send } = useSend();
   const router = useRouter();
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit: SubmitHandler<FlowEditFormData> = async (data) => {
     const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
         ...data,
         human_id_alias: data.human_id_alias || undefined,
         frequency: data.frequency || undefined,
+        data: JSON.stringify({ ...flow.data, userProperties: data.userProperties }),
       }),
     );
     if (res.error) return;
@@ -51,6 +49,8 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
   };
 
   const isCloud = flow.flow_type === "cloud";
+
+  const userProperties = watch("userProperties");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -71,15 +71,9 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
             { key: "human_id_alias", label: "Human ID Alias" },
           ] as const
         ).map(({ key, label }) => (
-          <Input
-            {...register(key)}
-            key={key}
-            label={label}
-            wrapperClassName={css({ display: "block", mt: "space4" })}
-          />
+          <Input {...register(key)} defaultValue={defaultValues[key]} key={key} label={label} />
         ))}
       </div>
-
       {isCloud ? (
         <>
           <Controller
@@ -119,6 +113,27 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
           </div>
         </>
       ) : null}
+
+      <Text className={css({ mb: "space8" })} variant="titleL">
+        {t.targeting.targeting}
+      </Text>
+      {userProperties.map((_, i) => (
+        <FlowMatchGroup
+          control={control}
+          index={i}
+          // eslint-disable-next-line react/no-array-index-key -- index is fine here
+          key={i}
+        />
+      ))}
+      <div>
+        <Button
+          onClick={() => setValue("userProperties", [...userProperties, []])}
+          size="small"
+          variant="black"
+        >
+          {t.targeting.addGroup}
+        </Button>
+      </div>
 
       <Button className={css({ mt: "space24" })} loading={loading} type="submit">
         Save
