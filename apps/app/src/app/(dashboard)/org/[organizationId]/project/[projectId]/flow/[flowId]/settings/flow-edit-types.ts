@@ -1,7 +1,19 @@
-import type { Flow } from "@rbnd/flows";
 import type { UpdateFlow } from "lib/api";
 
-export type MatchGroup = NonNullable<FlatArray<Flow["userProperties"], 1>>[];
+interface UserPropertyMatch {
+  key: string;
+  regex?: string;
+  eq?: PrimitiveValue | PrimitiveValue[];
+  ne?: PrimitiveValue | PrimitiveValue[];
+  gt?: CompareValue;
+  gte?: CompareValue;
+  lt?: CompareValue;
+  lte?: CompareValue;
+  contains?: string | string[];
+  notContains?: string | string[];
+}
+
+export type MatchGroup = UserPropertyMatch[];
 
 export type FlowEditFormData = {
   name: string;
@@ -18,9 +30,8 @@ export const primitiveValueOptions = [
   { label: "Number", value: "number" },
   { label: "Boolean", value: "boolean" },
   { label: "Null", value: "null" },
-  { label: "Undefined", value: "undefined" },
 ] as const;
-export type PrimitiveValue = string | number | boolean | null | undefined;
+export type PrimitiveValue = string | number | boolean | null;
 export type PrimitiveValueKey = (typeof primitiveValueOptions)[number]["value"];
 
 export const compareValueOptions = [
@@ -28,5 +39,5 @@ export const compareValueOptions = [
   { label: "Date", value: "date" },
   { label: "String", value: "string" },
 ] as const;
-export type CompareValue = number | Date | string;
+export type CompareValue = number | string;
 export type CompareValueKey = (typeof compareValueOptions)[number]["value"];

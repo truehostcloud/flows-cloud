@@ -1,8 +1,9 @@
 import { css } from "@flows/styled-system/css";
+import { Close16 } from "icons";
 import { type FC, useState } from "react";
 import type { Control } from "react-hook-form";
 import { useController } from "react-hook-form";
-import { Input, Select } from "ui";
+import { Button, Icon, Input, Select } from "ui";
 
 import type { FlowEditFormData } from "../flow-edit-types";
 import { CompareValueInput } from "./compare-value-input";
@@ -13,6 +14,7 @@ type Props = {
   control: Control<FlowEditFormData>;
   groupIndex: number;
   matcherIndex: number;
+  onRemove: () => void;
 };
 
 const matcherOptions = [
@@ -35,7 +37,7 @@ const isCompareKey = (key: MatcherKey): key is "gt" | "gte" | "lt" | "lte" =>
 const isStringArrayKey = (key: MatcherKey): key is "contains" | "notContains" =>
   ["contains", "notContains"].includes(key);
 
-export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control }) => {
+export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control, onRemove }) => {
   const { field } = useController({
     control,
     name: `userProperties.${groupIndex}.${matcherIndex}`,
@@ -50,6 +52,9 @@ export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control }
 
   return (
     <div className={css({ display: "flex", gap: "space8", alignItems: "flex-end" })}>
+      <Button onClick={onRemove} variant="black">
+        <Icon icon={Close16} />
+      </Button>
       <Input
         onChange={(e) => field.onChange({ ...field.value, key: e.target.value })}
         placeholder="Property"

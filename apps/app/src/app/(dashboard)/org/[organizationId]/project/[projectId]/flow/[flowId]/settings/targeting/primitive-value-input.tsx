@@ -7,12 +7,21 @@ import type { PrimitiveValue, PrimitiveValueKey } from "../flow-edit-types";
 import { primitiveValueOptions } from "../flow-edit-types";
 
 type Props<T extends PrimitiveValue = PrimitiveValue> = {
-  value: T | T[];
+  value?: T | T[];
   onChange: (value: T | T[]) => void;
 };
 
 export const PrimitiveValueInput: FC<Props> = ({ onChange, value }) => {
-  const [dataType, setDataType] = useState<PrimitiveValueKey>(primitiveValueOptions[0].value);
+  const [dataType, setDataType] = useState<PrimitiveValueKey>(() => {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (typeof v === "string") return "string";
+    if (typeof v === "number") return "number";
+    if (typeof v === "boolean") return "boolean";
+
+    if (v === null) return "null";
+
+    return primitiveValueOptions[0].value;
+  });
 
   const handleDataTypeChange = (v: PrimitiveValueKey): void => {
     setDataType(v);
@@ -77,7 +86,6 @@ const InputOnly: FC<InputOnlyProps> = ({ onChange, value, dataType }) => {
     if (dataType === "number" && typeof value !== "number") onChange(0);
     if (dataType === "boolean" && typeof value !== "boolean") onChange(false);
     if (dataType === "null" && value !== null) onChange(null);
-    if (dataType === "undefined" && value !== undefined) onChange(undefined);
   }, [dataType, onChange, value]);
 
   return (

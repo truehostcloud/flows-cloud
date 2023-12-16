@@ -27,7 +27,7 @@ export default function Login(): JSX.Element {
           mb: "space32",
         })}
       >
-        <Image alt="Logo" height={28} src="/logo.svg" width={28} />
+        <Image alt="Logo" height={28} priority src="/logo.svg" width={28} />
         <Text variant="titleL">Flows</Text>
       </div>
       <LoginForm />

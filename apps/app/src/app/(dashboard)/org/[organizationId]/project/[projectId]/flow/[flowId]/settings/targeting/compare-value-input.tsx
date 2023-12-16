@@ -1,4 +1,5 @@
 import { css } from "@flows/styled-system/css";
+import { formatDate, isIsoDate } from "lib/date";
 import { type FC, useEffect, useState } from "react";
 import { t } from "translations";
 import { Input, Select } from "ui";
@@ -11,14 +12,20 @@ type Props<T extends CompareValue = CompareValue> = {
 };
 
 export const CompareValueInput: FC<Props> = ({ onChange, value }) => {
-  const [dataType, setDataType] = useState<CompareValueKey>(compareValueOptions[0].value);
+  const [dataType, setDataType] = useState<CompareValueKey>(() => {
+    if (typeof value === "number") return "number";
+    if (typeof value === "string" && isIsoDate(value)) return "date";
+    if (typeof value === "string") return "string";
+
+    return compareValueOptions[0].value;
+  });
 
   useEffect(() => {
     if (dataType === "number" && typeof value !== "number") onChange(0);
-    if (dataType === "date" && typeof value !== "object") {
+    if (dataType === "date" && (typeof value !== "string" || !isIsoDate(value))) {
       const defaultDate = new Date();
       defaultDate.setHours(0, 0, 0, 0);
-      onChange(defaultDate);
+      onChange(defaultDate.toISOString());
     }
     if (dataType === "string" && typeof value !== "string") onChange("");
   }, [dataType, onChange, value]);
@@ -36,21 +43,18 @@ export const CompareValueInput: FC<Props> = ({ onChange, value }) => {
       {dataType === "number" && typeof value === "number" && (
         <Input onChange={(e) => onChange(Number(e.target.value))} type="number" value={value} />
       )}
-      {dataType === "date" && typeof value === "object" && (
-        // TODO: change date picker to UTC time zone
+      {dataType === "date" && typeof value === "string" && isIsoDate(value) && (
         <Input
-          onChange={(e) => onChange(new Date(e.target.value || new Date()))}
-          type="datetime-local"
-          value={value
-            .toLocaleString("sv-SE", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })
-            .replace(" ", "T")}
+          onChange={(e) => {
+            const date = new Date();
+            if (!e.target.value) return onChange(date.toISOString());
+            const [year, month, day] = e.target.value.split("-").map((v) => Number(v));
+            date.setUTCFullYear(year, month - 1, day);
+            date.setUTCHours(0, 0, 0, 0);
+            onChange(date.toISOString());
+          }}
+          type="date"
+          value={formatDate(value)}
         />
       )}
       {dataType === "string" && typeof value === "string" && (

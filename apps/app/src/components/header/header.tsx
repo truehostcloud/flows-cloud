@@ -44,7 +44,7 @@ export const Header: FC = () => {
             })}
             href={routes.home}
           >
-            <Image alt="Logo" height={32} src="/logo.svg" width={32} />
+            <Image alt="Logo" height={32} priority src="/logo.svg" width={32} />
           </Link>
 
           <nav>

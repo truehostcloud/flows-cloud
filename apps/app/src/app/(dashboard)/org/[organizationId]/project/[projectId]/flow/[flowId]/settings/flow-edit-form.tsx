@@ -51,6 +51,11 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   const userProperties = watch("userProperties");
+  const handleRemoveGroup = (index: number): void => {
+    const updated = [...userProperties];
+    updated.splice(index, 1);
+    setValue("userProperties", updated);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -123,6 +128,7 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
           index={i}
           // eslint-disable-next-line react/no-array-index-key -- index is fine here
           key={i}
+          onRemove={() => handleRemoveGroup(i)}
         />
       ))}
       <div>
