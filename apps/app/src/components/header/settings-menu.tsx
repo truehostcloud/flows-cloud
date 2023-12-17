@@ -36,6 +36,8 @@ export const SettingsMenu: FC = () => {
 
   if (!auth) return null;
 
+  //TODO: Handle organization settings state
+
   return (
     <Popover>
       <PopoverTrigger>

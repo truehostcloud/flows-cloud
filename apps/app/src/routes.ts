@@ -16,6 +16,8 @@ export const routes = {
 
   flow: (params: { flowId: string; projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}`,
+  flowAnalytics: (params: { flowId: string; projectId: string; organizationId: string }) =>
+    `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}/analytics`,
   flowSteps: (params: { flowId: string; projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}/steps`,
   flowVersions: (params: {

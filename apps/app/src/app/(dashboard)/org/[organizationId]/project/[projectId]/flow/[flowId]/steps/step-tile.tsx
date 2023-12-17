@@ -50,27 +50,35 @@ export const StepTile: FC<Props> = ({ step, activeIndex, index, onClick }) => {
 
   const active = activeIndex === index;
 
+  const title = "title" in step ? step.title : "Wait";
+
   return (
     <button
       className={css({
-        width: "32px",
-        height: "24px",
-        backgroundColor: active ? "bg.primary" : "bg.muted",
+        width: "120px",
+        height: "48px",
+        backgroundColor: active ? "bg.subtle" : "bg",
         transitionProperty: "all",
         transitionDuration: "fast",
         transitionTimingFunction: "easeInOut",
         borderWidth: 1,
         borderStyle: "solid",
-        borderColor: active ? "bg.primary" : "border",
-        borderRadius: "radius4",
+        borderColor: active ? "border.primary" : "border",
+        borderRadius: "radius8",
         cursor: "pointer",
         pointerEvents: active ? "none" : undefined,
+        textStyle: "bodyXs",
+        paddingX: "space4",
+        overflow: "hidden",
+
         _hover: {
           backgroundColor: "bg.hover",
         },
       })}
       onClick={() => onClick(index)}
       type="button"
-    />
+    >
+      {title}
+    </button>
   );
 };

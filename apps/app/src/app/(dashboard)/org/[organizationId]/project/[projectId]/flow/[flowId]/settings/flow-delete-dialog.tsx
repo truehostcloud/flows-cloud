@@ -21,9 +21,10 @@ import {
 type Props = {
   flow: FlowPreview;
   organizationId: string;
+  trigger: React.ReactNode;
 };
 
-export const FlowDeleteDialog: FC<Props> = ({ flow, organizationId }) => {
+export const FlowDeleteDialog: FC<Props> = ({ flow, organizationId, trigger }) => {
   const router = useRouter();
   const { send, loading } = useSend();
   const handleDelete = async (): Promise<void> => {
@@ -34,7 +35,7 @@ export const FlowDeleteDialog: FC<Props> = ({ flow, organizationId }) => {
   };
 
   return (
-    <Dialog trigger={<Button variant="black">Delete</Button>}>
+    <Dialog trigger={trigger}>
       <DialogTitle>Delete flow</DialogTitle>
       <DialogContent>
         <Text>Are you sure you want to delete this flow?</Text>

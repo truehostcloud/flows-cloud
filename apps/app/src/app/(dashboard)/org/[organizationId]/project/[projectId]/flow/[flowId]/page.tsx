@@ -1,37 +1,38 @@
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
+import type { FlowSteps } from "@rbnd/flows";
 import { api } from "lib/api";
 import { load } from "lib/load";
 import { Text } from "ui";
+
+import { SetupSection } from "./setup-section";
+import { StepsSection } from "./steps-section";
 
 type Props = {
   params: { flowId: string; projectId: string; organizationId: string };
 };
 
 export default async function FlowDetailPage({ params }: Props): Promise<JSX.Element> {
-  const data = await load(api["/flows/:flowId"](params.flowId));
+  const flow = await load(api["/flows/:flowId"](params.flowId));
+  const steps = (flow.data as undefined | { steps?: FlowSteps })?.steps;
 
   return (
-    <div>
-      <Text className={css({ mb: "space8" })} variant="titleL">
-        Daily stats
-      </Text>
-      {data.daily_stats.length === 0 && <Text>No stats yet</Text>}
-      {data.daily_stats.map((stat) => {
-        const date = new Date(stat.date).toLocaleDateString();
-        return (
-          <div className={css({ display: "flex", gap: "space8" })} key={date + stat.type}>
-            <Text className={css({ width: "100px" })} color="muted" variant="bodyS">
-              {date}
-            </Text>
-            <Text className={css({ width: "100px" })} variant="bodyS">
-              {stat.type}
-            </Text>
-            <Text align="right" className={css({ width: "64px" })} variant="bodyS">
-              {stat.count}
-            </Text>
-          </div>
-        );
-      })}
-    </div>
+    <Flex direction="column" gap="space24" width="100%">
+      <Flex direction="column" gap="space24" width="100%" />
+      <Flex
+        className={css({
+          cardWrap: "",
+        })}
+        justifyContent="center"
+        padding="space48"
+        width="100%"
+      >
+        <Text color="subtle" variant="titleM">
+          Quick look analytics TODO
+        </Text>
+      </Flex>
+      <StepsSection params={params} steps={steps} />
+      <SetupSection flow={flow} params={params} />
+    </Flex>
   );
 }

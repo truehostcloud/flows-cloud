@@ -34,6 +34,7 @@ export const ProjectsMenu: FC = () => {
   const currentProject = projects?.find((proj) => proj.id === projectId);
 
   // TODO: add empty state label
+  // TODO: handle organization settings state
 
   return (
     <Popover>

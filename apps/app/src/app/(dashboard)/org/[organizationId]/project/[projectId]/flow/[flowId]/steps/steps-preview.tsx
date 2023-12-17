@@ -3,11 +3,11 @@
 import "@rbnd/flows/flows.css";
 
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import type { FlowStep, FlowSteps } from "@rbnd/flows";
 import { endFlow, init, nextStep, startFlow } from "@rbnd/flows";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { Text } from "ui";
 
 import { StepTile } from "./step-tile";
 
@@ -50,9 +50,7 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
 
   return (
     <>
-      <Text variant="titleL">Preview step</Text>
-
-      <div className={css({ display: "flex", alignItems: "center", gap: "space8", mt: "space16" })}>
+      <Flex alignItems="center" gap="space8">
         {steps?.map((s, i) => (
           <StepTile
             activeIndex={stepIndex}
@@ -63,13 +61,17 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
             step={s as FlowStep}
           />
         ))}
-      </div>
+      </Flex>
 
       <div
         className={css({
-          height: "300px",
+          height: "380px",
           display: "grid",
           placeItems: "center",
+          backgroundColor: "bg.muted",
+          bor: "1px",
+          borderRadius: "radius12",
+          overflow: "hidden",
           transform: "translate3d(0,0,0)",
           mt: "space16",
         })}

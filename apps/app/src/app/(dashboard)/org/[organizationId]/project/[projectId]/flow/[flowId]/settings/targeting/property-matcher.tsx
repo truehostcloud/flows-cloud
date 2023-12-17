@@ -29,7 +29,7 @@ const matcherOptions = [
   { label: "Regular expression", value: "regex" },
 ] as const;
 
-type MatcherKey = (typeof matcherOptions)[number]["value"];
+export type MatcherKey = (typeof matcherOptions)[number]["value"];
 
 const isPrimitiveKey = (key: MatcherKey): key is "eq" | "ne" => ["eq", "ne"].includes(key);
 const isCompareKey = (key: MatcherKey): key is "gt" | "gte" | "lt" | "lte" =>

@@ -1,6 +1,6 @@
 "use client";
 
-import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import type { FC } from "react";
@@ -20,9 +20,10 @@ export const FlowTabs: FC<Props> = ({ cloudFlow }) => {
   const pathname = usePathname();
 
   return (
-    <div className={css({ display: "flex", gap: "space8", mb: "space16" })}>
+    <Flex gap="space8" mb="space16">
       {[
-        { title: "Analytics", href: routes.flow({ organizationId, projectId, flowId }) },
+        { title: "Overview", href: routes.flow({ organizationId, projectId, flowId }) },
+        { title: "Analytics", href: routes.flowAnalytics({ organizationId, projectId, flowId }) },
         ...(cloudFlow
           ? [
               { title: "Steps", href: routes.flowSteps({ organizationId, projectId, flowId }) },
@@ -47,6 +48,6 @@ export const FlowTabs: FC<Props> = ({ cloudFlow }) => {
           </Link>
         );
       })}
-    </div>
+    </Flex>
   );
 };

@@ -1,10 +1,9 @@
-import { css } from "@flows/styled-system/css";
 import { api } from "lib/api";
 import { load } from "lib/load";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Text } from "ui";
 
+import { FlowHeader } from "./flow-header";
 import { FlowTabs } from "./flow-tabs";
 
 type Props = {
@@ -25,12 +24,8 @@ export default async function FlowLayout({ children, params }: Props): Promise<J
 
   return (
     <>
-      <Text className={css({ mb: "space16" })} id="panda-title" variant="titleXl">
-        {flow.name}
-      </Text>
-
+      <FlowHeader flow={flow} params={params} />
       <FlowTabs cloudFlow={flow.flow_type === "cloud"} />
-
       {children}
     </>
   );
