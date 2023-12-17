@@ -27,25 +27,29 @@ export const Targeting: FC<Props> = ({ flow }) => {
       {properties ? (
         properties.map((group, groupIndex) => {
           return (
-            <Fragment key={groupIndex}>
+            <Fragment
+              // eslint-disable-next-line react/no-array-index-key -- ignore
+              key={groupIndex}
+            >
               {groupIndex !== 0 && <Text>or</Text>}
 
               <Wrap
                 align="center"
-                className={css({
-                  padding: "space4",
-                  bor: "1px",
-                  borderRadius: "radius12",
-                  backgroundColor: "bg.subtle",
-                })}
+                bg="bg.subtle"
+                bor="1px"
+                borderRadius="radius12"
                 gap="space8"
+                p="space4"
               >
-                {group.map((item, i) => {
+                {group.map((item, matcherIndex) => {
                   const operatorKey = Object.keys(item).filter((key) => key !== "key")[0];
                   const value = item[operatorKey as MatcherKey];
                   return (
-                    <Fragment key={i}>
-                      {i !== 0 && <Text>and</Text>}
+                    <Fragment
+                      // eslint-disable-next-line react/no-array-index-key -- ignore
+                      key={matcherIndex}
+                    >
+                      {matcherIndex !== 0 && <Text>and</Text>}
                       <Flex
                         className={css({
                           paddingY: "space4",
@@ -59,9 +63,12 @@ export const Targeting: FC<Props> = ({ flow }) => {
                         <Text weight="600">{item.key}</Text>
                         <Text color="muted">{t.targeting.operatorExplanation[operatorKey]}</Text>
                         {Array.isArray(value) ? (
-                          value.map((v, j) => (
-                            <Fragment key={j}>
-                              {j !== 0 && <Text>or</Text>}
+                          value.map((v, valueIndex) => (
+                            <Fragment
+                              // eslint-disable-next-line react/no-array-index-key -- ignore
+                              key={valueIndex}
+                            >
+                              {valueIndex !== 0 && <Text>or</Text>}
                               <ValueText>{v}</ValueText>
                             </Fragment>
                           ))
