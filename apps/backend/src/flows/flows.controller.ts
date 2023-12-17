@@ -29,12 +29,13 @@ export class FlowsControllers {
   }
 
   @Patch("flows/:flowId")
-  updateFlow(
+  async updateFlow(
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
     @Body() body: UpdateFlowDto,
-  ): Promise<void> {
-    return this.flowsService.updateFlow({ auth, flowId, data: body });
+  ): Promise<GetFlowDetailDto> {
+    await this.flowsService.updateFlow({ auth, flowId, data: body });
+    return this.flowsService.getFlowDetail({ auth, flowId });
   }
 
   @Post("projects/:projectId/flows")

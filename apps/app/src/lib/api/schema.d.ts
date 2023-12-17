@@ -349,7 +349,9 @@ export interface operations {
     };
     responses: {
       200: {
-        content: never;
+        content: {
+          "application/json": components["schemas"]["GetFlowDetailDto"];
+        };
       };
     };
   };

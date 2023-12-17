@@ -41,6 +41,7 @@ beforeEach(async () => {
   db.query.organizations.findFirst.mockResolvedValue({
     organizationsToUsers: [{ user_id: "userId" }],
   });
+  db.groupBy.mockResolvedValue([{ count: 1 }]);
 
   const moduleRef = await Test.createTestingModule({
     controllers: [FlowsControllers],
@@ -84,9 +85,6 @@ describe("Get flows", () => {
 });
 
 describe("Get flow detail", () => {
-  beforeEach(() => {
-    db.groupBy.mockResolvedValue([{ count: 1 }]);
-  });
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
@@ -118,7 +116,12 @@ describe("Get flow detail", () => {
 describe("Update flow", () => {
   beforeEach(() => {
     db.returning.mockResolvedValue([{ id: "newVerId" }]);
-    db.where.mockResolvedValue(undefined);
+    db.where.mockResolvedValueOnce(undefined);
+    db.where.mockImplementationOnce(
+      jest.fn(function returnThis() {
+        return this as typeof db;
+      }),
+    );
   });
   const data: UpdateFlowDto = {
     name: "newName",
@@ -155,14 +158,17 @@ describe("Update flow", () => {
   });
   it("should not create new version without data", async () => {
     await expect(
-      flowsController.updateFlow({ userId: "userId" }, "flowId", { ...data, data: undefined }),
-    ).resolves.toBeUndefined();
+      flowsController.updateFlow({ userId: "userId" }, "flowId", {
+        ...data,
+        data: undefined,
+      }),
+    ).resolves.toEqual({ id: "flowId", daily_stats: [{ count: 1 }] });
     expect(db.insert).not.toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
-    await expect(
-      flowsController.updateFlow({ userId: "userId" }, "flowId", data),
-    ).resolves.toBeUndefined();
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
+      { id: "flowId", daily_stats: [{ count: 1 }] },
+    );
     expect(db.insert).toHaveBeenCalled();
     expect(db.update).toHaveBeenCalled();
     expect(db.set).toHaveBeenCalledWith({

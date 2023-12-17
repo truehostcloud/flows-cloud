@@ -19,31 +19,31 @@ type Props = {
 };
 
 export const FlowEditForm: FC<Props> = ({ flow }) => {
-  const defaultValues: FlowEditFormData = {
-    description: flow.description,
-    human_id: flow.human_id,
-    human_id_alias: flow.human_id_alias ?? "",
-    name: flow.name,
-    published: !!flow.published_at,
-    frequency: flow.frequency || "once",
-    userProperties: (flow.data.userProperties as MatchGroup[] | undefined) ?? [[]],
-  };
-  const { register, handleSubmit, control, setValue, watch } = useForm<FlowEditFormData>({
-    defaultValues,
-  });
+  const { register, handleSubmit, control, setValue, watch, reset, formState } =
+    useForm<FlowEditFormData>({
+      defaultValues: createDefaultValues(flow),
+    });
 
   const { loading, send } = useSend();
   const router = useRouter();
   const onSubmit: SubmitHandler<FlowEditFormData> = async (data) => {
+    const fixedUserProperties = data.userProperties
+      .map((group) => group.filter((matcher) => !!matcher.key))
+      .filter((group) => !!group.length);
+
     const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
         ...data,
         human_id_alias: data.human_id_alias || undefined,
         frequency: data.frequency || undefined,
-        data: JSON.stringify({ ...flow.data, userProperties: data.userProperties }),
+        data: JSON.stringify({
+          ...flow.data,
+          userProperties: fixedUserProperties,
+        }),
       }),
     );
     if (res.error) return;
+    if (res.data) reset(createDefaultValues(res.data));
     toast.success(t.toasts.updateFlowSuccess);
     router.refresh();
   };
@@ -76,7 +76,12 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
             { key: "human_id_alias", label: "Human ID Alias" },
           ] as const
         ).map(({ key, label }) => (
-          <Input {...register(key)} defaultValue={defaultValues[key]} key={key} label={label} />
+          <Input
+            {...register(key)}
+            defaultValue={formState.defaultValues?.[key]}
+            key={key}
+            label={label}
+          />
         ))}
       </div>
       {isCloud ? (
@@ -147,3 +152,13 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
     </form>
   );
 };
+
+const createDefaultValues = (flow: FlowDetail): FlowEditFormData => ({
+  description: flow.description,
+  human_id: flow.human_id,
+  human_id_alias: flow.human_id_alias ?? "",
+  name: flow.name,
+  published: !!flow.published_at,
+  frequency: flow.frequency || "once",
+  userProperties: (flow.data.userProperties as MatchGroup[] | undefined) ?? [[]],
+});
