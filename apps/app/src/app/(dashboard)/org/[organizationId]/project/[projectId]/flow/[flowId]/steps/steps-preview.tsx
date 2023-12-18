@@ -5,9 +5,9 @@ import "@rbnd/flows/flows.css";
 import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import type { FlowStep, FlowSteps } from "@rbnd/flows";
-import { endFlow, init, nextStep, startFlow } from "@rbnd/flows";
+import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@rbnd/flows";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { StepTile } from "./step-tile";
 
@@ -17,6 +17,7 @@ type Props = {
 
 export const StepsPreview: FC<Props> = ({ steps }) => {
   const [stepIndex, setStepIndex] = useState<number | number[]>(0);
+  const [currentStep, setCurrentStep] = useState<FlowStep | null>();
 
   useEffect(() => {
     if (!steps) return;
@@ -44,9 +45,23 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
         nextStep("flow");
       }
     }
+    setCurrentStep(getCurrentStep("flow"));
 
     return () => endFlow("flow");
   }, [stepIndex, steps]);
+
+  const tooltipPlacement = useMemo(() => {
+    if (!currentStep) return;
+    if (!("element" in currentStep)) return;
+    return "placement" in currentStep ? currentStep.placement : "bottom";
+  }, [currentStep]);
+  const targetPosition = useMemo(() => {
+    if (!tooltipPlacement) return;
+    if (tooltipPlacement.includes("bottom")) return { top: 16 };
+    if (tooltipPlacement.includes("top")) return { bottom: 16, top: "unset" };
+    if (tooltipPlacement.includes("left")) return { right: 16, left: "unset" };
+    if (tooltipPlacement.includes("right")) return { left: 16 };
+  }, [tooltipPlacement]);
 
   return (
     <>
@@ -66,8 +81,7 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
       <div
         className={css({
           height: "380px",
-          display: "grid",
-          placeItems: "center",
+          position: "relative",
           backgroundColor: "bg.muted",
           bor: "1px",
           borderRadius: "radius12",
@@ -77,18 +91,24 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
         })}
         id="preview-root"
       >
-        <div
-          className={css({
-            height: "16px",
-            width: "16px",
-            borderStyle: "solid",
-            borderWidth: 1,
-            borderColor: "border.strong",
-            borderRadius: "radius100",
-            backgroundColor: "bg.subtle",
-          })}
-          id="preview-target"
-        />
+        {tooltipPlacement ? (
+          <div
+            className={css({
+              height: "16px",
+              width: "16px",
+              borderStyle: "solid",
+              borderWidth: 1,
+              borderColor: "border.strong",
+              borderRadius: "radius100",
+              backgroundColor: "bg.subtle",
+              position: "absolute",
+              left: "calc(50% - 8px)",
+              top: "calc(50% - 8px)",
+            })}
+            id="preview-target"
+            style={targetPosition}
+          />
+        ) : null}
       </div>
     </>
   );
@@ -98,8 +118,7 @@ const prepareSteps = (steps: FlowSteps): FlowSteps =>
   steps.map((s) => {
     if (Array.isArray(s)) return s.map((ss) => prepareSteps(ss) as FlowStep[]);
 
-    return {
-      ...s,
-      element: "element" in s && s.element ? "#preview-target" : undefined,
-    };
+    const step = { ...s };
+    if ("element" in step) step.element = "#preview-target";
+    return step;
   });

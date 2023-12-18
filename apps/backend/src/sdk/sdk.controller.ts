@@ -12,7 +12,7 @@ export class SdkController {
   constructor(private sdkService: SdkService) {}
 
   @Get("flows")
-  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
+  @Throttle({ default: { limit: 20, ttl: minutes(1) } })
   @ApiQuery({ name: "userHash", required: false })
   getFlows(
     @Headers("origin") origin: string,

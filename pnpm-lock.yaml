@@ -33,8 +33,8 @@ importers:
         specifier: ^4.6.0
         version: 4.6.0(monaco-editor@0.44.0)(react-dom@18.2.0)(react@18.2.0)
       '@rbnd/flows':
-        specifier: 0.0.20
-        version: 0.0.20
+        specifier: 0.0.21
+        version: 0.0.21
       '@rbnd/react-dark-mode':
         specifier: ^2.0.1
         version: 2.0.1(react@18.2.0)
@@ -5128,8 +5128,8 @@ packages:
       '@floating-ui/dom': 1.5.3
     dev: false
 
-  /@rbnd/flows@0.0.20:
-    resolution: {integrity: sha512-KRUvouBOf5zxa54RbFVgiS3s1UHUUgrveogMg/j19ZW8gEd+BualvbtJp3wQ2m6AiedX5mrq06xodd5oEjCybQ==}
+  /@rbnd/flows@0.0.21:
+    resolution: {integrity: sha512-TTGfrM5I/1yaa5n+Y8D5AcVuxC+X9/G5YKfDPKIZLa3VuMY1PO23IX2ibs36xRXHrPCbxgnN8JZMoyWAZn/gvg==}
     dependencies:
       '@floating-ui/dom': 1.5.3
       superstruct: 1.0.3

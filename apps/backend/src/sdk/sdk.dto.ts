@@ -9,6 +9,8 @@ export class GetSdkFlowsDto {
   frequency: FlowFrequency | null;
   element?: string;
   steps: unknown[];
+  location?: string;
+  userProperties?: unknown;
 }
 
 export class CreateEventDto {

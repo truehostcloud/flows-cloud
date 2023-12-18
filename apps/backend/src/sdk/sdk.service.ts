@@ -73,12 +73,16 @@ export class SdkService {
         return true;
       })
       .flatMap((f) => {
-        const data = f.version?.data as undefined | { steps: unknown[]; element?: string };
+        const data = f.version?.data as
+          | undefined
+          | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
         if (!data) return [];
         return {
           id: f.human_id,
           steps: data.steps,
           element: data.element,
+          location: data.location,
+          userProperties: data.userProperties,
           frequency: f.frequency,
         };
       });

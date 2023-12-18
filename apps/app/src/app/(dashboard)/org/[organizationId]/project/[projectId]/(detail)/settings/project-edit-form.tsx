@@ -1,6 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
 import { api, type ProjectDetail } from "lib/api";
@@ -10,6 +11,10 @@ import type { SubmitHandler } from "react-hook-form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { t } from "translations";
 import { Button, Input, Text, toast } from "ui";
+
+const urlRegex =
+  // eslint-disable-next-line prefer-named-capture-group -- ignore
+  /^(?!mailto:)(?:(?:http|https|ftp):\/\/)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(\/|\\?|#)[^\\s]*)?$/;
 
 type Props = {
   project: ProjectDetail;
@@ -31,7 +36,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
     human_id: project.human_id,
     human_id_alias: project.human_id_alias || "",
   };
-  const { handleSubmit, control, register } = useForm<FormData>({ defaultValues });
+  const { handleSubmit, control, register, formState } = useForm<FormData>({ defaultValues });
   const { append, fields, remove } = useFieldArray({ control, name: "domains" });
 
   const { send, loading } = useSend();
@@ -78,17 +83,33 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
         className={css({ display: "flex", flexDirection: "column", gap: "space8", mb: "space16" })}
       >
         <Text>Domains</Text>
-        {fields.map((field, i) => (
-          <div
-            className={css({ display: "flex", gap: "space8", alignItems: "center" })}
-            key={field.id}
-          >
-            <Input type="url" {...register(`domains.${i}.value`)} required />
-            <Button onClick={() => remove(i)} size="small" variant="black">
-              Remove
-            </Button>
-          </div>
-        ))}
+        {fields.map((field, i) => {
+          const error = formState.errors.domains?.[i]?.value;
+          return (
+            <div
+              className={css({ display: "flex", gap: "space8", alignItems: "flex-start" })}
+              key={field.id}
+            >
+              <Flex direction="column" gap="space4">
+                <Input
+                  type="url"
+                  {...register(`domains.${i}.value`, {
+                    pattern: { value: urlRegex, message: "Should be valid url" },
+                  })}
+                  required
+                />
+                {error ? (
+                  <Text color="danger" variant="bodyXs">
+                    {error.message}
+                  </Text>
+                ) : null}
+              </Flex>
+              <Button onClick={() => remove(i)} variant="black">
+                Remove
+              </Button>
+            </div>
+          );
+        })}
         <div>
           <Button onClick={() => append({ value: "" })} size="small" variant="black">
             Add
