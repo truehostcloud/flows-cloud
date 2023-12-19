@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { organizations, organizationsToUsers, projects } from "db";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import slugify from "slugify";
 
 import type { Auth } from "../auth";
@@ -41,6 +41,7 @@ export class ProjectsService {
 
     const orgProjects = await this.databaseService.db.query.projects.findMany({
       where: eq(projects.organization_id, organizationId),
+      orderBy: [asc(projects.name)],
     });
 
     return orgProjects.map((project) => ({

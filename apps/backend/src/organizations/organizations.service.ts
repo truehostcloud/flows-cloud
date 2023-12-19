@@ -30,7 +30,8 @@ export class OrganizationsService {
       .select()
       .from(organizations)
       .leftJoin(organizationsToUsers, eq(organizations.id, organizationsToUsers.organization_id))
-      .where(eq(organizationsToUsers.user_id, auth.userId));
+      .where(eq(organizationsToUsers.user_id, auth.userId))
+      .orderBy(organizations.name);
 
     return orgs.map(({ organization }) => ({
       id: organization.id,

@@ -41,6 +41,7 @@ export class FlowsService {
 
     const projectFlows = await this.databaseService.db.query.flows.findMany({
       where: eq(flows.project_id, projectId),
+      orderBy: [desc(flows.updated_at)],
     });
 
     return projectFlows.map((flow) => ({

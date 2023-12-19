@@ -16,6 +16,7 @@ const db = {
   leftJoin: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   delete: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
   query: {
     organizations: {
       findFirst: jest.fn(),
@@ -33,7 +34,7 @@ const emailService = {
 };
 
 beforeEach(async () => {
-  db.where.mockResolvedValue([{ organization: { id: "org1" } }]);
+  db.orderBy.mockResolvedValue([{ organization: { id: "org1" } }]);
   db.query.organizations.findFirst.mockResolvedValue({
     id: "org1",
     name: "org",

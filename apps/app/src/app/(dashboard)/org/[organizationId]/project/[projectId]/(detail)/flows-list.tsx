@@ -32,85 +32,85 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
         overflow: "hidden",
       })}
     >
-      {flows.length > 0 ? (
-        flows.map((flow) => (
-          <Link
+      {flows.map((flow) => (
+        <Link
+          className={css({
+            display: "flex",
+            py: "space24",
+            px: "space24",
+            alignItems: "center",
+            gap: "space24",
+            justifyContent: "space-between",
+
+            transitionDuration: "fast",
+            transitionTimingFunction: "easeInOut",
+            transitionProperty: "all",
+
+            borderBottomStyle: "solid",
+            borderBottomWidth: "1px",
+            borderBottomColor: "border",
+
+            color: "text",
+
+            _last: {
+              borderBottomStyle: "none",
+            },
+
+            "&:hover": {
+              bg: "bg.subtleHover",
+              color: "text.primary",
+            },
+          })}
+          href={routes.flow({
+            flowId: flow.id,
+            projectId,
+            organizationId: project.organization_id,
+          })}
+          key={flow.id}
+        >
+          <Text color="inherit" variant="titleM">
+            {flow.name}
+          </Text>
+          <div
             className={css({
               display: "flex",
-              py: "space24",
-              px: "space24",
               alignItems: "center",
               gap: "space24",
-              justifyContent: "space-between",
-
-              transitionDuration: "fast",
-              transitionTimingFunction: "easeInOut",
-              transitionProperty: "all",
-
-              borderBottomStyle: "solid",
-              borderBottomWidth: "1px",
-              borderBottomColor: "border",
-
-              color: "text",
-
-              _last: {
-                borderBottomStyle: "none",
-              },
-
-              "&:hover": {
-                bg: "bg.subtleHover",
-                color: "text.primary",
-              },
             })}
-            href={routes.flow({
-              flowId: flow.id,
-              projectId,
-              organizationId: project.organization_id,
-            })}
-            key={flow.id}
           >
-            <Text color="inherit" variant="titleM">
-              {flow.name}
+            <Text
+              className={css({
+                width: "200px",
+              })}
+              color="muted"
+            >
+              Updated {timeFromNow(flow.updated_at)}
             </Text>
             <div
               className={css({
                 display: "flex",
                 alignItems: "center",
-                gap: "space24",
+                gap: "space8",
+                width: "200px",
               })}
             >
-              <Text
-                className={css({
-                  width: "200px",
-                })}
-                color="muted"
-              >
-                Updated {timeFromNow(flow.updated_at)}
-              </Text>
-              <div
-                className={css({
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "space8",
-                  width: "200px",
-                })}
-              >
-                {flow.published_at ? (
-                  <>
-                    <Icon color="icon.success" icon={Check16} />
-                    <Text color="success">Published {timeFromNow(flow.published_at)}</Text>
-                  </>
-                ) : (
-                  <>
-                    <Icon icon={CircleSlash16} />
-                    <Text color="muted">Not published</Text>
-                  </>
-                )}
-              </div>
+              {flow.published_at ? (
+                <>
+                  <Icon color="icon.success" icon={Check16} />
+                  <Text color="success">Published {timeFromNow(flow.published_at)}</Text>
+                </>
+              ) : (
+                <>
+                  <Icon icon={CircleSlash16} />
+                  <Text color="muted">Not published</Text>
+                </>
+              )}
             </div>
-          </Link>
-        ))
-      ) : (
+          </div>
+        </Link>
+      ))}
+
+      {!flows.length && (
         <CreateFlowDialog
           organizationId={project.organization_id}
           projectId={projectId}
