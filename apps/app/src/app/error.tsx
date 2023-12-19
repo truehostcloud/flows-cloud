@@ -1,11 +1,7 @@
 "use client";
 
-import { Text } from "ui";
+import { PageError } from "components/ui/page-error";
 
-type Props = {
-  error: Error;
-};
-
-export default function Error({ error }: Props): JSX.Element {
-  return <Text>{error.message}</Text>;
+export default function Error(props): JSX.Element {
+  return <PageError {...props} title="Something went wrong" />;
 }

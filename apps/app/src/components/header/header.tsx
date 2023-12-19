@@ -5,7 +5,7 @@ import { SettingsMenu } from "components/header/settings-menu";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { type FC } from "react";
+import { type FC, useMemo } from "react";
 import { routes } from "routes";
 import { Text } from "ui";
 
@@ -13,14 +13,17 @@ import { Invites } from "./invites";
 import { ProjectsMenu } from "./projects-menu";
 
 export const Header: FC = () => {
-  const { projectId, organizationId } = useParams<{ projectId: string; organizationId: string }>();
+  const { projectId, organizationId } = useParams<{ projectId?: string; organizationId: string }>();
 
-  const HEADER_ITEMS = [
-    {
-      label: "Home",
-      href: routes.project({ organizationId, projectId }),
-    },
-  ];
+  const HEADER_ITEMS = useMemo(() => {
+    if (!projectId) return [];
+    return [
+      {
+        label: "Home",
+        href: routes.project({ organizationId, projectId }),
+      },
+    ];
+  }, [organizationId, projectId]);
 
   return (
     <>
