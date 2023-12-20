@@ -61,7 +61,9 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
         render={({ field, fieldState }) => (
           <div className={css({ mb: "space24" })}>
             <CodeEditor defaultValue={defaultValues.data} onChange={(v) => field.onChange(v)} />
-            {fieldState.error ? <Text>{fieldState.error.message}</Text> : null}
+            <Text className={css({ mt: "space4", minH: "1.5em" })} color="danger" variant="bodyXs">
+              {fieldState.error?.message}
+            </Text>
           </div>
         )}
         rules={{

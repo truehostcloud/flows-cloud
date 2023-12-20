@@ -106,7 +106,7 @@ export const ProjectsMenu: FC = () => {
               <MenuSection bottomBorder>
                 {projects.map((proj) => {
                   return (
-                    <MenuItem key={proj.id}>
+                    <MenuItem asChild key={proj.id}>
                       <Link href={routes.project({ projectId: proj.id, organizationId })}>
                         <Text variant="titleS">{proj.name}</Text>
                       </Link>
@@ -138,7 +138,7 @@ export const ProjectsMenu: FC = () => {
           <MenuSection>
             {organizations?.map((org) => {
               return (
-                <MenuItem key={org.id}>
+                <MenuItem asChild key={org.id}>
                   <Link href={routes.organization({ organizationId: org.id })}>
                     <Text variant="titleS">{org.name}</Text>
                   </Link>

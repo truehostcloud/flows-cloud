@@ -1,15 +1,16 @@
 import { css } from "@flows/styled-system/css";
+import { Slot } from "@radix-ui/react-slot";
 import type { FC, ReactNode } from "react";
 
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
+  asChild?: boolean;
   as?: keyof JSX.IntrinsicElements;
-  type?: "button" | "submit" | "reset";
 };
 
-export const MenuItem: FC<Props> = ({ children, as }) => {
-  const Component = as || "div";
+export const MenuItem: FC<Props> = ({ children, asChild, as }) => {
+  const Component = asChild ? Slot : as ?? "div";
 
   return (
     <Component

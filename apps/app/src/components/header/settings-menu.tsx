@@ -75,11 +75,13 @@ export const SettingsMenu: FC = () => {
           </MenuSection>
           <MenuSection bottomBorder>
             {SETTINGS_MENU_OPTIONS.map((option) => (
-              <Link href={option.href} key={option.label}>
-                <MenuItem>
-                  <Text variant="bodyS">{option.label}</Text>
-                </MenuItem>
-              </Link>
+              <MenuItem asChild key={option.label}>
+                <Link href={option.href}>
+                  <Text as="span" variant="bodyS">
+                    {option.label}
+                  </Text>
+                </Link>
+              </MenuItem>
             ))}
           </MenuSection>
           <MenuSection bottomBorder>

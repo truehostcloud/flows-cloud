@@ -43,8 +43,8 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
           key="delete"
           organizationId={params.organizationId}
           trigger={
-            <MenuItem>
-              <Text>Delete</Text>
+            <MenuItem as="button">
+              <Text as="span">Delete</Text>
             </MenuItem>
           }
         />
@@ -52,15 +52,15 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
     },
     {
       item: (
-        <MenuItem key="duplicate">
-          <Text>Duplicate TODO</Text>
+        <MenuItem as="button" key="duplicate">
+          <Text as="span">Duplicate TODO</Text>
         </MenuItem>
       ),
     },
     {
       item: (
-        <MenuItem key="settings">
-          <Text>Settings TODO</Text>
+        <MenuItem as="button" key="settings">
+          <Text as="span">Settings TODO</Text>
         </MenuItem>
       ),
     },
