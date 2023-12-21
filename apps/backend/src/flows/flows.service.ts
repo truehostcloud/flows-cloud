@@ -56,6 +56,7 @@ export class FlowsService {
       human_id: flow.human_id,
       human_id_alias: flow.human_id_alias,
       frequency: flow.frequency,
+      preview_url: flow.preview_url,
     }));
   }
 
@@ -110,6 +111,7 @@ export class FlowsService {
       data: flow.version?.data,
       daily_stats: dailyStats,
       frequency: flow.frequency,
+      preview_url: flow.preview_url,
     };
   }
 
@@ -169,6 +171,7 @@ export class FlowsService {
         flow_version_id: newVersion ? newVersion.id : undefined,
         published_at,
         frequency: data.frequency,
+        preview_url: data.preview_url,
       })
       .where(eq(flows.id, flowId));
   }
@@ -223,6 +226,7 @@ export class FlowsService {
       human_id: flow.human_id,
       human_id_alias: flow.human_id_alias,
       frequency: flow.frequency,
+      preview_url: flow.preview_url,
     };
   }
 

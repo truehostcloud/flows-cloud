@@ -10,6 +10,7 @@ import type { FC } from "react";
 import { t } from "translations";
 import { Button, Popover, PopoverContent, PopoverTrigger, Switch, Text, toast } from "ui";
 
+import { FlowPreviewDialog } from "./flow-preview-dialog";
 import { FlowDeleteDialog } from "./settings/flow-delete-dialog";
 
 type Props = {
@@ -70,6 +71,7 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
       <Text variant="titleXl">{flow.name}</Text>
       {flowIsCloud ? (
         <Flex alignItems="center" gap="space16">
+          <FlowPreviewDialog flow={flow} />
           <Flex gap="space8">
             <Text weight="600">Public</Text>
             <Switch checked={flowIsPublic} disabled={loading} onChange={handlePublishedToggle} />

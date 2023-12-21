@@ -18,8 +18,7 @@ export class SdkService {
     requestOrigin: string;
     userHash?: string;
   }): Promise<GetSdkFlowsDto[]> {
-    if (!projectId) throw new NotFoundException();
-    if (!requestOrigin) throw new BadRequestException("Origin is required");
+    if (!projectId || !requestOrigin) throw new NotFoundException();
 
     const project = await this.databaseService.db.query.projects.findFirst({
       where: and(
@@ -86,6 +85,48 @@ export class SdkService {
           frequency: f.frequency,
         };
       });
+  }
+
+  async getPreviewFlow({
+    flowId,
+    projectId,
+    requestOrigin,
+  }: {
+    requestOrigin: string;
+    projectId: string;
+    flowId: string;
+  }): Promise<GetSdkFlowsDto> {
+    if (!projectId || !flowId || !requestOrigin) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: and(eq(projects.id, projectId), arrayContains(projects.domains, [requestOrigin])),
+    });
+    if (!project) throw new NotFoundException();
+
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: and(
+        eq(flows.project_id, project.id),
+        eq(flows.flow_type, "cloud"),
+        or(eq(flows.human_id, flowId), eq(flows.human_id_alias, flowId)),
+      ),
+      with: {
+        version: true,
+      },
+    });
+    if (!flow) throw new NotFoundException();
+
+    const data = flow.version?.data as
+      | undefined
+      | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
+    if (!data) throw new NotFoundException();
+    return {
+      id: flow.human_id,
+      steps: data.steps,
+      element: data.element,
+      location: data.location,
+      userProperties: data.userProperties,
+      frequency: flow.frequency,
+    };
   }
 
   async createEvent({

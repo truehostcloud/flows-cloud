@@ -1,0 +1,1 @@
+ALTER TABLE "flow" ADD COLUMN "preview_url" text;

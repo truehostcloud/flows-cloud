@@ -44,6 +44,7 @@ export const flows = pgTable(
     updated_at: timestamp("updated_at").notNull().defaultNow(),
     frequency: flowFrequencyEnum("frequency"),
     published_at: timestamp("published_at"),
+    preview_url: text("preview_url"),
   },
   (table) => {
     return {

@@ -16,17 +16,21 @@ import { MenuSection } from "./menu-section";
 import { ThemeSwitch } from "./theme-switch";
 
 export const SettingsMenu: FC = () => {
-  const { projectId, organizationId } = useParams<{ projectId: string; organizationId: string }>();
+  const { projectId, organizationId } = useParams<{ projectId?: string; organizationId: string }>();
 
   const SETTINGS_MENU_OPTIONS = [
     {
       label: "Personal settings TODO",
       href: "",
     },
-    {
-      label: "Project settings",
-      href: routes.projectSettings({ organizationId, projectId }),
-    },
+    ...(projectId
+      ? [
+          {
+            label: "Project settings",
+            href: routes.projectSettings({ organizationId, projectId }),
+          },
+        ]
+      : []),
     {
       label: "Organization settings",
       href: routes.organizationSettings({ organizationId }),

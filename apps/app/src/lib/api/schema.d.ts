@@ -11,6 +11,9 @@ export interface paths {
   "/sdk/flows": {
     get: operations["SdkController_getFlows"];
   };
+  "/sdk/flows/{flowId}": {
+    get: operations["SdkController_getPreviewFlow"];
+  };
   "/sdk/events": {
     post: operations["SdkController_createEvent"];
   };
@@ -68,6 +71,8 @@ export interface components {
       id: string;
       element?: string;
       steps: Record<string, never>[];
+      location?: string;
+      userProperties?: Record<string, never>;
     };
     CreateEventDto: {
       /** Format: date-time */
@@ -97,6 +102,7 @@ export interface components {
       updated_at: string;
       /** Format: date-time */
       published_at: string | null;
+      preview_url: string | null;
     };
     StatBucketDto: {
       /** Format: date-time */
@@ -121,7 +127,8 @@ export interface components {
       updated_at: string;
       /** Format: date-time */
       published_at: string | null;
-      data: Record<string, never>;
+      preview_url: string | null;
+      data?: Record<string, never>;
       daily_stats: components["schemas"]["StatBucketDto"][];
     };
     UpdateFlowDto: {
@@ -133,6 +140,7 @@ export interface components {
       human_id_alias?: string;
       published?: boolean;
       data?: string;
+      preview_url?: string;
     };
     CreateFlowDto: {
       name: string;
@@ -256,6 +264,26 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetSdkFlowsDto"][];
+        };
+      };
+    };
+  };
+  SdkController_getPreviewFlow: {
+    parameters: {
+      query: {
+        projectId: string;
+      };
+      header: {
+        origin: string;
+      };
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetSdkFlowsDto"];
         };
       };
     };

@@ -14,7 +14,7 @@ import { ProjectsModule } from "./projects/projects.module";
 import { SdkModule } from "./sdk/sdk.module";
 import { UsersModule } from "./users/users.module";
 
-const publicRoutes: string[] = ["/sdk/flows", "/sdk/events"];
+const publicRoutes: string[] = ["/sdk/flows", "/sdk/events", "/sdk/flows/:flowId"];
 
 @Module({
   imports: [

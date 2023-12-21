@@ -36,8 +36,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.2.21)(react@18.2.0)
       '@rbnd/flows':
-        specifier: 0.0.22
-        version: 0.0.22
+        specifier: 0.0.24
+        version: 0.0.24
       '@rbnd/react-dark-mode':
         specifier: ^2.0.1
         version: 2.0.1(react@18.2.0)
@@ -5131,8 +5131,8 @@ packages:
       '@floating-ui/dom': 1.5.3
     dev: false
 
-  /@rbnd/flows@0.0.22:
-    resolution: {integrity: sha512-WePDUyn/qBUqB0jV6UBp2Q2Csk+4TecnF359HUw4COoBU1V4Pry2PwOioxJHbZXsfFKkd7iaIUBzqW2XxmaUrQ==}
+  /@rbnd/flows@0.0.24:
+    resolution: {integrity: sha512-L1cUyxnxMS3vDw3Um4LeBE5yNrooN25rRpeck5mpeq/wLa0eoInun1JuZkE4xXyL59Lqgjdj/sLB0GsyU4pgFw==}
     dependencies:
       '@floating-ui/dom': 1.5.3
       superstruct: 1.0.3

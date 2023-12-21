@@ -65,7 +65,7 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
 
   return (
     <>
-      <Flex alignItems="center" gap="space8">
+      <Flex alignItems="center" gap="space8" minHeight="48px">
         {steps?.map((s, i) => (
           <StepTile
             activeIndex={stepIndex}

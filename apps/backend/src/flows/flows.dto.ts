@@ -17,6 +17,7 @@ export class GetFlowsDto {
   published_at: Date | null;
   @ApiProperty({ enum: FlowFrequencyEnum, required: false })
   frequency: FlowFrequency | null;
+  preview_url: string | null;
 }
 
 export class StatBucketDto {
@@ -26,7 +27,7 @@ export class StatBucketDto {
 }
 
 export class GetFlowDetailDto extends GetFlowsDto {
-  data: unknown;
+  data?: unknown;
   daily_stats: StatBucketDto[];
 }
 
@@ -48,6 +49,8 @@ export class CompleteUpdateFlowDto {
   @IsEnum(FlowFrequencyEnum)
   @ApiProperty({ enum: FlowFrequencyEnum })
   frequency: FlowFrequencyEnum;
+  @IsString()
+  preview_url: string;
 }
 
 export class UpdateFlowDto extends PartialType(CompleteUpdateFlowDto) {}
