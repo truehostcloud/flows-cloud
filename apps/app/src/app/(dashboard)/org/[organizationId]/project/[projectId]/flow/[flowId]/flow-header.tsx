@@ -43,7 +43,7 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
           key="delete"
           organizationId={params.organizationId}
           trigger={
-            <MenuItem as="button">
+            <MenuItem>
               <Text as="span">Delete</Text>
             </MenuItem>
           }

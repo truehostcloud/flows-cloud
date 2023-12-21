@@ -1,6 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import { useSend } from "hooks/use-send";
 import type { FlowDetail } from "lib/api";
 import { api } from "lib/api";
@@ -9,10 +10,10 @@ import { type FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
 import { t } from "translations";
-import { Button, Checkbox, Input, Select, Text, toast } from "ui";
+import { Button, Input, Select, Text, toast } from "ui";
 
 import type { FlowEditFormData, MatchGroup } from "./flow-edit-types";
-import { FlowMatchGroup } from "./targeting";
+import { TargetingSection } from "./targeting/targeting-section";
 
 type Props = {
   flow: FlowDetail;
@@ -51,103 +52,87 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   const userProperties = watch("userProperties");
-  const handleRemoveGroup = (index: number): void => {
-    const updated = [...userProperties];
-    updated.splice(index, 1);
-    setValue("userProperties", updated);
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div
         className={css({
-          display: "flex",
-          flexDirection: "column",
-          gap: "space8",
+          cardWrap: "",
+          padding: "space16",
           mb: "space16",
-          alignItems: "flex-start",
         })}
       >
-        {(
-          [
-            { key: "name", label: "Name" },
-            { key: "description", label: "Description" },
-            { key: "human_id", label: "Human ID" },
-            { key: "human_id_alias", label: "Human ID Alias" },
-          ] as const
-        ).map(({ key, label }) => (
+        <Text className={css({ mb: "space12" })} variant="titleL">
+          General
+        </Text>
+
+        <Input
+          {...register("name")}
+          defaultValue={formState.defaultValues?.name}
+          fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
+          key="name"
+          label="Name"
+        />
+        <Input
+          {...register("description")}
+          asChild
+          defaultValue={formState.defaultValues?.description}
+          fullClassName={css({ mb: "space12" })}
+          inputClassName={css({ height: "unset" })}
+          key="description"
+          label="Description"
+        >
+          <textarea rows={4} />
+        </Input>
+        <Flex gap="space16">
           <Input
-            {...register(key)}
-            defaultValue={formState.defaultValues?.[key]}
-            key={key}
-            label={label}
+            {...register("human_id")}
+            defaultValue={formState.defaultValues?.human_id}
+            description="Unique identifier for this flow. Cannot be changed."
+            disabled
+            fullClassName={css({ maxWidth: "400px", width: "100%" })}
+            key="human_id"
+            label="Human ID"
           />
-        ))}
+        </Flex>
       </div>
-      {isCloud ? (
-        <>
+      <Flex cardWrap="" flexDirection="column" gap="space12" mb="space16" padding="space16">
+        <Flex flexDirection="column">
+          <Text variant="titleL">{t.frequency.frequency}</Text>
+          <Text color="muted">{t.frequency.description}</Text>
+        </Flex>
+        {isCloud ? (
           <Controller
             control={control}
             name="frequency"
             render={({ field }) => (
-              // eslint-disable-next-line jsx-a11y/label-has-associated-control -- not needed for select inside label
-              <label>
-                <Text as="span" className={css({ display: "block", mb: "space4" })}>
-                  Frequency
-                </Text>
-                <Select
-                  buttonClassName={css({ width: "200px" })}
-                  onChange={field.onChange}
-                  options={[
-                    { value: "once", label: "Once" },
-                    { value: "every-time", label: "Every time" },
-                  ]}
-                  value={field.value}
-                />
-              </label>
+              <Select
+                buttonClassName={css({ width: "200px" })}
+                onChange={field.onChange}
+                options={[
+                  { value: "once", label: "Once" },
+                  { value: "every-time", label: "Every time" },
+                ]}
+                value={field.value}
+              />
             )}
           />
+        ) : (
+          <Flex justifyContent="center" padding="space32">
+            <Text color="muted">{t.frequency.localState}</Text>
+          </Flex>
+        )}
+      </Flex>
 
-          <div className={css({ mt: "space16" })}>
-            <Controller
-              control={control}
-              name="published"
-              render={({ field }) => (
-                <Checkbox
-                  checked={field.value}
-                  label="Published"
-                  onCheckedChange={field.onChange}
-                />
-              )}
-            />
-          </div>
-        </>
-      ) : null}
+      <TargetingSection
+        control={control}
+        isCloud={isCloud}
+        setValue={setValue}
+        userProperties={userProperties}
+      />
 
-      <Text className={css({ mb: "space8" })} variant="titleL">
-        {t.targeting.targeting}
-      </Text>
-      {userProperties.map((_, i) => (
-        <FlowMatchGroup
-          control={control}
-          index={i}
-          // eslint-disable-next-line react/no-array-index-key -- index is fine here
-          key={i}
-          onRemove={() => handleRemoveGroup(i)}
-        />
-      ))}
-      <div>
-        <Button
-          onClick={() => setValue("userProperties", [...userProperties, []])}
-          size="small"
-          variant="black"
-        >
-          {t.targeting.addGroup}
-        </Button>
-      </div>
-
-      <Button className={css({ mt: "space24" })} loading={loading} type="submit">
-        Save
+      <Button loading={loading} type="submit">
+        {t.actions.save}
       </Button>
     </form>
   );
@@ -158,7 +143,9 @@ const createDefaultValues = (flow: FlowDetail): FlowEditFormData => ({
   human_id: flow.human_id,
   human_id_alias: flow.human_id_alias ?? "",
   name: flow.name,
-  published: !!flow.published_at,
   frequency: flow.frequency || "once",
-  userProperties: (flow.data.userProperties as MatchGroup[] | undefined) ?? [[]],
+  userProperties:
+    ((flow.data as undefined | Record<string, unknown>)?.userProperties as
+      | MatchGroup[]
+      | undefined) ?? [],
 });

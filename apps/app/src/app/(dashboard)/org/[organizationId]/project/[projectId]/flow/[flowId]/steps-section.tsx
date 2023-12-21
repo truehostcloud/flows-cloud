@@ -20,7 +20,7 @@ export const StepsSection: FC<Props> = ({ params, steps }) => {
         cardWrap: "",
       })}
       direction="column"
-      padding="space24"
+      padding="space16"
       width="100%"
     >
       <Flex alignItems="flex-start" justifyContent="space-between" width="100%">

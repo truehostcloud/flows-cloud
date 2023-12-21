@@ -50,7 +50,7 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
       <DialogTitle>Create Project</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Input {...register("name")} fullWidth label="Name" />
+          <Input {...register("name")} label="Name" />
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>

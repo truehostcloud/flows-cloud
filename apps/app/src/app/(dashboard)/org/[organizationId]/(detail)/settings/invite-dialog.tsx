@@ -45,7 +45,7 @@ export const InviteDialog: FC<Props> = ({ organizationId }) => {
       <DialogTitle>Invite member</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Input {...register("email")} fullWidth label="Email" required type="email" />
+          <Input {...register("email")} label="Email" required type="email" />
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>

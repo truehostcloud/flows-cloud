@@ -47,7 +47,7 @@ export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId, trigger
       <DialogTitle>Create Flow</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Input {...register("name")} fullWidth label="Name" />
+          <Input {...register("name")} label="Name" />
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>

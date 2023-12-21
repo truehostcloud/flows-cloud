@@ -1,9 +1,10 @@
 import { css } from "@flows/styled-system/css";
+import { Flex, Wrap } from "@flows/styled-system/jsx";
 import { Close16 } from "icons";
 import { type FC, useState } from "react";
 import type { Control } from "react-hook-form";
 import { useController } from "react-hook-form";
-import { Button, Icon, Input, Select } from "ui";
+import { Button, Icon, Input, Select, Text } from "ui";
 
 import type { FlowEditFormData } from "../flow-edit-types";
 import { CompareValueInput } from "./compare-value-input";
@@ -43,6 +44,8 @@ export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control, 
     name: `userProperties.${groupIndex}.${matcherIndex}`,
   });
 
+  const title = matcherIndex === 0 ? "where" : "and";
+
   const defaultVariant =
     matcherOptions.find(
       (opt) => opt.value === Object.keys(field.value).filter((key) => key !== "key")[0],
@@ -51,25 +54,25 @@ export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control, 
   const [variant, setVariant] = useState<MatcherKey>(defaultVariant);
 
   return (
-    <div className={css({ display: "flex", gap: "space8", alignItems: "flex-end" })}>
-      <Button onClick={onRemove} variant="black">
-        <Icon icon={Close16} />
-      </Button>
-      <Input
-        onChange={(e) => field.onChange({ ...field.value, key: e.target.value })}
-        placeholder="Property"
-        value={field.value.key}
-      />
+    <Flex alignItems="flex-start" gap="space8">
+      <Flex justifyContent="flex-end" minW="64px" mt="6px">
+        <Text color="subtle">{title}</Text>
+      </Flex>
+      <Wrap alignItems="center" columnGap="space8" rowGap="space8">
+        <Input
+          onChange={(e) => field.onChange({ ...field.value, key: e.target.value })}
+          placeholder="Property"
+          value={field.value.key}
+        />
 
-      <Select<MatcherKey>
-        buttonClassName={css({ minWidth: "200px" })}
-        buttonSize="default"
-        onChange={setVariant}
-        options={matcherOptions}
-        value={variant}
-      />
+        <Select<MatcherKey>
+          buttonClassName={css({ minWidth: "190px" })}
+          buttonSize="default"
+          onChange={setVariant}
+          options={matcherOptions}
+          value={variant}
+        />
 
-      <div className={css({ display: "flex", alignItems: "center", gap: "space8" })}>
         {isPrimitiveKey(variant) && (
           <PrimitiveValueInput
             onChange={(v) => field.onChange({ key: field.value.key, [variant]: v })}
@@ -95,7 +98,10 @@ export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control, 
             value={field.value[variant]}
           />
         )}
-      </div>
-    </div>
+        <Button onClick={onRemove} variant="ghost">
+          <Icon icon={Close16} />
+        </Button>
+      </Wrap>
+    </Flex>
   );
 };

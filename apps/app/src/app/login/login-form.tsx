@@ -36,8 +36,8 @@ export const LoginForm: FC = () => {
       })}
       onSubmit={handleSubmit}
     >
-      <Input fullWidth label="Email" name="email" required type="email" />
-      <Input fullWidth label="Password" minLength={8} name="password" required type="password" />
+      <Input label="Email" name="email" required type="email" />
+      <Input label="Password" minLength={8} name="password" required type="password" />
       {error ? <Text>{error}</Text> : null}
       {message ? <Text>{message}</Text> : null}
 

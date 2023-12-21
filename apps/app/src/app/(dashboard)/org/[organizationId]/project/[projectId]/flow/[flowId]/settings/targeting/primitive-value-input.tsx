@@ -65,7 +65,7 @@ export const PrimitiveValueInput: FC<Props> = ({ onChange, value }) => {
       ))}
 
       {chainable ? (
-        <Button onClick={() => onChange([...value, ""])} variant="black">
+        <Button onClick={() => onChange([...value, ""])} shadow={false} variant="secondary">
           {t.targeting.or}
         </Button>
       ) : null}

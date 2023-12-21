@@ -3,6 +3,7 @@ export const t = {
     newOrg: "New organization",
     newProject: "New project",
     logout: "Sign out",
+    save: "Save",
   },
   settings: {
     theme: "Theme",
@@ -23,9 +24,12 @@ export const t = {
   },
   targeting: {
     targeting: "Targeting",
-    addGroup: "Add group",
-    addMatcher: "Add matcher",
-    group: "Group",
+    description:
+      "Filter the users that should see this flow. Make sure the selected user properties are sent in your implementation.",
+    localState: "Local flow targeting settings need to be changed in your codebase",
+    addGroup: "Add filter group",
+    addMatcher: "Add filter",
+    group: "All users",
     value: "Value",
     or: "or",
     operator: {
@@ -52,6 +56,9 @@ export const t = {
     },
   },
   frequency: {
+    frequency: "Frequency",
+    description: "How often should the flow be shown to your users.",
+    localState: "Local flow frequency settings need to be changed in your codebase",
     once: "One time",
     "every-time": "Every time",
   },

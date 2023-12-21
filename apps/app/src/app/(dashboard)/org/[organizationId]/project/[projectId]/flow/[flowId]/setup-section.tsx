@@ -21,8 +21,8 @@ export const SetupSection: FC<Props> = ({ params, flow }) => {
         cardWrap: "",
       })}
       direction="column"
-      gap="space16"
-      padding="space24"
+      gap="space12"
+      padding="space16"
       width="100%"
     >
       <Flex alignItems="flex-start" justifyContent="space-between" width="100%">

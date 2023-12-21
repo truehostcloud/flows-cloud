@@ -1,19 +1,23 @@
 import { css } from "@flows/styled-system/css";
 import { Slot } from "@radix-ui/react-slot";
-import type { FC, ReactNode } from "react";
+import { forwardRef, type ReactNode } from "react";
 
 type Props = {
   children?: ReactNode;
   className?: string;
   asChild?: boolean;
-  as?: keyof JSX.IntrinsicElements;
+  as?: "button" | "div";
 };
 
-export const MenuItem: FC<Props> = ({ children, asChild, as }) => {
+export const MenuItem = forwardRef<HTMLElement, Props>(function MenuItem(
+  { children, asChild, as, ...props },
+  ref,
+) {
   const Component = asChild ? Slot : as ?? "div";
 
   return (
     <Component
+      {...props}
       className={css({
         display: "flex",
         alignItems: "center",
@@ -30,8 +34,10 @@ export const MenuItem: FC<Props> = ({ children, asChild, as }) => {
           bg: "bg.hover",
         },
       })}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore
+      ref={ref as any}
     >
       {children}
     </Component>
   );
-};
+});
