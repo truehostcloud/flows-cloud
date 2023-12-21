@@ -24,7 +24,7 @@ type FormData = {
 
 export const StepsEditor: FC<Props> = ({ flow }) => {
   const defaultValues: FormData = {
-    data: JSON.stringify((flow.data as FlowDetail["data"] | undefined) ?? {}, null, 2),
+    data: JSON.stringify(flow.data ?? {}, null, 2),
   };
   const { handleSubmit, control, watch } = useForm<FormData>({ defaultValues, mode: "onChange" });
 
