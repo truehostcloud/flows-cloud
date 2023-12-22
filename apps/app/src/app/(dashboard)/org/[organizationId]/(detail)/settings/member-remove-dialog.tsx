@@ -36,8 +36,8 @@ export const MemberRemoveDialog: FC<Props> = ({ organization, user }) => {
   return (
     <Dialog
       trigger={
-        <Button size="small" variant="black">
-          Remove
+        <Button size="small" variant="secondary">
+          {t.actions.remove}
         </Button>
       }
     >

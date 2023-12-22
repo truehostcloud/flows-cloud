@@ -35,19 +35,19 @@ export const OrganizationDeleteDialog: FC<Props> = ({ organization }) => {
   };
 
   return (
-    <Dialog trigger={<Button variant="black">Delete</Button>}>
-      <DialogTitle>Delete organization</DialogTitle>
+    <Dialog trigger={<Button variant="secondary">{t.actions.delete}</Button>}>
+      <DialogTitle>{t.organization.deleteDialog.title}</DialogTitle>
       <DialogContent>
-        <Text>Are you sure you want to delete this organization?</Text>
+        <Text>{t.organization.deleteDialog.description}</Text>
       </DialogContent>
       <DialogActions>
         <DialogClose asChild>
           <Button size="small" variant="black">
-            Close
+            {t.actions.close}
           </Button>
         </DialogClose>
         <Button loading={loading} onClick={handleDelete} size="small" variant="primary">
-          Delete
+          {t.organization.deleteDialog.confirm}
         </Button>
       </DialogActions>
     </Dialog>

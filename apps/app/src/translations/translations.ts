@@ -5,6 +5,8 @@ export const t = {
     logout: "Sign out",
     save: "Save",
     remove: "Remove",
+    close: "Close",
+    delete: "Delete",
   },
   settings: {
     theme: "Theme",
@@ -71,6 +73,26 @@ export const t = {
       localState: "Local project domains need to be changed in your codebase",
       addDomain: "Add domain",
       domainPlaceholder: "example.com",
+    },
+  },
+  organization: {
+    members: {
+      title: "Your team",
+      description: "There is currently {{count}} member in your organization.",
+      description_plural: "There are currently {{count}} members in your organization.",
+      addDialog: {
+        button: "Invite team member",
+        title: "Invite team member",
+        description:
+          "Enter the email address of the person you want to invite to your organization. All team members have the same permissions (for now).",
+        confirm: "Send invite",
+      },
+    },
+    deleteDialog: {
+      title: "Delete organization",
+      description:
+        "Are you sure you want to delete this organization? All projects and flows will be deleted as well.",
+      confirm: "Delete organization",
     },
   },
 };

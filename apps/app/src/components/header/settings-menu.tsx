@@ -21,7 +21,6 @@ export const SettingsMenu: FC = () => {
   const SETTINGS_MENU_OPTIONS = [
     {
       label: "Personal settings TODO",
-      href: "",
     },
     ...(projectId
       ? [
@@ -30,7 +29,11 @@ export const SettingsMenu: FC = () => {
             href: routes.projectSettings({ organizationId, projectId }),
           },
         ]
-      : []),
+      : [
+          {
+            label: "Project settings",
+          },
+        ]),
     {
       label: "Organization settings",
       href: routes.organizationSettings({ organizationId }),
@@ -78,15 +81,23 @@ export const SettingsMenu: FC = () => {
             </Text>
           </MenuSection>
           <MenuSection bottomBorder>
-            {SETTINGS_MENU_OPTIONS.map((option) => (
-              <MenuItem asChild key={option.label}>
-                <Link href={option.href}>
-                  <Text as="span" variant="bodyS">
+            {SETTINGS_MENU_OPTIONS.map((option) =>
+              option.href ? (
+                <MenuItem asChild key={option.label}>
+                  <Link href={option.href}>
+                    <Text as="span" variant="bodyS">
+                      {option.label}
+                    </Text>
+                  </Link>
+                </MenuItem>
+              ) : (
+                <MenuItem asChild disabled key={option.label}>
+                  <Text as="span" color="disabled" variant="bodyS">
                     {option.label}
                   </Text>
-                </Link>
-              </MenuItem>
-            ))}
+                </MenuItem>
+              ),
+            )}
           </MenuSection>
           <MenuSection bottomBorder>
             <div

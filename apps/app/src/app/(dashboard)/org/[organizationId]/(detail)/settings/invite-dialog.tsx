@@ -1,6 +1,8 @@
 "use client";
 
+import { css } from "@flows/styled-system/css";
 import { useSend } from "hooks/use-send";
+import { Plus16 } from "icons";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
 import { type FC, useState } from "react";
@@ -15,6 +17,7 @@ import {
   DialogContent,
   DialogTitle,
   Input,
+  Text,
   toast,
 } from "ui";
 
@@ -41,20 +44,35 @@ export const InviteDialog: FC<Props> = ({ organizationId }) => {
   };
 
   return (
-    <Dialog onOpenChange={setOpen} open={open} trigger={<Button variant="black">Invite</Button>}>
-      <DialogTitle>Invite member</DialogTitle>
+    <Dialog
+      onOpenChange={setOpen}
+      open={open}
+      trigger={
+        <Button startIcon={<Plus16 />} variant="secondary">
+          {t.organization.members.addDialog.button}
+        </Button>
+      }
+    >
+      <DialogTitle>{t.organization.members.addDialog.title}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
+          <Text
+            className={css({
+              mb: "space16",
+            })}
+          >
+            {t.organization.members.addDialog.description}
+          </Text>
           <Input {...register("email")} label="Email" required type="email" />
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>
             <Button size="small" variant="black">
-              Close
+              {t.actions.close}
             </Button>
           </DialogClose>
           <Button loading={loading} size="small" type="submit">
-            Send invite
+            {t.organization.members.addDialog.confirm}
           </Button>
         </DialogActions>
       </form>

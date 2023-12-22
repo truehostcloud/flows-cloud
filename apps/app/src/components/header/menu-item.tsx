@@ -7,10 +7,11 @@ type Props = {
   className?: string;
   asChild?: boolean;
   as?: "button" | "div";
+  disabled?: boolean;
 };
 
 export const MenuItem = forwardRef<HTMLElement, Props>(function MenuItem(
-  { children, asChild, as, ...props },
+  { children, asChild, as, disabled, ...props },
   ref,
 ) {
   const Component = asChild ? Slot : as ?? "div";
@@ -25,13 +26,14 @@ export const MenuItem = forwardRef<HTMLElement, Props>(function MenuItem(
         py: "space8",
         px: "space8",
         borderRadius: "radius8",
-        cursor: "pointer",
+        cursor: disabled ? "default" : "pointer",
         width: "100%",
         transitionDuration: "fast",
         transitionTimingFunction: "easeInOut",
         transitionProperty: "all",
+
         "&:hover": {
-          bg: "bg.hover",
+          bg: disabled ? "transparent" : "bg.hover",
         },
       })}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ignore

@@ -1,8 +1,11 @@
-import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
+import { UserCircle24 } from "icons";
 import { api } from "lib/api";
 import { load } from "lib/load";
-import { Text } from "ui";
+import { plural, t } from "translations";
+import { Icon, Text } from "ui";
 
+import { OrganizationDeleteDialog } from "../../organization-delete-dialog";
 import { InviteDialog } from "./invite-dialog";
 import { MemberRemoveDialog } from "./member-remove-dialog";
 
@@ -20,28 +23,39 @@ export default async function OrganizationSettingsPage({ params }: Props): Promi
 
   return (
     <>
-      <Text className={css({ mb: "space24" })} variant="titleXl">
-        {org.name} - Settings
-      </Text>
+      <Flex alignItems="center" justifyContent="space-between" mb="space16">
+        <Text variant="titleXl">{org.name}</Text>
+        <OrganizationDeleteDialog organization={org} />
+      </Flex>
 
-      <Text className={css({ mb: "space12" })} variant="titleL">
-        Members
-      </Text>
-      <div
-        className={css({ display: "flex", gap: "space8", flexDirection: "column", mb: "space16" })}
+      <Flex
+        alignItems="flex-start"
+        cardWrap=""
+        flexDirection="column"
+        gap="space16"
+        padding="space16"
       >
-        {members.map((member) => (
-          <div
-            className={css({ display: "flex", alignItems: "center", gap: "space16" })}
-            key={member.id}
-          >
-            <Text key={member.id}>{member.email}</Text>
-            <MemberRemoveDialog organization={org} user={member} />
-          </div>
-        ))}
-      </div>
-
-      <InviteDialog organizationId={params.organizationId} />
+        <Flex flexDirection="column">
+          <Text variant="titleL">{t.organization.members.title}</Text>
+          <Text color="muted">
+            {plural(
+              members.length,
+              t.organization.members.description,
+              t.organization.members.description_plural,
+            )}
+          </Text>
+        </Flex>
+        <Flex flexDirection="column" gap="space12">
+          {members.map((member) => (
+            <Flex alignItems="center" gap="space8" key={member.id}>
+              <Icon icon={UserCircle24} />
+              <Text key={member.id}>{member.email}</Text>
+              <MemberRemoveDialog organization={org} user={member} />
+            </Flex>
+          ))}
+        </Flex>
+        <InviteDialog organizationId={params.organizationId} />
+      </Flex>
     </>
   );
 }
