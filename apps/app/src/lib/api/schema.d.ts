@@ -3,7 +3,6 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
   "/status": {
     get: operations["AppController_getStatus"];
@@ -184,8 +183,6 @@ export interface components {
       name: string;
       description?: string;
       domains: string[];
-      human_id: string;
-      human_id_alias?: string;
     };
     GetOrganizationsDto: {
       id: string;
@@ -240,7 +237,6 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
-
   AppController_getStatus: {
     responses: {
       200: {

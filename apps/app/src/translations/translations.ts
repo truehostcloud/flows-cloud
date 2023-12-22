@@ -4,6 +4,7 @@ export const t = {
     newProject: "New project",
     logout: "Sign out",
     save: "Save",
+    remove: "Remove",
   },
   settings: {
     theme: "Theme",
@@ -61,5 +62,15 @@ export const t = {
     localState: "Local flow frequency settings need to be changed in your codebase",
     once: "One time",
     "every-time": "Every time",
+  },
+  project: {
+    domains: {
+      domains: "Domains",
+      description:
+        "Add the domains where you want to access flows from this project. For local development, add localhost with port.",
+      localState: "Local project domains need to be changed in your codebase",
+      addDomain: "Add domain",
+      domainPlaceholder: "example.com",
+    },
   },
 };

@@ -1,4 +1,4 @@
-import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import { api } from "lib/api";
 import { load } from "lib/load";
 import { Text } from "ui";
@@ -15,11 +15,11 @@ export default async function ProjectSettingsPage({ params }: Props): Promise<JS
 
   return (
     <>
-      <Text className={css({ mb: "space16" })} variant="title3xl">
-        {project.name}
-      </Text>
+      <Flex alignItems="center" justifyContent="space-between" mb="space16">
+        <Text variant="title3xl">{project.name}</Text>
 
-      <ProjectDeleteDialog project={project} />
+        <ProjectDeleteDialog project={project} />
+      </Flex>
 
       <ProjectEditForm project={project} />
     </>

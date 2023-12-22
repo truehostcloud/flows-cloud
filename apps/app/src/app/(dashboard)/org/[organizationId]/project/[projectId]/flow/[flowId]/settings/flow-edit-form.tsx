@@ -71,7 +71,7 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
           defaultValue={formState.defaultValues?.name}
           fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
           key="name"
-          label="Name"
+          label="Flow name"
         />
         <Input
           {...register("description")}

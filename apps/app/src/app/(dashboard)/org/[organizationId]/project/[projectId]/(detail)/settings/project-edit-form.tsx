@@ -4,6 +4,7 @@ import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
+import { Plus16 } from "icons";
 import { api, type ProjectDetail } from "lib/api";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
@@ -12,10 +13,6 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { t } from "translations";
 import { Button, Input, Text, toast } from "ui";
 
-const urlRegex =
-  // eslint-disable-next-line prefer-named-capture-group -- ignore
-  /^(?!mailto:)(?:(?:http|https|ftp):\/\/)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(\/|\\?|#)[^\\s]*)?$/;
-
 type Props = {
   project: ProjectDetail;
 };
@@ -23,8 +20,6 @@ type Props = {
 type FormData = {
   name: string;
   description: string;
-  human_id: string;
-  human_id_alias: string;
   domains: { value: string }[];
 };
 
@@ -33,8 +28,6 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
     domains: project.domains.map((value) => ({ value })),
     name: project.name,
     description: project.description || "",
-    human_id: project.human_id,
-    human_id_alias: project.human_id_alias || "",
   };
   const { handleSubmit, control, register, formState } = useForm<FormData>({ defaultValues });
   const { append, fields, remove } = useFieldArray({ control, name: "domains" });
@@ -47,8 +40,6 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
         domains: data.domains.map((d) => d.value),
         description: data.description || undefined,
         name: data.name,
-        human_id: data.human_id,
-        human_id_alias: data.human_id_alias || undefined,
       }),
     );
     if (res.error) return;
@@ -61,61 +52,70 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div
         className={css({
-          display: "flex",
-          flexDirection: "column",
-          gap: "space8",
+          cardWrap: "",
+          padding: "space16",
           mb: "space16",
-          alignItems: "flex-start",
         })}
       >
-        {(
-          [
-            { key: "name", label: "Name" },
-            { key: "description", label: "Description" },
-            { key: "human_id", label: "Human ID" },
-            { key: "human_id_alias", label: "Human ID Alias" },
-          ] as const
-        ).map(({ key, label }) => (
-          <Input {...register(key)} key={key} label={label} />
-        ))}
+        <Text className={css({ mb: "space12" })} variant="titleL">
+          General
+        </Text>
+        <Input
+          {...register("name")}
+          defaultValue={formState.defaultValues?.name}
+          fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
+          key="name"
+          label="Project name"
+        />
+        <Input
+          {...register("description")}
+          asChild
+          defaultValue={formState.defaultValues?.description}
+          fullClassName={css({ mb: "space12" })}
+          inputClassName={css({ height: "unset" })}
+          key="description"
+          label="Project description"
+        >
+          <textarea rows={4} />
+        </Input>
       </div>
-      <div
-        className={css({ display: "flex", flexDirection: "column", gap: "space8", mb: "space16" })}
-      >
-        <Text>Domains</Text>
-        {fields.map((field, i) => {
-          const error = formState.errors.domains?.[i]?.value;
-          return (
-            <div
-              className={css({ display: "flex", gap: "space8", alignItems: "flex-start" })}
-              key={field.id}
-            >
-              <Flex direction="column" gap="space4">
-                <Input
-                  type="url"
-                  {...register(`domains.${i}.value`, {
-                    pattern: { value: urlRegex, message: "Should be valid url" },
-                  })}
-                  required
-                />
-                {error ? (
-                  <Text color="danger" variant="bodyXs">
-                    {error.message}
-                  </Text>
-                ) : null}
-              </Flex>
-              <Button onClick={() => remove(i)} variant="black">
-                Remove
-              </Button>
-            </div>
-          );
-        })}
+      <Flex cardWrap="" flexDirection="column" gap="space16" mb="space16" padding="space16">
+        <Flex flexDirection="column">
+          <Text variant="titleL">{t.project.domains.domains}</Text>
+          <Text color="muted">{t.project.domains.description}</Text>
+        </Flex>
+
+        {fields.length > 0 && (
+          <Flex direction="column" gap="space8">
+            {fields.map((field, i) => {
+              return (
+                <Flex gap="space8" key={field.id}>
+                  <Input
+                    type="url"
+                    {...register(`domains.${i}.value`)}
+                    required
+                    wrapperClassName={css({ maxWidth: "400px", width: "100%" })}
+                  />
+                  <Button onClick={() => remove(i)} variant="secondary">
+                    {t.actions.remove}
+                  </Button>
+                </Flex>
+              );
+            })}
+          </Flex>
+        )}
         <div>
-          <Button onClick={() => append({ value: "" })} size="small" variant="black">
-            Add
+          <Button
+            onClick={() => append({ value: "" })}
+            size="small"
+            startIcon={<Plus16 />}
+            variant="secondary"
+          >
+            {t.project.domains.addDomain}
           </Button>
         </div>
-      </div>
+      </Flex>
+
       <Button loading={loading} type="submit">
         Save
       </Button>
