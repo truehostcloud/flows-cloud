@@ -23,7 +23,7 @@ export class SdkController {
   }
 
   @Get("flows/:flowId")
-  @Throttle({ default: { limit: 5, ttl: minutes(1) } })
+  @Throttle({ default: { limit: 20, ttl: minutes(1) } })
   getPreviewFlow(
     @Headers("origin") origin: string,
     @Query("projectId") projectId: string,

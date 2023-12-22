@@ -6,7 +6,6 @@ import {
 } from "@nestjs/common";
 import { organizations, organizationsToUsers, projects } from "db";
 import { asc, eq } from "drizzle-orm";
-import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
@@ -51,8 +50,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      human_id: project.human_id,
-      human_id_alias: project.human_id_alias,
       domains: project.domains,
     }));
   }
@@ -86,8 +83,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      human_id: project.human_id,
-      human_id_alias: project.human_id_alias,
       domains: project.domains,
     };
   }
@@ -119,7 +114,6 @@ export class ProjectsService {
         name: data.name,
         organization_id: organizationId,
         domains: [],
-        human_id: slugify(data.name),
       })
       .returning();
     const project = newProjs.at(0);
@@ -132,8 +126,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      human_id: project.human_id,
-      human_id_alias: project.human_id_alias,
       domains: project.domains,
     };
   }
@@ -168,8 +160,6 @@ export class ProjectsService {
         updated_at: new Date(),
         description: data.description,
         domains: data.domains,
-        human_id: data.human_id,
-        human_id_alias: data.human_id_alias,
         name: data.name,
       })
       .where(eq(projects.id, projectId))
@@ -184,8 +174,6 @@ export class ProjectsService {
       created_at: updatedProj.created_at,
       updated_at: updatedProj.updated_at,
       organization_id: updatedProj.organization_id,
-      human_id: updatedProj.human_id,
-      human_id_alias: updatedProj.human_id_alias,
       domains: updatedProj.domains,
     };
   }

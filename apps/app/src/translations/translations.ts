@@ -7,6 +7,7 @@ export const t = {
     remove: "Remove",
     close: "Close",
     delete: "Delete",
+    copy: "Copy",
   },
   settings: {
     theme: "Theme",
@@ -17,6 +18,7 @@ export const t = {
     createProjectSuccess: "Project created",
     updateProjectSuccess: "Project updated",
     deleteProjectSuccess: "Project deleted",
+    projectIdCopied: "Project ID copied",
     createFlowSuccess: "Flow created",
     updateFlowSuccess: "Flow updated",
     deleteFlowSuccess: "Flow deleted",

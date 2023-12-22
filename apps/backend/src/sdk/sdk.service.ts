@@ -21,10 +21,7 @@ export class SdkService {
     if (!projectId || !requestOrigin) throw new NotFoundException();
 
     const project = await this.databaseService.db.query.projects.findFirst({
-      where: and(
-        or(eq(projects.human_id, projectId), eq(projects.human_id_alias, projectId)),
-        arrayContains(projects.domains, [requestOrigin]),
-      ),
+      where: and(eq(projects.id, projectId), arrayContains(projects.domains, [requestOrigin])),
     });
     if (!project) throw new NotFoundException();
 
@@ -140,7 +137,7 @@ export class SdkService {
 
     const project = await this.databaseService.db.query.projects.findFirst({
       where: and(
-        or(eq(projects.human_id, event.projectId), eq(projects.human_id_alias, event.projectId)),
+        eq(projects.id, event.projectId),
         arrayContains(projects.domains, [requestOrigin]),
       ),
     });

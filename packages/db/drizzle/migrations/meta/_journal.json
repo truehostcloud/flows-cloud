@@ -106,6 +106,13 @@
       "when": 1703158085188,
       "tag": "0014_typical_living_mummy",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1703256596257,
+      "tag": "0015_rapid_shotgun",
+      "breakpoints": true
     }
   ]
 }

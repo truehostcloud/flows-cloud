@@ -1,4 +1,4 @@
-import { index, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { organizations } from "./organization";
 
@@ -6,8 +6,6 @@ export const projects = pgTable(
   "project",
   {
     id: uuid("id").notNull().unique().primaryKey().defaultRandom(),
-    human_id: text("human_id").notNull(),
-    human_id_alias: text("human_id_alias"),
     organization_id: uuid("organization_id")
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
@@ -19,12 +17,7 @@ export const projects = pgTable(
   },
   (table) => {
     return {
-      humanIdIdx: index("human_id_idx").on(table.human_id),
-      humanIdAliasIdx: index("human_id_alias_idx").on(table.human_id_alias),
-      humanIdOrganizationIdIdx: uniqueIndex("human_id_organization_id_idx").on(
-        table.organization_id,
-        table.human_id,
-      ),
+      organizationIdIdx: index("organization_id_idx").on(table.organization_id),
       domainIdx: index("domain_idx").on(table.domains),
     };
   },

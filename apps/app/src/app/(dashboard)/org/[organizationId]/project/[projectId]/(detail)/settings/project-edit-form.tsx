@@ -6,6 +6,7 @@ import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
 import { Plus16 } from "icons";
 import { api, type ProjectDetail } from "lib/api";
+import { clipboard } from "lib/clipboard";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
@@ -48,6 +49,11 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
     router.refresh();
   };
 
+  const handleCopyProjectId = async (): Promise<void> => {
+    await clipboard.copy(project.id);
+    toast.success(t.toasts.projectIdCopied);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div
@@ -67,6 +73,17 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
           key="name"
           label="Project name"
         />
+        <Flex alignItems="flex-end" gap="space8" mb="space16">
+          <Input
+            disabled
+            fullClassName={css({ maxWidth: "400px", width: "100%" })}
+            label="Project ID"
+            value={project.id}
+          />
+          <Button onClick={handleCopyProjectId} variant="secondary">
+            {t.actions.copy}
+          </Button>
+        </Flex>
         <Input
           {...register("description")}
           asChild
@@ -117,7 +134,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
       </Flex>
 
       <Button loading={loading} type="submit">
-        Save
+        {t.actions.save}
       </Button>
     </form>
   );
