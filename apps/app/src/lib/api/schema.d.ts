@@ -107,6 +107,10 @@ export interface components {
       published_at: string | null;
       preview_url: string | null;
     };
+    PreviewStatBucketDto: {
+      count: number;
+      type: string;
+    };
     GetFlowDetailDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
@@ -126,6 +130,7 @@ export interface components {
       published_at: string | null;
       preview_url: string | null;
       data?: Record<string, never>;
+      preview_stats: components["schemas"]["PreviewStatBucketDto"][];
     };
     UpdateFlowDto: {
       /** @enum {string} */

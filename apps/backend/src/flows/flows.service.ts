@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import dayjs from "dayjs";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 import slugify from "slugify";
 
 import type { Auth } from "../auth";
@@ -89,6 +89,15 @@ export class FlowsService {
     });
     if (!flow) throw new BadRequestException("flow not found");
 
+    const preview_stats = await this.databaseService.db
+      .select({
+        type: events.type,
+        count: sql<number>`cast(count(${events.id}) as int)`,
+      })
+      .from(events)
+      .where(gt(events.event_time, sql`now() - interval '30 day'`))
+      .groupBy(events.type);
+
     return {
       id: flow.id,
       name: flow.name,
@@ -103,6 +112,7 @@ export class FlowsService {
       data: flow.version?.data,
       frequency: flow.frequency,
       preview_url: flow.preview_url,
+      preview_stats,
     };
   }
 
@@ -145,7 +155,7 @@ export class FlowsService {
       this.databaseService.db
         .select({
           date: sql`date_trunc('day', event.event_time)`.as("date"),
-          count: sql`count(${events.id})`.as("count"),
+          count: sql`cast(count(${events.id}) as int)`.as("count"),
           type: events.type,
         })
         .from(events)
@@ -157,7 +167,7 @@ export class FlowsService {
       .with(eventTypes, flowEvents)
       .select({
         date: sql<Date>`date_trunc('day', cal)`,
-        count: sql<number>`coalesce(${flowEvents.count}, 0)`.mapWith(Number),
+        count: sql<number>`coalesce(${flowEvents.count}, 0)`,
         type: sql<string>`${eventTypes.type}`,
       })
       .from(

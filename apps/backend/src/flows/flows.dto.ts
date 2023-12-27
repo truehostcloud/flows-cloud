@@ -20,8 +20,14 @@ export class GetFlowsDto {
   preview_url: string | null;
 }
 
+export class PreviewStatBucketDto {
+  count: number;
+  type: string;
+}
+
 export class GetFlowDetailDto extends GetFlowsDto {
   data?: unknown;
+  preview_stats: PreviewStatBucketDto[];
 }
 
 export class CompleteUpdateFlowDto {

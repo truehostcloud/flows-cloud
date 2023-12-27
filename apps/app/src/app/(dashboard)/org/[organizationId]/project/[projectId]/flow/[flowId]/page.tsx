@@ -1,10 +1,9 @@
-import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import type { FlowSteps } from "@rbnd/flows";
 import { api } from "lib/api";
 import { load } from "lib/load";
-import { Text } from "ui";
 
+import { AnalyticsPreview } from "./analytics-preview";
 import { SetupSection } from "./setup-section";
 import { StepsSection } from "./steps-section";
 
@@ -19,18 +18,7 @@ export default async function FlowDetailPage({ params }: Props): Promise<JSX.Ele
   return (
     <Flex direction="column" gap="space24" width="100%">
       <Flex direction="column" gap="space24" width="100%" />
-      <Flex
-        className={css({
-          cardWrap: "",
-        })}
-        justifyContent="center"
-        padding="space48"
-        width="100%"
-      >
-        <Text color="subtle" variant="titleM">
-          Quick look analytics TODO
-        </Text>
-      </Flex>
+      <AnalyticsPreview flow={flow} />
       <StepsSection params={params} steps={steps} />
       <SetupSection flow={flow} params={params} />
     </Flex>

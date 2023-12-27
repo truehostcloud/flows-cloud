@@ -47,7 +47,7 @@ beforeEach(async () => {
   db.query.organizations.findFirst.mockResolvedValue({
     organizationsToUsers: [{ user_id: "userId" }],
   });
-  db.groupBy.mockResolvedValue([{ count: 1 }]);
+  db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
 
   const moduleRef = await Test.createTestingModule({
     controllers: [FlowsControllers],
@@ -114,6 +114,7 @@ describe("Get flow detail", () => {
   it("should return flow", async () => {
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).resolves.toEqual({
       id: "flowId",
+      preview_stats: [{ count: 1, type: "type" }],
     });
   });
 });
@@ -198,12 +199,12 @@ describe("Update flow", () => {
         ...data,
         data: undefined,
       }),
-    ).resolves.toEqual({ id: "flowId" });
+    ).resolves.toEqual({ id: "flowId", preview_stats: [{ count: 1, type: "type" }] });
     expect(db.insert).not.toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
-      { id: "flowId" },
+      { id: "flowId", preview_stats: [{ count: 1, type: "type" }] },
     );
     expect(db.insert).toHaveBeenCalled();
     expect(db.update).toHaveBeenCalled();
