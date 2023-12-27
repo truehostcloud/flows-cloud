@@ -67,6 +67,20 @@ export const t = {
     once: "One time",
     "every-time": "Every time",
   },
+  analytics: {
+    starts: "Starts",
+    finishes: "Finishes",
+    finishRate: "Finish rate",
+    exits: "Exits",
+    values: {
+      starts: "start",
+      starts_plural: "starts",
+      finishes: "finish",
+      finishes_plural: "finishes",
+      exits: "exit",
+      exits_plural: "exits",
+    },
+  },
   project: {
     domains: {
       domains: "Domains",

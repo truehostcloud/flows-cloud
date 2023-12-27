@@ -32,6 +32,12 @@ const db = {
   update: jest.fn().mockReturnThis(),
   set: jest.fn().mockReturnThis(),
   delete: jest.fn().mockReturnThis(),
+  leftJoin: jest.fn().mockReturnThis(),
+  fullJoin: jest.fn().mockReturnThis(),
+  with: jest.fn().mockReturnThis(),
+  $with: jest.fn().mockReturnThis(),
+  selectDistinct: jest.fn().mockReturnThis(),
+  as: jest.fn().mockReturnThis(),
 };
 
 beforeEach(async () => {
@@ -108,8 +114,38 @@ describe("Get flow detail", () => {
   it("should return flow", async () => {
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).resolves.toEqual({
       id: "flowId",
-      daily_stats: [{ count: 1 }],
     });
+  });
+});
+
+describe("Get flow analytics", () => {
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Not Found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should return flow analytics", async () => {
+    db.leftJoin.mockResolvedValue([{ count: 1 }]);
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).resolves.toEqual(
+      {
+        daily_stats: [{ count: 1 }],
+      },
+    );
   });
 });
 
@@ -162,12 +198,12 @@ describe("Update flow", () => {
         ...data,
         data: undefined,
       }),
-    ).resolves.toEqual({ id: "flowId", daily_stats: [{ count: 1 }] });
+    ).resolves.toEqual({ id: "flowId" });
     expect(db.insert).not.toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
-      { id: "flowId", daily_stats: [{ count: 1 }] },
+      { id: "flowId" },
     );
     expect(db.insert).toHaveBeenCalled();
     expect(db.update).toHaveBeenCalled();

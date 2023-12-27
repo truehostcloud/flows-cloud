@@ -29,6 +29,9 @@ export interface paths {
   "/flows/{flowId}/versions": {
     get: operations["FlowsControllers_getFlowVersions"];
   };
+  "/flows/{flowId}/analytics": {
+    get: operations["FlowsControllers_getFlowAnalytics"];
+  };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
     post: operations["ProjectsController_createProject"];
@@ -104,12 +107,6 @@ export interface components {
       published_at: string | null;
       preview_url: string | null;
     };
-    StatBucketDto: {
-      /** Format: date-time */
-      date: string;
-      count: number;
-      type: string;
-    };
     GetFlowDetailDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
@@ -129,7 +126,6 @@ export interface components {
       published_at: string | null;
       preview_url: string | null;
       data?: Record<string, never>;
-      daily_stats: components["schemas"]["StatBucketDto"][];
     };
     UpdateFlowDto: {
       /** @enum {string} */
@@ -150,6 +146,15 @@ export interface components {
       /** Format: date-time */
       created_at: string;
       data: Record<string, never>;
+    };
+    StatBucketDto: {
+      /** Format: date-time */
+      date: string;
+      count: number;
+      type: string;
+    };
+    GetFlowAnalyticsDto: {
+      daily_stats: components["schemas"]["StatBucketDto"][];
     };
     GetProjectsDto: {
       id: string;
@@ -387,6 +392,20 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetFlowVersionsDto"][];
+        };
+      };
+    };
+  };
+  FlowsControllers_getFlowAnalytics: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetFlowAnalyticsDto"];
         };
       };
     };

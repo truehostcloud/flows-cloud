@@ -1,38 +1,95 @@
-import { css } from "@flows/styled-system/css";
-import { Flex } from "@flows/styled-system/jsx";
+import { Box, Flex } from "@flows/styled-system/jsx";
 import { api } from "lib/api";
 import { load } from "lib/load";
-import { Text } from "ui";
+import Link from "next/link";
+import { routes } from "routes";
+import { t } from "translations";
+import { Button } from "ui";
+
+import { AnalyticsChart } from "./analytics-chart";
 
 type Props = {
   params: { flowId: string; projectId: string; organizationId: string };
+  searchParams?: { category?: string };
 };
 
-export default async function FlowAnalyticsPage({ params }: Props): Promise<JSX.Element> {
-  const data = await load(api["/flows/:flowId"](params.flowId));
+export default async function FlowAnalyticsPage({
+  params,
+  searchParams,
+}: Props): Promise<JSX.Element> {
+  const analytics = await load(api["/flows/:flowId/analytics"](params.flowId));
+  const categoryKey = searchParams?.category ?? "starts";
+
+  const starts = analytics.daily_stats.filter((stat) => stat.type === "startFlow");
+  const finishes = analytics.daily_stats.filter((stat) => stat.type === "finishFlow");
+
+  const finishRate =
+    starts.length === finishes.length
+      ? finishes.map((stat, i) => {
+          const startStat = starts[i];
+          const count = stat.count / startStat.count;
+          return {
+            date: stat.date,
+            count: isNaN(count) ? 0 : count,
+          };
+        })
+      : [];
+
+  const categories = [
+    {
+      key: "starts",
+      title: t.analytics.starts,
+      data: starts,
+      formatValue: (value: number) => `${value} starts`,
+    },
+    {
+      key: "finishes",
+      title: t.analytics.finishes,
+      data: finishes,
+      formatValue: (value: number) => `${value} finishes`,
+    },
+    {
+      key: "finish-rate",
+      title: t.analytics.finishRate,
+      data: finishRate,
+      formatValue: (value: number) => `${Math.round(value * 100)}%`,
+    },
+    {
+      key: "exits",
+      title: t.analytics.exits,
+      data: analytics.daily_stats.filter((stat) => stat.type === "cancelFlow"),
+      formatValue: (value: number) => `${value} exits`,
+    },
+  ] as const;
+
+  const currentCategory = categories.find((cat) => cat.key === categoryKey);
+  const chartData = (currentCategory?.data ?? []).map((bucket) => ({
+    label: bucket.date.slice(0, 10),
+    value: bucket.count,
+  }));
 
   return (
-    <div>
-      <Text className={css({ mb: "space8" })} variant="titleL">
-        Daily stats
-      </Text>
-      {data.daily_stats.length === 0 && <Text>No stats yet</Text>}
-      {data.daily_stats.map((stat) => {
-        const date = new Date(stat.date).toLocaleDateString();
-        return (
-          <Flex gap="space8" key={date + stat.type}>
-            <Text className={css({ width: "100px" })} color="muted" variant="bodyS">
-              {date}
-            </Text>
-            <Text className={css({ width: "100px" })} variant="bodyS">
-              {stat.type}
-            </Text>
-            <Text align="right" className={css({ width: "64px" })} variant="bodyS">
-              {stat.count}
-            </Text>
-          </Flex>
-        );
-      })}
-    </div>
+    <>
+      <Flex gap="space8">
+        {categories.map((cat) => {
+          return (
+            <Button
+              asChild
+              key={cat.title}
+              size="small"
+              variant={categoryKey === cat.key ? "primary" : "secondary"}
+            >
+              <Link href={routes.flowAnalytics({ ...params, category: cat.key })}>{cat.title}</Link>
+            </Button>
+          );
+        })}
+      </Flex>
+
+      <Box height={320}>
+        {currentCategory ? (
+          <AnalyticsChart categoryKey={currentCategory.key} data={chartData} />
+        ) : null}
+      </Box>
+    </>
   );
 }

@@ -20,15 +20,8 @@ export class GetFlowsDto {
   preview_url: string | null;
 }
 
-export class StatBucketDto {
-  date: Date;
-  count: number;
-  type: string;
-}
-
 export class GetFlowDetailDto extends GetFlowsDto {
   data?: unknown;
-  daily_stats: StatBucketDto[];
 }
 
 export class CompleteUpdateFlowDto {
@@ -65,4 +58,13 @@ export class GetFlowVersionsDto {
   id: string;
   created_at: Date;
   data: unknown;
+}
+
+export class StatBucketDto {
+  date: Date;
+  count: number;
+  type: string;
+}
+export class GetFlowAnalyticsDto {
+  daily_stats: StatBucketDto[];
 }

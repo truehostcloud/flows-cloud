@@ -4,14 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import dayjs from "dayjs";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
 import type {
   CreateFlowDto,
+  GetFlowAnalyticsDto,
   GetFlowDetailDto,
   GetFlowsDto,
   GetFlowVersionsDto,
@@ -87,16 +89,6 @@ export class FlowsService {
     });
     if (!flow) throw new BadRequestException("flow not found");
 
-    const dailyStats = await this.databaseService.db
-      .select({
-        date: sql<Date>`date_trunc('day', ${events.event_time})`,
-        type: events.type,
-        count: sql<number>`cast(count(${events.id}) as int)`,
-      })
-      .from(events)
-      .where(eq(events.flow_id, flowId))
-      .groupBy((row) => [row.date, row.type]);
-
     return {
       id: flow.id,
       name: flow.name,
@@ -109,9 +101,77 @@ export class FlowsService {
       human_id: flow.human_id,
       human_id_alias: flow.human_id_alias,
       data: flow.version?.data,
-      daily_stats: dailyStats,
       frequency: flow.frequency,
       preview_url: flow.preview_url,
+    };
+  }
+
+  async getFlowAnalytics({
+    auth,
+    flowId,
+  }: {
+    auth: Auth;
+    flowId: string;
+  }): Promise<GetFlowAnalyticsDto> {
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: eq(flows.id, flowId),
+    });
+    if (!flow) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, flow.project_id),
+    });
+    if (!project) throw new BadRequestException("project not found");
+
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const startDate = dayjs().subtract(30, "days").startOf("day").format("YYYY-MM-DD");
+    const endDate = dayjs().endOf("day").format("YYYY-MM-DD");
+
+    const eventTypes = this.databaseService.db
+      .$with("event_types")
+      .as(this.databaseService.db.selectDistinct({ type: events.type }).from(events));
+
+    const flowEvents = this.databaseService.db.$with("flow_events").as(
+      this.databaseService.db
+        .select({
+          date: sql`date_trunc('day', event.event_time)`.as("date"),
+          count: sql`count(${events.id})`.as("count"),
+          type: events.type,
+        })
+        .from(events)
+        .where(eq(events.flow_id, flowId))
+        .groupBy((row) => [row.date, row.type]),
+    );
+
+    const daily_stats = await this.databaseService.db
+      .with(eventTypes, flowEvents)
+      .select({
+        date: sql<Date>`date_trunc('day', cal)`,
+        count: sql<number>`coalesce(${flowEvents.count}, 0)`.mapWith(Number),
+        type: sql<string>`${eventTypes.type}`,
+      })
+      .from(
+        sql.raw(
+          `generate_series( '${startDate}'::timestamp, '${endDate}'::timestamp, '1 day'::interval) cal`,
+        ),
+      )
+      .fullJoin(eventTypes, sql`true`)
+      .leftJoin(flowEvents, (row) =>
+        and(eq(flowEvents.date, row.date), eq(eventTypes.type, flowEvents.type)),
+      );
+
+    return {
+      daily_stats,
     };
   }
 
