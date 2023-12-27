@@ -40,25 +40,21 @@ export default async function FlowAnalyticsPage({
       key: "starts",
       title: t.analytics.starts,
       data: starts,
-      formatValue: (value: number) => `${value} starts`,
     },
     {
       key: "finishes",
       title: t.analytics.finishes,
       data: finishes,
-      formatValue: (value: number) => `${value} finishes`,
     },
     {
       key: "finish-rate",
       title: t.analytics.finishRate,
       data: finishRate,
-      formatValue: (value: number) => `${Math.round(value * 100)}%`,
     },
     {
       key: "exits",
       title: t.analytics.exits,
       data: analytics.daily_stats.filter((stat) => stat.type === "cancelFlow"),
-      formatValue: (value: number) => `${value} exits`,
     },
   ] as const;
 

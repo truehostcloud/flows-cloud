@@ -95,7 +95,7 @@ export class FlowsService {
         count: sql<number>`cast(count(${events.id}) as int)`,
       })
       .from(events)
-      .where(gt(events.event_time, sql`now() - interval '30 day'`))
+      .where(and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)))
       .groupBy(events.type);
 
     return {
