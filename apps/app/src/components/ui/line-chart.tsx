@@ -140,7 +140,7 @@ const LineChartWithoutSize: FC<InnerProps> = ({ data, height, width, renderToolt
             />
             <LinePath
               data={data}
-              stroke={token("colors.bg.primary")}
+              stroke={token("colors.border.info")}
               strokeWidth={2}
               x={(d) => (labelScale(d.label) ?? 0) + labelScale.bandwidth() / 2}
               y={(d) => valueScale(d.value)}
@@ -149,7 +149,7 @@ const LineChartWithoutSize: FC<InnerProps> = ({ data, height, width, renderToolt
               <circle
                 cx={labelScale(tooltipProps.tooltipData.label)}
                 cy={valueScale(tooltipProps.tooltipData.value)}
-                fill={token("colors.bg.primary")}
+                fill={token("colors.border.info")}
                 r={highlightDot}
                 stroke={token("colors.bg")}
                 strokeWidth={3}

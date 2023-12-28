@@ -67,27 +67,30 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
     },
   ];
   return (
-    <Flex alignItems="center" justifyContent="space-between" mb="space24">
-      <Text variant="titleXl">{flow.name}</Text>
-      {flowIsCloud ? (
-        <Flex alignItems="center" gap="space16">
-          <FlowPreviewDialog flow={flow} />
-          <Flex gap="space8">
-            <Text weight="600">Public</Text>
-            <Switch checked={flowIsPublic} disabled={loading} onChange={handlePublishedToggle} />
+    <Flex flexDirection="column" gap="space4" mb="space16">
+      <Flex justifyContent="space-between">
+        <Text variant="titleXl">{flow.name}</Text>
+        {flowIsCloud ? (
+          <Flex alignItems="center" gap="space16">
+            <FlowPreviewDialog flow={flow} />
+            <Flex gap="space8">
+              <Text weight="600">Public</Text>
+              <Switch checked={flowIsPublic} disabled={loading} onChange={handlePublishedToggle} />
+            </Flex>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="black">Options</Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <MenuSection>{POPOVER_OPTIONS.map((option) => option.item)}</MenuSection>
+              </PopoverContent>
+            </Popover>
           </Flex>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="black">Options</Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <MenuSection>{POPOVER_OPTIONS.map((option) => option.item)}</MenuSection>
-            </PopoverContent>
-          </Popover>
-        </Flex>
-      ) : (
-        <Text>Local flow</Text>
-      )}
+        ) : (
+          <Text>Local flow</Text>
+        )}
+      </Flex>
+      {flow.description.length > 0 && <Text color="muted">{flow.description}</Text>}
     </Flex>
   );
 };

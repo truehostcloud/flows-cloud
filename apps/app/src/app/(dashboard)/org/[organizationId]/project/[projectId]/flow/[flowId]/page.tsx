@@ -17,7 +17,6 @@ export default async function FlowDetailPage({ params }: Props): Promise<JSX.Ele
 
   return (
     <Flex direction="column" gap="space24" width="100%">
-      <Flex direction="column" gap="space24" width="100%" />
       <AnalyticsPreview flow={flow} />
       <StepsSection params={params} steps={steps} />
       <SetupSection flow={flow} params={params} />

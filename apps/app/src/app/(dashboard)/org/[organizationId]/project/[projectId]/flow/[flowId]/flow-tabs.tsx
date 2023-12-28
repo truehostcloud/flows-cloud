@@ -49,9 +49,9 @@ export const FlowTabs: FC<Props> = ({ cloudFlow }) => {
     <Tabs value={currentItem?.href}>
       <TabsList>
         {items.map((item) => (
-          <TabsTrigger asChild key={item.href} value={item.href}>
-            <Link href={item.href}>{item.title}</Link>
-          </TabsTrigger>
+          <Link href={item.href} key={item.href}>
+            <TabsTrigger value={item.href}>{item.title}</TabsTrigger>
+          </Link>
         ))}
       </TabsList>
     </Tabs>
