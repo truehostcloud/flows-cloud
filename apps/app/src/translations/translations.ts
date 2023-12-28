@@ -72,6 +72,7 @@ export const t = {
     finishes: "Finishes",
     finishRate: "Finish rate",
     exits: "Exits",
+    users: "Unique users",
     values: {
       starts: "start",
       starts_plural: "starts",
@@ -79,6 +80,8 @@ export const t = {
       finishes_plural: "finishes",
       exits: "exit",
       exits_plural: "exits",
+      users: "user",
+      users_plural: "users",
     },
   },
   project: {

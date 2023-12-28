@@ -56,6 +56,11 @@ export default async function FlowAnalyticsPage({
       title: t.analytics.exits,
       data: analytics.daily_stats.filter((stat) => stat.type === "cancelFlow"),
     },
+    {
+      key: "users",
+      title: t.analytics.users,
+      data: analytics.daily_stats.filter((stat) => stat.type === "uniqueUsers"),
+    },
   ] as const;
 
   const currentCategory = categories.find((cat) => cat.key === categoryKey);

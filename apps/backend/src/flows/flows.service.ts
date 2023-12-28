@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import dayjs from "dayjs";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
 import slugify from "slugify";
@@ -89,7 +88,7 @@ export class FlowsService {
     });
     if (!flow) throw new BadRequestException("flow not found");
 
-    const preview_stats = await this.databaseService.db
+    const previewStatsQuery = this.databaseService.db
       .select({
         type: events.type,
         count: sql<number>`cast(count(${events.id}) as int)`,
@@ -97,6 +96,15 @@ export class FlowsService {
       .from(events)
       .where(and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)))
       .groupBy(events.type);
+    const uniqueUsersQuery = this.databaseService.db
+      .select({
+        count: sql<number>`cast(count(${events.user_hash}) as int)`,
+      })
+      .from(events)
+      .where(
+        and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)),
+      );
+    const [previewStats, uniqueUsers] = await Promise.all([previewStatsQuery, uniqueUsersQuery]);
 
     return {
       id: flow.id,
@@ -112,7 +120,10 @@ export class FlowsService {
       data: flow.version?.data,
       frequency: flow.frequency,
       preview_url: flow.preview_url,
-      preview_stats,
+      preview_stats: [
+        ...previewStats,
+        { type: "uniqueUsers", count: uniqueUsers.at(0)?.count ?? 0 },
+      ],
     };
   }
 
@@ -144,9 +155,6 @@ export class FlowsService {
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
-    const startDate = dayjs().subtract(30, "days").startOf("day").format("YYYY-MM-DD");
-    const endDate = dayjs().endOf("day").format("YYYY-MM-DD");
-
     const eventTypes = this.databaseService.db
       .$with("event_types")
       .as(this.databaseService.db.selectDistinct({ type: events.type }).from(events));
@@ -154,34 +162,57 @@ export class FlowsService {
     const flowEvents = this.databaseService.db.$with("flow_events").as(
       this.databaseService.db
         .select({
-          date: sql`date_trunc('day', event.event_time)`.as("date"),
+          date: sql`date_trunc('day', ${events.event_time})`.as("date"),
           count: sql`cast(count(${events.id}) as int)`.as("count"),
           type: events.type,
         })
         .from(events)
-        .where(eq(events.flow_id, flowId))
+        .where(
+          and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)),
+        )
         .groupBy((row) => [row.date, row.type]),
     );
 
-    const daily_stats = await this.databaseService.db
+    const calendarTable = sql`generate_series( now() - interval '30 day', now(), '1 day'::interval) cal`;
+
+    const dailyStatsQuery = this.databaseService.db
       .with(eventTypes, flowEvents)
       .select({
         date: sql<Date>`date_trunc('day', cal)`,
         count: sql<number>`coalesce(${flowEvents.count}, 0)`,
         type: sql<string>`${eventTypes.type}`,
       })
-      .from(
-        sql.raw(
-          `generate_series( '${startDate}'::timestamp, '${endDate}'::timestamp, '1 day'::interval) cal`,
-        ),
-      )
+      .from(calendarTable)
       .fullJoin(eventTypes, sql`true`)
       .leftJoin(flowEvents, (row) =>
         and(eq(flowEvents.date, row.date), eq(eventTypes.type, flowEvents.type)),
       );
 
+    const eventUsers = this.databaseService.db.$with("event_users").as(
+      this.databaseService.db
+        .select({ date: sql`date_trunc('day', ${events.event_time})`.as("date") })
+        .from(events)
+        .where(
+          and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)),
+        )
+        .groupBy((row) => [row.date, events.user_hash]),
+    );
+
+    const uniqueUsersQuery = this.databaseService.db
+      .with(eventUsers)
+      .select({
+        date: sql<Date>`date_trunc('day', cal)`,
+        count: sql<number>`cast(count(${eventUsers.date}) as int)`,
+      })
+      .from(calendarTable)
+      .leftJoin(eventUsers, (row) => eq(eventUsers.date, row.date))
+      .groupBy((row) => row.date)
+      .orderBy((row) => row.date);
+
+    const [dailyStats, uniqueUsers] = await Promise.all([dailyStatsQuery, uniqueUsersQuery]);
+
     return {
-      daily_stats,
+      daily_stats: [...dailyStats, ...uniqueUsers.map((row) => ({ ...row, type: "uniqueUsers" }))],
     };
   }
 

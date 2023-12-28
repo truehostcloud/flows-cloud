@@ -30,6 +30,10 @@ export const AnalyticsPreview: FC<Props> = ({ flow }) => {
       title: t.analytics.exits,
       value: flow.preview_stats.find((s) => s.type === "cancelFlow")?.count ?? 0,
     },
+    {
+      title: t.analytics.users,
+      value: flow.preview_stats.find((s) => s.type === "uniqueUsers")?.count ?? 0,
+    },
   ];
 
   return (

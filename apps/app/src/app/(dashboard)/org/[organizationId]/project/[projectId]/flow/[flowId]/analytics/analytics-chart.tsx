@@ -16,6 +16,8 @@ const formatByCategory = {
   "finish-rate": (value: number) => `${Math.round(value * 100)}%`,
   exits: (value: number) =>
     `${value} ${plural(value, t.analytics.values.exits, t.analytics.values.exits_plural)}`,
+  users: (value: number) =>
+    `${value} ${plural(value, t.analytics.values.users, t.analytics.values.users_plural)}`,
 };
 
 type Props = {
