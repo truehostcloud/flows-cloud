@@ -32,12 +32,18 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      className={css({
+        height: "100%",
+      })}
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         {/* eslint-disable-next-line @next/next/no-sync-scripts -- needed for noflash script */}
         <script src="/noflash.min.js" />
       </head>
-      <body className={css({ background: "bg" })}>
+      <body className={css({ background: "bg", height: "100%" })}>
         <Providers>{children}</Providers>
       </body>
       {PRODUCTION ? (

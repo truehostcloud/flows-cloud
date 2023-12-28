@@ -1,5 +1,5 @@
 import { Flex } from "@flows/styled-system/jsx";
-import { UserCircle24 } from "icons";
+import { Person24 } from "icons";
 import { api } from "lib/api";
 import { load } from "lib/load";
 import { plural, t } from "translations";
@@ -48,7 +48,7 @@ export default async function OrganizationSettingsPage({ params }: Props): Promi
         <Flex flexDirection="column" gap="space12">
           {members.map((member) => (
             <Flex alignItems="center" gap="space8" key={member.id}>
-              <Icon icon={UserCircle24} />
+              <Icon icon={Person24} />
               <Text key={member.id}>{member.email}</Text>
               <MemberRemoveDialog organization={org} user={member} />
             </Flex>

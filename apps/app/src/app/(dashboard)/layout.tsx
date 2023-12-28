@@ -1,5 +1,6 @@
 import { css } from "@flows/styled-system/css";
-import { Header } from "components/header";
+import { Flex } from "@flows/styled-system/jsx";
+import { Sidebar } from "components/header";
 import type { ReactNode } from "react";
 
 type Props = {
@@ -10,11 +11,20 @@ export const dynamic = "force-dynamic";
 
 export default function DashboardLayout({ children }: Props): JSX.Element {
   return (
-    <>
-      <Header />
-      <div className={css({ maxWidth: "1100px", mx: "auto", py: "space32", px: "space16" })}>
+    <Flex backgroundColor="bg" height="100%" minHeight="100%">
+      <Sidebar />
+      <div
+        className={css({
+          width: "100%",
+          maxWidth: "1100px",
+          mx: "auto",
+          py: "space24",
+          px: "space32",
+          height: "100%",
+        })}
+      >
         {children}
       </div>
-    </>
+    </Flex>
   );
 }

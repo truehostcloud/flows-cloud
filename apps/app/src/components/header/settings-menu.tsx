@@ -2,7 +2,7 @@
 
 import { css } from "@flows/styled-system/css";
 import { useAuth } from "auth/client";
-import { Settings16 } from "icons";
+import { Person24 } from "icons";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { FC } from "react";
@@ -14,6 +14,31 @@ import { LogoutButton } from "./logout-button";
 import { MenuItem } from "./menu-item";
 import { MenuSection } from "./menu-section";
 import { ThemeSwitch } from "./theme-switch";
+
+const Trigger: FC = () => {
+  return (
+    <div
+      className={css({
+        cursor: "pointer",
+        padding: "space4",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderColor: "border",
+        borderRadius: "100%",
+        backgroundColor: "bg",
+        transitionDuration: "fast",
+        transitionTimingFunction: "easeInOut",
+        transitionProperty: "background-color",
+
+        "&:hover": {
+          bg: "bg.hover",
+        },
+      })}
+    >
+      <Icon icon={Person24} />
+    </div>
+  );
+};
 
 export const SettingsMenu: FC = () => {
   const { projectId, organizationId } = useParams<{ projectId?: string; organizationId: string }>();
@@ -41,32 +66,12 @@ export const SettingsMenu: FC = () => {
   ];
   const auth = useAuth();
 
-  if (!auth) return null;
-
-  //TODO: Handle organization settings state
+  if (!auth) return <Trigger />;
 
   return (
     <Popover>
       <PopoverTrigger>
-        <div
-          className={css({
-            cursor: "pointer",
-            padding: "space8",
-            borderStyle: "solid",
-            borderWidth: "1px",
-            borderColor: "border",
-            borderRadius: "radius8",
-            backgroundColor: "bg.muted",
-            transitionDuration: "fast",
-            transitionTimingFunction: "easeInOut",
-            transitionProperty: "background-color",
-            "&:hover": {
-              bg: "bg.hover",
-            },
-          })}
-        >
-          <Icon icon={Settings16} />
-        </div>
+        <Trigger />
       </PopoverTrigger>
       <PopoverContent align="end">
         <div

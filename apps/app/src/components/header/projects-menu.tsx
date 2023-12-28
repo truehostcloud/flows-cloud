@@ -5,10 +5,10 @@ import { useAuth } from "auth/client";
 import { CreateOrganizationDialog } from "components/organizations";
 import { CreateProjectDialog } from "components/projects";
 import { useFetch } from "hooks/use-fetch";
-import { ChevronDown16, Plus16 } from "icons";
+import { Check16, ChevronDown16, Plus16 } from "icons";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { FC } from "react";
+import { type FC, useState } from "react";
 import { routes } from "routes";
 import { t } from "translations";
 import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
@@ -16,7 +16,70 @@ import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
 import { MenuItem } from "./menu-item";
 import { MenuSection } from "./menu-section";
 
+type TriggerProps = {
+  projectName?: string;
+  orgName?: string;
+};
+
+const Trigger: FC<TriggerProps> = ({ projectName, orgName }) => {
+  return (
+    <div
+      className={css({
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "space8",
+        paddingY: "space4",
+        paddingX: "space8",
+        borderRadius: "radius8",
+        transitionDuration: "fast",
+        transitionTimingFunction: "easeInOut",
+        transitionProperty: "background-color",
+        width: "100%",
+        overflow: "hidden",
+        height: "44px",
+        "&:hover": {
+          bg: "bg.hover",
+        },
+      })}
+    >
+      <div
+        className={css({
+          overflow: "hidden",
+          flex: 1,
+        })}
+      >
+        <Text
+          className={css({
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          })}
+          variant="titleS"
+          weight="600"
+        >
+          {projectName ? projectName : "Select a project"}
+        </Text>
+        <Text
+          className={css({
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          })}
+          color="muted"
+          variant="bodyXs"
+        >
+          {orgName}
+        </Text>
+      </div>
+      <Icon icon={ChevronDown16} />
+    </div>
+  );
+};
+
 export const ProjectsMenu: FC = () => {
+  const [open, setOpen] = useState(false);
+  const close = (): void => setOpen(false);
   const { organizationId, projectId } = useParams<{
     organizationId?: string;
     projectId?: string;
@@ -28,87 +91,98 @@ export const ProjectsMenu: FC = () => {
   );
 
   const auth = useAuth();
-  if (!auth) return null;
+  if (!auth) return <Trigger orgName="Loading..." projectName="Loading..." />;
 
   const currentOrg = organizations?.find((org) => org.id === organizationId);
   const currentProject = projects?.find((proj) => proj.id === projectId);
 
-  // TODO: add empty state label
-  // TODO: handle organization settings state
-
   return (
-    <Popover>
-      <PopoverTrigger
-        className={css({
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "space8",
-          paddingY: "space4",
-          paddingX: "space8",
-          borderRadius: "radius8",
-          transitionDuration: "fast",
-          transitionTimingFunction: "easeInOut",
-          transitionProperty: "background-color",
-          maxWidth: "160px",
-          minWidth: "80px",
-          overflow: "hidden",
-          "&:hover": {
-            bg: "bg.hover",
-          },
-        })}
-      >
-        <div
-          className={css({
-            overflow: "hidden",
-            flex: 1,
-          })}
-        >
-          <Text
-            className={css({
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            })}
-            color="muted"
-            variant="bodyXs"
-            weight="600"
-          >
-            {currentProject?.name}
-          </Text>
-          <Text
-            className={css({
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            })}
-            color="muted"
-            variant="bodyXs"
-          >
-            {currentOrg?.name}
-          </Text>
-        </div>
-        <Icon icon={ChevronDown16} />
+    <Popover onOpenChange={setOpen} open={open}>
+      <PopoverTrigger>
+        <Trigger orgName={currentOrg?.name} projectName={currentProject?.name} />
       </PopoverTrigger>
       <PopoverContent align="end">
         <div
           className={css({
-            minWidth: "300px",
+            display: "flex",
           })}
         >
+          <div
+            className={css({
+              borRight: "1px",
+              minWidth: "260px",
+              backgroundColor: "bg",
+            })}
+          >
+            <MenuSection background="bg.muted" bottomBorder header>
+              <Text variant="bodyS" weight="600">
+                Organizations ({organizations?.length})
+              </Text>
+            </MenuSection>
+            <MenuSection>
+              {organizations?.map((org) => {
+                return (
+                  <MenuItem
+                    asChild
+                    className={css({
+                      justifyContent: "space-between",
+                    })}
+                    key={org.id}
+                    onClick={close}
+                  >
+                    <Link href={routes.organization({ organizationId: org.id })}>
+                      <Text variant="titleS">{org.name}</Text>
+                      {currentOrg?.id === org.id ? (
+                        <Icon color="icon.primary" icon={Check16} />
+                      ) : null}
+                    </Link>
+                  </MenuItem>
+                );
+              })}
+
+              <CreateOrganizationDialog
+                trigger={
+                  <button type="button">
+                    <MenuItem>
+                      <Icon color="icon" icon={Plus16} />
+                      <Text color="muted" variant="bodyS">
+                        {t.actions.newOrg}
+                      </Text>
+                    </MenuItem>
+                  </button>
+                }
+              />
+            </MenuSection>
+          </div>
+
           {organizationId && projects ? (
-            <>
+            <div
+              className={css({
+                minWidth: "260px",
+                backgroundColor: "bg",
+              })}
+            >
               <MenuSection background="bg.muted" bottomBorder header>
-                <Text align="center" variant="bodyS" weight="600">
+                <Text variant="bodyS" weight="600">
                   {currentOrg?.name} projects ({projects.length})
                 </Text>
               </MenuSection>
-              <MenuSection bottomBorder>
+              <MenuSection>
                 {projects.map((proj) => {
                   return (
-                    <MenuItem asChild key={proj.id}>
+                    <MenuItem
+                      asChild
+                      className={css({
+                        justifyContent: "space-between",
+                      })}
+                      key={proj.id}
+                      onClick={close}
+                    >
                       <Link href={routes.project({ projectId: proj.id, organizationId })}>
                         <Text variant="titleS">{proj.name}</Text>
+                        {currentProject?.id === proj.id ? (
+                          <Icon color="icon.primary" icon={Check16} />
+                        ) : null}
                       </Link>
                     </MenuItem>
                   );
@@ -127,38 +201,8 @@ export const ProjectsMenu: FC = () => {
                   }
                 />
               </MenuSection>
-            </>
+            </div>
           ) : null}
-
-          <MenuSection background="bg.muted" bottomBorder header>
-            <Text align="center" variant="bodyS" weight="600">
-              Organizations ({organizations?.length})
-            </Text>
-          </MenuSection>
-          <MenuSection>
-            {organizations?.map((org) => {
-              return (
-                <MenuItem asChild key={org.id}>
-                  <Link href={routes.organization({ organizationId: org.id })}>
-                    <Text variant="titleS">{org.name}</Text>
-                  </Link>
-                </MenuItem>
-              );
-            })}
-
-            <CreateOrganizationDialog
-              trigger={
-                <button type="button">
-                  <MenuItem>
-                    <Icon color="icon" icon={Plus16} />
-                    <Text color="muted" variant="bodyS">
-                      {t.actions.newOrg}
-                    </Text>
-                  </MenuItem>
-                </button>
-              }
-            />
-          </MenuSection>
         </div>
       </PopoverContent>
     </Popover>
