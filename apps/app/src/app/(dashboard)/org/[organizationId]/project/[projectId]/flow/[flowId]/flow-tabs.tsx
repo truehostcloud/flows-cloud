@@ -1,11 +1,10 @@
 "use client";
 
-import { Flex } from "@flows/styled-system/jsx";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import type { FC } from "react";
+import { type FC, useMemo } from "react";
 import { routes } from "routes";
-import { Button } from "ui";
+import { Tabs, TabsList, TabsTrigger } from "ui";
 
 type Props = {
   cloudFlow?: boolean;
@@ -19,35 +18,42 @@ export const FlowTabs: FC<Props> = ({ cloudFlow }) => {
   }>();
   const pathname = usePathname();
 
-  return (
-    <Flex gap="space8" mb="space16">
-      {[
-        { title: "Overview", href: routes.flow({ organizationId, projectId, flowId }) },
-        { title: "Analytics", href: routes.flowAnalytics({ organizationId, projectId, flowId }) },
-        ...(cloudFlow
-          ? [
-              { title: "Steps", href: routes.flowSteps({ organizationId, projectId, flowId }) },
-              {
-                title: "Versions",
-                href: routes.flowVersions({ organizationId, projectId, flowId }),
-                active: pathname.startsWith(
-                  routes.flowVersions({ organizationId, projectId, flowId }),
-                ),
-              },
-            ]
-          : []),
+  const items = useMemo(
+    () => [
+      { title: "Overview", href: routes.flow({ organizationId, projectId, flowId }) },
+      { title: "Analytics", href: routes.flowAnalytics({ organizationId, projectId, flowId }) },
+      ...(cloudFlow
+        ? [
+            { title: "Steps", href: routes.flowSteps({ organizationId, projectId, flowId }) },
+            {
+              title: "Versions",
+              href: routes.flowVersions({ organizationId, projectId, flowId }),
+              active: pathname.startsWith(
+                routes.flowVersions({ organizationId, projectId, flowId }),
+              ),
+            },
+          ]
+        : []),
 
-        { title: "Settings", href: routes.flowSettings({ organizationId, projectId, flowId }) },
-      ].map((tab) => {
-        const active = tab.active ?? tab.href === pathname;
-        return (
-          <Link href={tab.href} key={tab.href}>
-            <Button size="small" variant={active ? "primary" : "secondary"}>
-              {tab.title}
-            </Button>
-          </Link>
-        );
-      })}
-    </Flex>
+      { title: "Settings", href: routes.flowSettings({ organizationId, projectId, flowId }) },
+    ],
+    [cloudFlow, flowId, organizationId, pathname, projectId],
+  );
+
+  const currentItem = useMemo(
+    () => items.find((item) => item.active ?? item.href === pathname),
+    [items, pathname],
+  );
+
+  return (
+    <Tabs value={currentItem?.href}>
+      <TabsList>
+        {items.map((item) => (
+          <TabsTrigger asChild key={item.href} value={item.href}>
+            <Link href={item.href}>{item.title}</Link>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 };
