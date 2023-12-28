@@ -52,7 +52,7 @@ export const CreateOrganizationDialog: FC<Props> = ({ trigger }) => {
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>
-            <Button size="small" variant="black">
+            <Button shadow={false} size="small" variant="secondary">
               Close
             </Button>
           </DialogClose>

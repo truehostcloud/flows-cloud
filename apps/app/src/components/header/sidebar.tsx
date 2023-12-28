@@ -57,15 +57,17 @@ export const Sidebar: FC = () => {
       className={css({
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        height: "100vh",
         borderBottomWidth: "1px",
         borderStyle: "solid",
         borderColor: "border",
         width: "240px",
         minWidth: "240px",
         borRight: "1px",
-        backgroundColor: "bg.muted",
+        backgroundColor: "bg",
         paddingY: "space16",
+        position: "sticky",
+        top: 0,
       })}
     >
       <div className={NavSectionCss}>
@@ -82,8 +84,8 @@ export const Sidebar: FC = () => {
             <Text variant="titleM">Flows</Text>
           </Link>
           <Flex gap="space8">
-            <SettingsMenu />
             <HelpMenu />
+            <SettingsMenu />
           </Flex>
         </Flex>
         <ProjectsMenu />
@@ -148,7 +150,7 @@ export const Sidebar: FC = () => {
             className={css({
               display: "flex",
 
-              backgroundColor: "bg.subtle",
+              backgroundColor: "bg.muted",
               bor: "1px",
               borderRadius: "radius8",
 

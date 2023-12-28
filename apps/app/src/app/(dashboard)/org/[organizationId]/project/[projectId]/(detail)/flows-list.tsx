@@ -28,6 +28,7 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
         borderStyle: "solid",
         borderWidth: "1px",
         borderColor: "border",
+        backgroundColor: "bg.card",
         borderRadius: "radius12",
         overflow: "hidden",
       })}

@@ -35,7 +35,7 @@ export const Invites: FC = () => {
         borderRadius: "radius8",
         gap: "space8",
         bor: "1px",
-        backgroundColor: "bg.subtle",
+        backgroundColor: "bg.muted",
       })}
       key={invite.id}
     >

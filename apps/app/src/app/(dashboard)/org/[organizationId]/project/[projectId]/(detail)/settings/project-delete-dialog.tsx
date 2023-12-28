@@ -35,19 +35,19 @@ export const ProjectDeleteDialog: FC<Props> = ({ project }) => {
   };
 
   return (
-    <Dialog trigger={<Button variant="secondary">Delete</Button>}>
-      <DialogTitle>Delete project</DialogTitle>
+    <Dialog trigger={<Button variant="secondary">{t.actions.delete}</Button>}>
+      <DialogTitle>{t.project.deleteDialog.title}</DialogTitle>
       <DialogContent>
-        <Text>Are you sure you want to delete this project?</Text>
+        <Text>{t.project.deleteDialog.description}</Text>
       </DialogContent>
       <DialogActions>
         <DialogClose asChild>
-          <Button size="small" variant="black">
-            Close
+          <Button shadow={false} size="small" variant="secondary">
+            {t.actions.close}
           </Button>
         </DialogClose>
         <Button loading={loading} onClick={handleDelete} size="small" variant="primary">
-          Delete
+          {t.project.deleteDialog.confirm}
         </Button>
       </DialogActions>
     </Dialog>

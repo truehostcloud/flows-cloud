@@ -1,4 +1,4 @@
-import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import { api } from "lib/api";
 import { load } from "lib/load";
 import { Button, Text } from "ui";
@@ -17,16 +17,14 @@ export default async function ProjectDetailPage({
 
   return (
     <>
-      <div className={css({ display: "flex", alignItems: "center" })}>
-        <Text className={css({ mb: "space16", flex: 1 })} variant="titleXl">
-          {project.name}
-        </Text>
+      <Flex alignItems="center" justifyContent="space-between" mb="space16">
+        <Text variant="titleXl">{project.name}</Text>
         <CreateFlowDialog
           organizationId={project.organization_id}
           projectId={projectId}
           trigger={<Button variant="black">New flow</Button>}
         />
-      </div>
+      </Flex>
 
       <FlowsList projectId={projectId} />
     </>

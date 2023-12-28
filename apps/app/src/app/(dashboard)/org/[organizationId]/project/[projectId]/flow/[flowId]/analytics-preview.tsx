@@ -1,4 +1,3 @@
-import { css } from "@flows/styled-system/css";
 import { Box, Flex, Wrap } from "@flows/styled-system/jsx";
 import type { FlowDetail } from "lib/api";
 import type { FC } from "react";
@@ -37,14 +36,27 @@ export const AnalyticsPreview: FC<Props> = ({ flow }) => {
   ];
 
   return (
-    <Box cardWrap="" padding="space16" width="100%">
-      <Text className={css({ mb: "space12" })} variant="titleL">
-        30 day stats
-      </Text>
-      <Wrap gap="space32">
+    <Box cardWrap="" width="100%">
+      <Box borBottom="1px" paddingX="space16" paddingY="space12">
+        <Text>Statistics for the last 30 days</Text>
+      </Box>
+      <Wrap>
         {items.map((item) => (
-          <Flex flexDirection="column" gap="space4" key={item.title}>
-            <Text>{item.title}</Text>
+          <Flex
+            _last={{
+              borderRight: "none",
+            }}
+            borRight="1px"
+            flex="1"
+            flexDirection="column"
+            gap="space4"
+            key={item.title}
+            padding="space16"
+            paddingY="space12"
+          >
+            <Text color="subtle" variant="bodyXs">
+              {item.title}
+            </Text>
             <Text variant="titleM">{item.value}</Text>
           </Flex>
         ))}

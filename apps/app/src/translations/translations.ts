@@ -93,6 +93,12 @@ export const t = {
       addDomain: "Add domain",
       domainPlaceholder: "example.com",
     },
+    deleteDialog: {
+      title: "Delete project",
+      description:
+        "Are you sure you want to delete this project? All flows and analytics data will be deleted as well.",
+      confirm: "Delete project",
+    },
   },
   organization: {
     members: {

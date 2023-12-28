@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
   return (
     <html
       className={css({
-        height: "100%",
+        minHeight: "100%",
       })}
       lang="en"
       suppressHydrationWarning
@@ -43,7 +43,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         {/* eslint-disable-next-line @next/next/no-sync-scripts -- needed for noflash script */}
         <script src="/noflash.min.js" />
       </head>
-      <body className={css({ background: "bg", height: "100%" })}>
+      <body
+        className={css({
+          background: "bg.main",
+          minHeight: "100%",
+        })}
+      >
         <Providers>{children}</Providers>
       </body>
       {PRODUCTION ? (

@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default function DashboardLayout({ children }: Props): JSX.Element {
   return (
-    <Flex backgroundColor="bg" height="100%" minHeight="100%">
+    <Flex height="100%" minHeight="100%">
       <Sidebar />
       <div
         className={css({
@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: Props): JSX.Element {
           mx: "auto",
           py: "space24",
           px: "space32",
-          height: "100%",
+          minHeight: "100%",
         })}
       >
         {children}

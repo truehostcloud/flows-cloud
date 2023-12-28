@@ -16,7 +16,7 @@ export default async function ProjectSettingsPage({ params }: Props): Promise<JS
   return (
     <>
       <Flex alignItems="center" justifyContent="space-between" mb="space16">
-        <Text variant="title3xl">{project.name}</Text>
+        <Text variant="titleXl">{project.name}</Text>
 
         <ProjectDeleteDialog project={project} />
       </Flex>

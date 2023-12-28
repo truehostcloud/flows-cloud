@@ -4,11 +4,12 @@ import { Flex } from "@flows/styled-system/jsx";
 import { MenuItem } from "components/header/menu-item";
 import { MenuSection } from "components/header/menu-section";
 import { useSend } from "hooks/use-send";
+import { KebabHorizontal16 } from "icons";
 import { api, type FlowDetail } from "lib/api";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import { t } from "translations";
-import { Button, Popover, PopoverContent, PopoverTrigger, Switch, Text, toast } from "ui";
+import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Switch, Text, toast } from "ui";
 
 import { FlowPreviewDialog } from "./flow-preview-dialog";
 import { FlowDeleteDialog } from "./settings/flow-delete-dialog";
@@ -67,7 +68,7 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
     },
   ];
   return (
-    <Flex flexDirection="column" gap="space4" mb="space16">
+    <Flex flexDirection="column" gap="space8" mb="space16">
       <Flex justifyContent="space-between">
         <Text variant="titleXl">{flow.name}</Text>
         {flowIsCloud ? (
@@ -79,7 +80,9 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
             </Flex>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="black">Options</Button>
+                <Button variant="ghost">
+                  <Icon icon={KebabHorizontal16} />
+                </Button>
               </PopoverTrigger>
               <PopoverContent>
                 <MenuSection>{POPOVER_OPTIONS.map((option) => option.item)}</MenuSection>

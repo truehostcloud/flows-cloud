@@ -42,7 +42,7 @@ export const OrganizationDeleteDialog: FC<Props> = ({ organization }) => {
       </DialogContent>
       <DialogActions>
         <DialogClose asChild>
-          <Button size="small" variant="black">
+          <Button shadow={false} size="small" variant="secondary">
             {t.actions.close}
           </Button>
         </DialogClose>

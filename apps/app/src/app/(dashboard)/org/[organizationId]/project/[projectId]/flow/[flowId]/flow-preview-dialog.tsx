@@ -49,7 +49,7 @@ export const FlowPreviewDialog: FC<Props> = ({ flow }) => {
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>
-            <Button size="small" variant="black">
+            <Button shadow={false} size="small" variant="secondary">
               Close
             </Button>
           </DialogClose>

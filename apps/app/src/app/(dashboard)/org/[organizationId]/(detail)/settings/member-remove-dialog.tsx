@@ -49,7 +49,7 @@ export const MemberRemoveDialog: FC<Props> = ({ organization, user }) => {
       </DialogContent>
       <DialogActions>
         <DialogClose asChild>
-          <Button size="small" variant="black">
+          <Button shadow={false} size="small" variant="secondary">
             Close
           </Button>
         </DialogClose>
