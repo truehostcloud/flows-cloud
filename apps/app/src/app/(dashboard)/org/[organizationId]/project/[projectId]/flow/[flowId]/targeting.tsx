@@ -20,11 +20,14 @@ const ValueText: FC<{ children?: ReactNode }> = ({ children }) => {
 };
 
 export const Targeting: FC<Props> = ({ flow }) => {
-  const properties = (flow.data as undefined | { userProperties?: MatchGroup[] })?.userProperties;
+  const properties = (flow.draftVersion?.userProperties ??
+    flow.publishedVersion?.userProperties ??
+    []) as unknown as MatchGroup[];
+
   return (
     <Flex direction="column" gap="space8">
       <Text variant="titleS">Targeting</Text>
-      {properties?.map((group, groupIndex) => (
+      {properties.map((group, groupIndex) => (
         <Fragment
           // eslint-disable-next-line react/no-array-index-key -- ignore
           key={groupIndex}
@@ -80,7 +83,7 @@ export const Targeting: FC<Props> = ({ flow }) => {
           </Wrap>
         </Fragment>
       ))}
-      {!properties?.length && <Text color="muted">No targeting</Text>}
+      {!properties.length && <Text color="muted">No targeting</Text>}
     </Flex>
   );
 };

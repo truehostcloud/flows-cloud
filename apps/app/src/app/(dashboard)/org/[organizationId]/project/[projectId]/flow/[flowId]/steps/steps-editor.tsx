@@ -19,12 +19,12 @@ type Props = {
 };
 
 type FormData = {
-  data: string;
+  steps: string;
 };
 
 export const StepsEditor: FC<Props> = ({ flow }) => {
   const defaultValues: FormData = {
-    data: JSON.stringify(flow.data ?? {}, null, 2),
+    steps: JSON.stringify(flow.draftVersion?.steps ?? flow.publishedVersion?.steps ?? [], null, 2),
   };
   const { handleSubmit, control, watch } = useForm<FormData>({ defaultValues, mode: "onChange" });
 
@@ -32,18 +32,19 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
-        data: JSON.stringify(JSON.parse(data.data || "{}")),
+        steps: JSON.parse(data.steps || "[]"),
       }),
     );
     if (res.error) return;
     toast.success(t.toasts.updateFlowSuccess);
   };
+
   const parseFlow = useCallback(
-    (data: string): unknown => ({ ...JSON.parse(data), id: flow.id }),
+    (steps: string): unknown => ({ steps: JSON.parse(steps), id: flow.id }),
     [flow.id],
   );
 
-  const data = watch("data");
+  const data = watch("steps");
   const _validFlow = useMemo(() => {
     try {
       const parsed = parseFlow(data);
@@ -57,10 +58,10 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Controller
         control={control}
-        name="data"
+        name="steps"
         render={({ field, fieldState }) => (
           <div className={css({ mb: "space24" })}>
-            <CodeEditor defaultValue={defaultValues.data} onChange={(v) => field.onChange(v)} />
+            <CodeEditor defaultValue={defaultValues.steps} onChange={(v) => field.onChange(v)} />
             <Text className={css({ mt: "space4", minH: "1.5em" })} color="danger" variant="bodyXs">
               {fieldState.error?.message}
             </Text>
@@ -71,7 +72,8 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
           validate: (v) => {
             try {
               const result = validateFlow(parseFlow(v));
-              if (result.error) return `Invalid flow definition at ${result.error.path.join(".")}`;
+              if (result.error)
+                return `Invalid steps definition at ${result.error.path.slice(1).join(".")}`;
             } catch (e) {
               return "Must be valid JSON";
             }

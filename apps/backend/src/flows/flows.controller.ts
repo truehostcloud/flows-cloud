@@ -43,6 +43,11 @@ export class FlowsControllers {
     return this.flowsService.getFlowDetail({ auth, flowId });
   }
 
+  @Post("flows/:flowId/publish")
+  publishFlow(@Authorization() auth: Auth, @Param("flowId") flowId: string): Promise<void> {
+    return this.flowsService.publishFlow({ auth, flowId });
+  }
+
   @Post("projects/:projectId/flows")
   createFlow(
     @Authorization() auth: Auth,

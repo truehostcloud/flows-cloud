@@ -10,10 +10,12 @@ type Props = {
 };
 
 export const Frequency: FC<Props> = ({ flow }) => {
+  const frequency = flow.publishedVersion?.frequency;
+
   return (
     <Flex alignItems="flex-start" direction="column" gap="space8">
       <Text variant="titleS">Frequency</Text>
-      {flow.frequency ? (
+      {frequency ? (
         <div
           className={css({
             paddingY: "space4",
@@ -23,7 +25,7 @@ export const Frequency: FC<Props> = ({ flow }) => {
             borderRadius: "radius8",
           })}
         >
-          <Text weight="600">{t.frequency[flow.frequency]}</Text>
+          <Text weight="600">{t.frequency[frequency]}</Text>
         </div>
       ) : (
         <Text color="muted">No frequency</Text>

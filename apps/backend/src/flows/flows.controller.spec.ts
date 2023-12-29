@@ -1,4 +1,5 @@
 import { Test } from "@nestjs/testing";
+import { flows, flowVersions } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { FlowsControllers } from "./flows.controller";
@@ -47,7 +48,10 @@ beforeEach(async () => {
   db = getDB();
   db.query.projects.findFirst.mockResolvedValue({ id: "projId" });
   db.query.flows.findMany.mockResolvedValue([{ id: "flowId" }]);
-  db.query.flows.findFirst.mockResolvedValue({ id: "flowId" });
+  db.query.flows.findFirst.mockResolvedValue({
+    id: "flowId",
+    draftVersion: { data: { steps: [], userProperties: [] } },
+  });
   db.query.organizations.findFirst.mockResolvedValue({
     organizationsToUsers: [{ user_id: "userId" }],
   });
@@ -126,6 +130,7 @@ describe("Get flow detail", () => {
   it("should return flow", async () => {
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).resolves.toEqual({
       id: "flowId",
+      draftVersion: { steps: [], userProperties: [] },
       preview_stats: [
         { count: 1, type: "type" },
         { count: 2, type: "uniqueUsers" },
@@ -187,9 +192,9 @@ describe("Update flow", () => {
   });
   const data: UpdateFlowDto = {
     name: "newName",
-    data: JSON.stringify({ el: "newEl" }),
+    element: "newEl",
     human_id: "new human id",
-    published: true,
+    enabled: true,
     description: "new description",
   };
   it("should throw without flow", async () => {
@@ -215,14 +220,13 @@ describe("Update flow", () => {
   it("should throw without new version", async () => {
     db.returning.mockResolvedValue([]);
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
-      "failed to create new version",
+      "Failed to update data",
     );
   });
   it("should not create new version without data", async () => {
     await expect(
       flowsController.updateFlow({ userId: "userId" }, "flowId", {
-        ...data,
-        data: undefined,
+        name: "newName",
       }),
     ).resolves.toEqual({
       id: "flowId",
@@ -230,6 +234,7 @@ describe("Update flow", () => {
         { count: 1, type: "type" },
         { count: 2, type: "uniqueUsers" },
       ],
+      draftVersion: { steps: [], userProperties: [] },
     });
     expect(db.insert).not.toHaveBeenCalled();
   });
@@ -237,105 +242,106 @@ describe("Update flow", () => {
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
       {
         id: "flowId",
+        draftVersion: { steps: [], userProperties: [] },
         preview_stats: [
           { count: 1, type: "type" },
           { count: 2, type: "uniqueUsers" },
         ],
       },
     );
-    expect(db.insert).toHaveBeenCalled();
-    expect(db.update).toHaveBeenCalled();
+    expect(db.insert).toHaveBeenCalledWith(flowVersions);
+    expect(db.update).toHaveBeenCalledWith(flows);
     expect(db.set).toHaveBeenCalledWith({
-      flow_version_id: "newVerId",
+      draft_version_id: "newVerId",
       name: "newName",
       updated_at: expect.any(Date),
       description: "new description",
-      published_at: expect.any(Date),
+      enabled_at: expect.any(Date),
       human_id: "new human id",
     });
   });
 });
 
-// describe("Create flow", () => {
-//   const data = { name: "newName", data: JSON.stringify({ el: "newEl" }) };
-//   it("should throw without project", async () => {
-//     db.query.projects.findFirst.mockResolvedValue(null);
-//     await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
-//       "project not found",
-//     );
-//   });
-//   it("should throw without access to organization", async () => {
-//     db.query.organizations.findFirst.mockResolvedValue({
-//       organizationsToUsers: [],
-//     });
-//     await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
-//       "Forbidden",
-//     );
-//   });
-//   it("should throw without new flow", async () => {
-//     db.returning.mockResolvedValue([]);
-//     await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
-//       "failed to create flow",
-//     );
-//   });
-// });
+describe("Create flow", () => {
+  const data = { name: "newName", data: JSON.stringify({ el: "newEl" }) };
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should throw without new flow", async () => {
+    db.returning.mockResolvedValue([]);
+    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
+      "failed to create flow",
+    );
+  });
+});
 
-// describe("Delete flow", () => {
-//   it("should throw without flow", async () => {
-//     db.query.flows.findFirst.mockResolvedValue(null);
-//     await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-//       "Not Found",
-//     );
-//   });
-//   it("should throw without project", async () => {
-//     db.query.projects.findFirst.mockResolvedValue(null);
-//     await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-//       "project not found",
-//     );
-//   });
-//   it("should throw without access to organization", async () => {
-//     db.query.organizations.findFirst.mockResolvedValue({
-//       organizationsToUsers: [],
-//     });
-//     await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-//       "Forbidden",
-//     );
-//   });
-//   it("should delete flow", async () => {
-//     await expect(
-//       flowsController.deleteFlow({ userId: "userId" }, "flowId"),
-//     ).resolves.toBeUndefined();
-//     expect(db.delete).toHaveBeenCalled();
-//   });
-// });
+describe("Delete flow", () => {
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Not Found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should delete flow", async () => {
+    await expect(
+      flowsController.deleteFlow({ userId: "userId" }, "flowId"),
+    ).resolves.toBeUndefined();
+    expect(db.delete).toHaveBeenCalled();
+  });
+});
 
-// describe("Get flow versions", () => {
-//   beforeEach(() => {
-//     db.query.flowVersions.findMany.mockResolvedValue([{ id: "flowVerId" }]);
-//   });
-//   it("should throw without flow", async () => {
-//     db.query.flows.findFirst.mockResolvedValue(null);
-//     await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
-//       "Not Found",
-//     );
-//   });
-//   it("should throw without project", async () => {
-//     db.query.projects.findFirst.mockResolvedValue(null);
-//     await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
-//       "project not found",
-//     );
-//   });
-//   it("should throw without access to organization", async () => {
-//     db.query.organizations.findFirst.mockResolvedValue({
-//       organizationsToUsers: [],
-//     });
-//     await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
-//       "Forbidden",
-//     );
-//   });
-//   it("should return flow versions", async () => {
-//     await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).resolves.toEqual([
-//       { id: "flowVerId" },
-//     ]);
-//   });
-// });
+describe("Get flow versions", () => {
+  beforeEach(() => {
+    db.query.flowVersions.findMany.mockResolvedValue([{ id: "flowVerId" }]);
+  });
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Not Found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should return flow versions", async () => {
+    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).resolves.toEqual([
+      { id: "flowVerId" },
+    ]);
+  });
+});

@@ -12,6 +12,7 @@ import { t } from "translations";
 import { Button, Icon, Popover, PopoverContent, PopoverTrigger, Switch, Text, toast } from "ui";
 
 import { FlowPreviewDialog } from "./flow-preview-dialog";
+import { FlowPublishChangesDialog } from "./flow-publish-changes-dialog";
 import { FlowDeleteDialog } from "./settings/flow-delete-dialog";
 
 type Props = {
@@ -22,18 +23,18 @@ type Props = {
 export const FlowHeader: FC<Props> = ({ flow, params }) => {
   //TODO: Improve local flow options
   const flowIsCloud = flow.flow_type === "cloud";
-  const flowIsPublic = flow.published_at !== null;
+  const flowIsPublic = flow.enabled_at !== null;
 
   const { loading, send } = useSend();
   const router = useRouter();
-  const handlePublishedToggle = async (published: boolean): Promise<void> => {
+  const handlePublishedToggle = async (enabled: boolean): Promise<void> => {
     const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
-        published,
+        enabled,
       }),
     );
     if (res.error) return;
-    toast.success(published ? t.toasts.publishFlowSuccess : t.toasts.unpublishFlowSuccess);
+    toast.success(enabled ? t.toasts.publishFlowSuccess : t.toasts.unpublishFlowSuccess);
     router.refresh();
   };
 
@@ -73,6 +74,7 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
         <Text variant="titleXl">{flow.name}</Text>
         {flowIsCloud ? (
           <Flex alignItems="center" gap="space16">
+            <FlowPublishChangesDialog flow={flow} />
             <FlowPreviewDialog flow={flow} />
             <Flex gap="space8">
               <Text weight="600">Public</Text>

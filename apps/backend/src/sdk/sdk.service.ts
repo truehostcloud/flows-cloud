@@ -29,10 +29,10 @@ export class SdkService {
       where: and(
         eq(flows.project_id, project.id),
         eq(flows.flow_type, "cloud"),
-        isNotNull(flows.published_at),
+        isNotNull(flows.enabled_at),
       ),
       with: {
-        version: true,
+        publishedVersion: true,
       },
     });
 
@@ -63,23 +63,20 @@ export class SdkService {
     return dbFlows
       .filter((flow) => {
         if (!userHash) return true;
-        if (flow.frequency === "every-time") return true;
+        if (flow.publishedVersion?.frequency === "every-time") return true;
         const event = seenEventsByFlowId.get(flow.id);
-        if (flow.frequency === "once" && event) return false;
+        if (flow.publishedVersion?.frequency === "once" && event) return false;
         return true;
       })
       .flatMap((f) => {
-        const data = f.version?.data as
-          | undefined
-          | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
-        if (!data) return [];
+        if (!f.publishedVersion) return [];
         return {
           id: f.human_id,
-          steps: data.steps,
-          element: data.element,
-          location: data.location,
-          userProperties: data.userProperties,
-          frequency: f.frequency,
+          frequency: f.publishedVersion.frequency,
+          steps: f.publishedVersion.data.steps,
+          element: f.publishedVersion.data.element,
+          location: f.publishedVersion.data.location,
+          userProperties: f.publishedVersion.data.userProperties,
         };
       });
   }
@@ -107,12 +104,16 @@ export class SdkService {
         or(eq(flows.human_id, flowId), eq(flows.human_id_alias, flowId)),
       ),
       with: {
-        version: true,
+        draftVersion: true,
+        publishedVersion: true,
       },
     });
     if (!flow) throw new NotFoundException();
 
-    const data = flow.version?.data as
+    const version = flow.draftVersion ?? flow.publishedVersion;
+    if (!version) throw new NotFoundException();
+
+    const data = version.data as
       | undefined
       | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
     if (!data) throw new NotFoundException();
@@ -122,7 +123,7 @@ export class SdkService {
       element: data.element,
       location: data.location,
       userProperties: data.userProperties,
-      frequency: flow.frequency,
+      frequency: version.frequency,
     };
   }
 

@@ -95,10 +95,10 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
                 width: "200px",
               })}
             >
-              {flow.published_at ? (
+              {flow.enabled_at ? (
                 <>
                   <Icon color="icon.success" icon={Check16} />
-                  <Text color="success">Published {timeFromNow(flow.published_at)}</Text>
+                  <Text color="success">Published {timeFromNow(flow.enabled_at)}</Text>
                 </>
               ) : (
                 <>

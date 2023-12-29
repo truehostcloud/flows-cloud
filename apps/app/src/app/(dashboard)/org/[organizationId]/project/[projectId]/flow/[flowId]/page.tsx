@@ -1,5 +1,4 @@
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowSteps } from "@rbnd/flows";
 import { api } from "lib/api";
 import { load } from "lib/load";
 
@@ -13,12 +12,11 @@ type Props = {
 
 export default async function FlowDetailPage({ params }: Props): Promise<JSX.Element> {
   const flow = await load(api["/flows/:flowId"](params.flowId));
-  const steps = (flow.data as undefined | { steps?: FlowSteps })?.steps;
 
   return (
     <Flex direction="column" gap="space24" width="100%">
       <AnalyticsPreview flow={flow} />
-      <StepsSection params={params} steps={steps} />
+      <StepsSection flow={flow} params={params} />
       <SetupSection flow={flow} params={params} />
     </Flex>
   );

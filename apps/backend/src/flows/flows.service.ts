@@ -12,6 +12,7 @@ import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
 import type {
   CreateFlowDto,
+  FlowVersionDto,
   GetFlowAnalyticsDto,
   GetFlowDetailDto,
   GetFlowsDto,
@@ -51,12 +52,11 @@ export class FlowsService {
       description: flow.description,
       created_at: flow.created_at,
       updated_at: flow.updated_at,
-      published_at: flow.published_at,
+      enabled_at: flow.enabled_at,
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
       human_id_alias: flow.human_id_alias,
-      frequency: flow.frequency,
       preview_url: flow.preview_url,
     }));
   }
@@ -83,7 +83,8 @@ export class FlowsService {
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
       with: {
-        version: true,
+        draftVersion: true,
+        publishedVersion: true,
       },
     });
     if (!flow) throw new BadRequestException("flow not found");
@@ -106,19 +107,32 @@ export class FlowsService {
       );
     const [previewStats, uniqueUsers] = await Promise.all([previewStatsQuery, uniqueUsersQuery]);
 
+    const createFlowVersionDto = (
+      version?: typeof flowVersions.$inferSelect | null,
+    ): FlowVersionDto | undefined => {
+      if (!version) return;
+      return {
+        frequency: version.frequency,
+        steps: version.data.steps,
+        element: version.data.element,
+        location: version.data.location,
+        userProperties: version.data.userProperties,
+      };
+    };
+
     return {
       id: flow.id,
       name: flow.name,
       description: flow.description,
       created_at: flow.created_at,
       updated_at: flow.updated_at,
-      published_at: flow.published_at,
+      enabled_at: flow.enabled_at,
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
       human_id_alias: flow.human_id_alias,
-      data: flow.version?.data,
-      frequency: flow.frequency,
+      draftVersion: createFlowVersionDto(flow.draftVersion),
+      publishedVersion: createFlowVersionDto(flow.publishedVersion),
       preview_url: flow.preview_url,
       preview_stats: [
         ...previewStats,
@@ -227,6 +241,10 @@ export class FlowsService {
   }): Promise<void> {
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
+      with: {
+        draftVersion: true,
+        publishedVersion: true,
+      },
     });
     if (!flow) throw new NotFoundException();
     const project = await this.databaseService.db.query.projects.findFirst({
@@ -244,23 +262,49 @@ export class FlowsService {
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
-    const newVersion = await (async () => {
-      if (!data.data) return;
-      const versions = await this.databaseService.db
+    const currentVersion = flow.draftVersion ?? flow.publishedVersion;
+    const updatedVersionData = {
+      frequency: data.frequency ?? currentVersion?.frequency,
+      data: {
+        steps: data.steps ?? currentVersion?.data.steps ?? [],
+        element: data.element ?? currentVersion?.data.element,
+        location: data.location ?? currentVersion?.data.location,
+        userProperties: data.userProperties ?? currentVersion?.data.userProperties ?? [],
+      },
+    };
+    const versionDataChanged =
+      JSON.stringify(updatedVersionData) !== JSON.stringify(currentVersion);
+
+    const currentDrafts = await (() => {
+      if (!versionDataChanged) return;
+      if (flow.draft_version_id)
+        return this.databaseService.db
+          .update(flowVersions)
+          .set({
+            ...updatedVersionData,
+            updated_at: new Date(),
+          })
+          .where(eq(flowVersions.id, flow.draft_version_id))
+          .returning({ id: flowVersions.id });
+      return this.databaseService.db
         .insert(flowVersions)
-        .values({ data: JSON.parse(data.data), flow_id: flowId })
+        .values({
+          ...updatedVersionData,
+          flow_id: flowId,
+        })
         .returning({ id: flowVersions.id });
-      const version = versions.at(0);
-      if (!version) throw new BadRequestException("failed to create new version");
-      return version;
+    })();
+    const currentDraftVersionId = currentDrafts?.at(0)?.id;
+    if (versionDataChanged && !currentDraftVersionId)
+      throw new BadRequestException("Failed to update data");
+
+    const enabled_at = (() => {
+      if (data.enabled === undefined) return undefined;
+      if (flow.enabled_at && data.enabled) return undefined;
+      if (!flow.enabled_at && data.enabled) return new Date();
+      if (flow.enabled_at && !data.enabled) return null;
     })();
 
-    const published_at = (() => {
-      if (data.published === undefined) return undefined;
-      if (flow.published_at && data.published) return undefined;
-      if (!flow.published_at && data.published) return new Date();
-      if (flow.published_at && !data.published) return null;
-    })();
     await this.databaseService.db
       .update(flows)
       .set({
@@ -269,12 +313,49 @@ export class FlowsService {
         human_id: data.human_id,
         human_id_alias: data.human_id_alias,
         updated_at: new Date(),
-        flow_version_id: newVersion ? newVersion.id : undefined,
-        published_at,
-        frequency: data.frequency,
+        enabled_at,
+        draft_version_id: currentDraftVersionId,
         preview_url: data.preview_url,
       })
       .where(eq(flows.id, flowId));
+  }
+
+  async publishFlow({ auth, flowId }: { auth: Auth; flowId: string }): Promise<void> {
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: eq(flows.id, flowId),
+    });
+    if (!flow) throw new NotFoundException();
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, flow.project_id),
+    });
+    if (!project) throw new BadRequestException("project not found");
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, project.organization_id),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    if (!flow.draft_version_id) throw new BadRequestException("No draft version found");
+
+    const updateVersionQuery = this.databaseService.db
+      .update(flowVersions)
+      .set({ published_at: new Date() })
+      .where(eq(flowVersions.id, flow.draft_version_id));
+
+    const updateFlowQuery = this.databaseService.db
+      .update(flows)
+      .set({
+        draft_version_id: null,
+        published_version_id: flow.draft_version_id,
+      })
+      .where(eq(flows.id, flowId));
+
+    await Promise.all([updateVersionQuery, updateFlowQuery]);
   }
 
   async createFlow({
@@ -321,12 +402,11 @@ export class FlowsService {
       description: flow.description,
       created_at: flow.created_at,
       updated_at: flow.updated_at,
-      published_at: flow.published_at,
+      enabled_at: flow.enabled_at,
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
       human_id_alias: flow.human_id_alias,
-      frequency: flow.frequency,
       preview_url: flow.preview_url,
     };
   }
@@ -389,6 +469,7 @@ export class FlowsService {
       id: version.id,
       created_at: version.created_at,
       data: version.data,
+      frequency: version.frequency,
     }));
   }
 }

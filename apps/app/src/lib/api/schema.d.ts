@@ -26,6 +26,9 @@ export interface paths {
     delete: operations["FlowsControllers_deleteFlow"];
     patch: operations["FlowsControllers_updateFlow"];
   };
+  "/flows/{flowId}/publish": {
+    post: operations["FlowsControllers_publishFlow"];
+  };
   "/flows/{flowId}/versions": {
     get: operations["FlowsControllers_getFlowVersions"];
   };
@@ -91,8 +94,6 @@ export interface components {
     GetFlowsDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
-      /** @enum {string|null} */
-      frequency?: "once" | "every-time" | null;
       id: string;
       human_id: string;
       human_id_alias: string | null;
@@ -104,18 +105,24 @@ export interface components {
       /** Format: date-time */
       updated_at: string;
       /** Format: date-time */
-      published_at: string | null;
+      enabled_at: string | null;
       preview_url: string | null;
     };
     PreviewStatBucketDto: {
       count: number;
       type: string;
     };
+    FlowVersionDto: {
+      /** @enum {string} */
+      frequency: "once" | "every-time";
+      userProperties: Record<string, never>[][];
+      element?: string;
+      location?: string;
+      steps: Record<string, never>[];
+    };
     GetFlowDetailDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
-      /** @enum {string|null} */
-      frequency?: "once" | "every-time" | null;
       id: string;
       human_id: string;
       human_id_alias: string | null;
@@ -127,26 +134,32 @@ export interface components {
       /** Format: date-time */
       updated_at: string;
       /** Format: date-time */
-      published_at: string | null;
+      enabled_at: string | null;
       preview_url: string | null;
-      data?: Record<string, never>;
       preview_stats: components["schemas"]["PreviewStatBucketDto"][];
+      draftVersion?: components["schemas"]["FlowVersionDto"];
+      publishedVersion?: components["schemas"]["FlowVersionDto"];
     };
     UpdateFlowDto: {
-      /** @enum {string} */
-      frequency?: "once" | "every-time";
+      userProperties?: unknown[][];
       name?: string;
       description?: string;
       human_id?: string;
       human_id_alias?: string;
-      published?: boolean;
-      data?: string;
+      enabled?: boolean;
+      element?: string;
+      location?: string;
+      steps?: Record<string, never>[];
+      /** @enum {string} */
+      frequency?: "once" | "every-time";
       preview_url?: string;
     };
     CreateFlowDto: {
       name: string;
     };
     GetFlowVersionsDto: {
+      /** @enum {string} */
+      frequency: "once" | "every-time";
       id: string;
       /** Format: date-time */
       created_at: string;
@@ -384,6 +397,18 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["GetFlowDetailDto"];
         };
+      };
+    };
+  };
+  FlowsControllers_publishFlow: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      201: {
+        content: never;
       };
     };
   };

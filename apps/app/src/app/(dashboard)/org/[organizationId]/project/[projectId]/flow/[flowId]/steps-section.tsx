@@ -1,6 +1,6 @@
-import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import type { FlowSteps } from "@rbnd/flows";
+import type { FlowDetail } from "lib/api";
 import Link from "next/link";
 import type { FC } from "react";
 import { routes } from "routes";
@@ -10,24 +10,19 @@ import { StepsPreview } from "./steps/steps-preview";
 
 type Props = {
   params: { flowId: string; projectId: string; organizationId: string };
-  steps?: FlowSteps;
+  flow: FlowDetail;
 };
 
-export const StepsSection: FC<Props> = ({ params, steps }) => {
+export const StepsSection: FC<Props> = ({ params, flow }) => {
+  const steps = flow.publishedVersion?.steps as FlowSteps | undefined;
+
   return (
-    <Flex
-      className={css({
-        cardWrap: "",
-      })}
-      direction="column"
-      padding="space16"
-      width="100%"
-    >
+    <Flex cardWrap="" direction="column" padding="space16" width="100%">
       <Flex alignItems="flex-start" justifyContent="space-between" width="100%">
-        <Text variant="titleL">Steps</Text>
-        <Link href={routes.flowSteps(params)}>
-          <Button variant="secondary">Edit</Button>
-        </Link>
+        <Text variant="titleL">Published steps</Text>
+        <Button asChild variant="secondary">
+          <Link href={routes.flowSteps(params)}>Edit</Link>
+        </Button>
       </Flex>
       {steps ? <StepsPreview steps={steps} /> : <Text color="muted">No steps</Text>}
     </Flex>

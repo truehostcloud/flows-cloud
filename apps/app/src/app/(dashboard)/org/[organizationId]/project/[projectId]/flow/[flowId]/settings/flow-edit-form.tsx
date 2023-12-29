@@ -35,12 +35,7 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
     const res = await send(
       api["PATCH /flows/:flowId"](flow.id, {
         ...data,
-        human_id_alias: data.human_id_alias || undefined,
-        frequency: data.frequency || undefined,
-        data: JSON.stringify({
-          ...flow.data,
-          userProperties: fixedUserProperties,
-        }),
+        userProperties: fixedUserProperties,
       }),
     );
     if (res.error) return;
@@ -138,11 +133,14 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
   );
 };
 
-const createDefaultValues = (flow: FlowDetail): FlowEditFormData => ({
-  description: flow.description,
-  human_id: flow.human_id,
-  human_id_alias: flow.human_id_alias ?? "",
-  name: flow.name,
-  frequency: flow.frequency || "once",
-  userProperties: (flow.data?.userProperties as MatchGroup[] | undefined) ?? [],
-});
+const createDefaultValues = (flow: FlowDetail): FlowEditFormData => {
+  const editVersion = flow.draftVersion ?? flow.publishedVersion;
+  return {
+    description: flow.description,
+    human_id: flow.human_id,
+    human_id_alias: flow.human_id_alias ?? "",
+    name: flow.name,
+    frequency: editVersion?.frequency || "once",
+    userProperties: (editVersion?.userProperties as MatchGroup[] | undefined) ?? [],
+  };
+};
