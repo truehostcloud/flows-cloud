@@ -77,7 +77,7 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
             <FlowPublishChangesDialog flow={flow} />
             <FlowPreviewDialog flow={flow} />
             <Flex gap="space8">
-              <Text weight="600">Public</Text>
+              <Text weight="600">Live</Text>
               <Switch checked={flowIsPublic} disabled={loading} onChange={handlePublishedToggle} />
             </Flex>
             <Popover>

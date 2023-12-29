@@ -7,10 +7,17 @@ import { t } from "translations";
 import { Button } from "ui";
 
 import { AnalyticsChart } from "./analytics-chart";
+import { AnalyticsTable } from "./analytics-table";
 
 type Props = {
   params: { flowId: string; projectId: string; organizationId: string };
   searchParams?: { category?: string };
+};
+
+export type EventCategory = {
+  key: "starts" | "finishes" | "exits" | "users" | "finish-rate";
+  title: string;
+  data: { date: string; count: number; type: string }[];
 };
 
 export default async function FlowAnalyticsPage({
@@ -31,6 +38,7 @@ export default async function FlowAnalyticsPage({
           return {
             date: stat.date,
             count: isNaN(count) ? 0 : count,
+            type: "finishRate",
           };
         })
       : [];
@@ -47,11 +55,6 @@ export default async function FlowAnalyticsPage({
       data: finishes,
     },
     {
-      key: "finish-rate",
-      title: t.analytics.finishRate,
-      data: finishRate,
-    },
-    {
       key: "exits",
       title: t.analytics.exits,
       data: analytics.daily_stats.filter((stat) => stat.type === "cancelFlow"),
@@ -61,7 +64,12 @@ export default async function FlowAnalyticsPage({
       title: t.analytics.users,
       data: analytics.daily_stats.filter((stat) => stat.type === "uniqueUsers"),
     },
-  ] as const;
+    {
+      key: "finish-rate",
+      title: t.analytics.finishRate,
+      data: finishRate,
+    },
+  ] as EventCategory[];
 
   const currentCategory = categories.find((cat) => cat.key === categoryKey);
   const chartData = (currentCategory?.data ?? []).map((bucket) => ({
@@ -86,11 +94,13 @@ export default async function FlowAnalyticsPage({
         })}
       </Flex>
 
-      <Box height={320}>
+      <Box height={400} mb="space40">
         {currentCategory ? (
           <AnalyticsChart categoryKey={currentCategory.key} data={chartData} />
         ) : null}
       </Box>
+
+      <AnalyticsTable categories={categories} />
     </>
   );
 }
