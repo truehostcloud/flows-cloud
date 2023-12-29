@@ -3,8 +3,8 @@ import { type FC, Fragment, useEffect, useState } from "react";
 import { t } from "translations";
 import { Button, Input, Select, Text } from "ui";
 
-import type { PrimitiveValue, PrimitiveValueKey } from "../flow-edit-types";
-import { primitiveValueOptions } from "../flow-edit-types";
+import type { PrimitiveValue, PrimitiveValueKey } from "./targeting-types";
+import { primitiveValueOptions } from "./targeting-types";
 
 type Props<T extends PrimitiveValue = PrimitiveValue> = {
   value?: T | T[];

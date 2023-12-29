@@ -1,28 +1,62 @@
-import { css } from "@flows/styled-system/css";
-import { Flex } from "@flows/styled-system/jsx";
-import { Plus16 } from "icons";
-import type { FC } from "react";
-import { Fragment } from "react";
-import type { Control, UseFormSetValue } from "react-hook-form";
-import { t } from "translations";
-import { Button, Text } from "ui";
+"use client";
 
-import type { FlowEditFormData, MatchGroup } from "../flow-edit-types";
-import { FlowMatchGroup } from ".";
+import { css } from "@flows/styled-system/css";
+import { Box, Flex } from "@flows/styled-system/jsx";
+import { useSend } from "hooks/use-send";
+import { Plus16 } from "icons";
+import { api, type FlowDetail } from "lib/api";
+import { useRouter } from "next/navigation";
+import { type FC, Fragment } from "react";
+import type { SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { t } from "translations";
+import { Button, Text, toast } from "ui";
+
+import { FlowMatchGroup } from "./flow-match-group";
+import type { MatchGroup, TargetingForm } from "./targeting-types";
 
 type Props = {
-  userProperties: MatchGroup[];
-  control: Control<FlowEditFormData>;
-  setValue: UseFormSetValue<FlowEditFormData>;
-  isCloud: boolean;
+  flow: FlowDetail;
 };
 
-export const TargetingSection: FC<Props> = ({ userProperties, control, isCloud, setValue }) => {
+const createDefaultValues = (flow: FlowDetail): TargetingForm => {
+  const editVersion = flow.draftVersion ?? flow.publishedVersion;
+  return {
+    userProperties: (editVersion?.userProperties as MatchGroup[] | undefined) ?? [],
+  };
+};
+
+export const FlowTargetingForm: FC<Props> = ({ flow }) => {
+  const { watch, setValue, control, handleSubmit, reset } = useForm<TargetingForm>({
+    defaultValues: createDefaultValues(flow),
+  });
+  const { send, loading } = useSend();
+  const router = useRouter();
+  const onSubmit: SubmitHandler<TargetingForm> = async (data) => {
+    const fixedUserProperties = data.userProperties
+      .map((group) => group.filter((matcher) => !!matcher.key))
+      .filter((group) => !!group.length);
+    const res = await send(
+      api["PATCH /flows/:flowId"](flow.id, {
+        userProperties: fixedUserProperties,
+      }),
+      { errorMessage: t.toasts.saveTargetingFailed },
+    );
+    if (res.error) return;
+    if (res.data) reset(createDefaultValues(res.data));
+    toast.success(t.toasts.saveTargetingSuccess);
+    router.refresh();
+  };
+
+  const userProperties = watch("userProperties");
+
   const handleRemoveGroup = (index: number): void => {
     const updated = [...userProperties];
     updated.splice(index, 1);
     setValue("userProperties", updated);
   };
+
+  const isCloud = flow.flow_type === "cloud";
 
   return (
     <Flex cardWrap="" flexDirection="column" mb="space16">
@@ -31,12 +65,8 @@ export const TargetingSection: FC<Props> = ({ userProperties, control, isCloud, 
         <Text color="muted">{t.targeting.description}</Text>
       </Flex>
       {isCloud ? (
-        <>
-          <div
-            className={css({
-              borTop: "1px",
-            })}
-          >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box borTop="1px">
             {userProperties.map((_, i) => (
               <Fragment
                 // eslint-disable-next-line react/no-array-index-key -- index is fine here
@@ -62,12 +92,8 @@ export const TargetingSection: FC<Props> = ({ userProperties, control, isCloud, 
                 <FlowMatchGroup control={control} index={i} onRemove={() => handleRemoveGroup(i)} />
               </Fragment>
             ))}
-          </div>
-          <div
-            className={css({
-              padding: "space16",
-            })}
-          >
+          </Box>
+          <Box p="space16">
             <Button
               onClick={() => setValue("userProperties", [...userProperties, []])}
               size="small"
@@ -76,8 +102,11 @@ export const TargetingSection: FC<Props> = ({ userProperties, control, isCloud, 
             >
               {t.targeting.addGroup}
             </Button>
-          </div>
-        </>
+          </Box>
+          <Button loading={loading} type="submit" variant="black">
+            Save
+          </Button>
+        </form>
       ) : (
         <Flex justifyContent="center" padding="space40">
           <Text color="muted">{t.targeting.localState}</Text>

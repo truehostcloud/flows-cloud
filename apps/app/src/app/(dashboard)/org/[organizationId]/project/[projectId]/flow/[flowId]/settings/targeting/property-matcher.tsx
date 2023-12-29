@@ -6,13 +6,13 @@ import type { Control } from "react-hook-form";
 import { useController } from "react-hook-form";
 import { Button, Icon, Input, Select, Text } from "ui";
 
-import type { FlowEditFormData } from "../flow-edit-types";
 import { CompareValueInput } from "./compare-value-input";
 import { PrimitiveValueInput } from "./primitive-value-input";
 import { StringValueInput } from "./string-value-input";
+import type { TargetingForm } from "./targeting-types";
 
 type Props = {
-  control: Control<FlowEditFormData>;
+  control: Control<TargetingForm>;
   groupIndex: number;
   matcherIndex: number;
   onRemove: () => void;

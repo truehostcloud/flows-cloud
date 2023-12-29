@@ -7,11 +7,11 @@ import { useFieldArray } from "react-hook-form";
 import { t } from "translations";
 import { Button, Icon, Text } from "ui";
 
-import type { FlowEditFormData } from "../flow-edit-types";
 import { PropertyMatcher } from "./property-matcher";
+import type { TargetingForm } from "./targeting-types";
 
 type Props = {
-  control: Control<FlowEditFormData>;
+  control: Control<TargetingForm>;
   index: number;
   onRemove: () => void;
 };

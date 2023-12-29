@@ -4,7 +4,7 @@ import { type FC, useEffect, useState } from "react";
 import { t } from "translations";
 import { Input, Select } from "ui";
 
-import { type CompareValue, type CompareValueKey, compareValueOptions } from "../flow-edit-types";
+import { type CompareValue, type CompareValueKey, compareValueOptions } from "./targeting-types";
 
 type Props<T extends CompareValue = CompareValue> = {
   value?: T;

@@ -7,8 +7,8 @@ import { Fragment } from "react";
 import { t } from "translations";
 import { Text } from "ui";
 
-import type { MatchGroup } from "./settings/flow-edit-types";
 import type { MatcherKey } from "./settings/targeting/property-matcher";
+import type { MatchGroup } from "./settings/targeting/targeting-types";
 
 type Props = {
   flow: FlowDetail;
