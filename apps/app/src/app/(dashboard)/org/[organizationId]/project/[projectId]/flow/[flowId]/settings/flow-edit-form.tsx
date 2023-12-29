@@ -138,7 +138,6 @@ const createDefaultValues = (flow: FlowDetail): FlowEditFormData => {
   return {
     description: flow.description,
     human_id: flow.human_id,
-    human_id_alias: flow.human_id_alias ?? "",
     name: flow.name,
     frequency: editVersion?.frequency || "once",
     userProperties: (editVersion?.userProperties as MatchGroup[] | undefined) ?? [],

@@ -56,7 +56,6 @@ export class FlowsService {
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
-      human_id_alias: flow.human_id_alias,
       preview_url: flow.preview_url,
     }));
   }
@@ -130,7 +129,6 @@ export class FlowsService {
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
-      human_id_alias: flow.human_id_alias,
       draftVersion: createFlowVersionDto(flow.draftVersion),
       publishedVersion: createFlowVersionDto(flow.publishedVersion),
       preview_url: flow.preview_url,
@@ -311,7 +309,6 @@ export class FlowsService {
         name: data.name,
         description: data.description,
         human_id: data.human_id,
-        human_id_alias: data.human_id_alias,
         updated_at: new Date(),
         enabled_at,
         draft_version_id: currentDraftVersionId,
@@ -406,7 +403,6 @@ export class FlowsService {
       project_id: flow.project_id,
       flow_type: flow.flow_type,
       human_id: flow.human_id,
-      human_id_alias: flow.human_id_alias,
       preview_url: flow.preview_url,
     };
   }

@@ -19,7 +19,6 @@ export type FlowEditFormData = {
   name: string;
   description: string;
   human_id: string;
-  human_id_alias: string;
   frequency?: UpdateFlow["frequency"];
   userProperties: MatchGroup[];
 };

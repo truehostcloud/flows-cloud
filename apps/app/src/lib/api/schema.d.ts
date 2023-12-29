@@ -96,7 +96,6 @@ export interface components {
       flow_type: "cloud" | "local";
       id: string;
       human_id: string;
-      human_id_alias: string | null;
       project_id: string;
       name: string;
       description: string;
@@ -125,7 +124,6 @@ export interface components {
       flow_type: "cloud" | "local";
       id: string;
       human_id: string;
-      human_id_alias: string | null;
       project_id: string;
       name: string;
       description: string;
@@ -145,7 +143,6 @@ export interface components {
       name?: string;
       description?: string;
       human_id?: string;
-      human_id_alias?: string;
       enabled?: boolean;
       element?: string;
       location?: string;

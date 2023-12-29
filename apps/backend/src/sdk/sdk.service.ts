@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { events, flows, projects } from "db";
-import { and, arrayContains, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
+import { and, arrayContains, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
 import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
@@ -101,7 +101,7 @@ export class SdkService {
       where: and(
         eq(flows.project_id, project.id),
         eq(flows.flow_type, "cloud"),
-        or(eq(flows.human_id, flowId), eq(flows.human_id_alias, flowId)),
+        eq(flows.human_id, flowId),
       ),
       with: {
         draftVersion: true,
@@ -145,10 +145,7 @@ export class SdkService {
     if (!project) throw new BadRequestException("project not found");
     const flow = await (async () => {
       const existingFlow = await this.databaseService.db.query.flows.findFirst({
-        where: and(
-          eq(flows.project_id, project.id),
-          or(eq(flows.human_id, event.flowId), eq(flows.human_id_alias, event.flowId)),
-        ),
+        where: and(eq(flows.project_id, project.id), eq(flows.human_id, event.flowId)),
       });
       if (existingFlow) return existingFlow;
       const newFlows = await this.databaseService.db

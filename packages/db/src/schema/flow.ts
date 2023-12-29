@@ -25,7 +25,6 @@ export const flows = pgTable(
   {
     id: uuid("id").notNull().unique().primaryKey().defaultRandom(),
     human_id: text("human_id").notNull(),
-    human_id_alias: text("human_id_alias"),
     project_id: uuid("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
@@ -44,7 +43,6 @@ export const flows = pgTable(
   (table) => {
     return {
       humanIdIdx: index("human_id_idx").on(table.human_id),
-      humanIdAliasIdx: index("human_id_alias_idx").on(table.human_id_alias),
       humanIdProjectIdIdx: uniqueIndex("human_id_project_id_idx").on(
         table.project_id,
         table.human_id,

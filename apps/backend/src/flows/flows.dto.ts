@@ -5,7 +5,6 @@ import { FlowFrequency, FlowFrequencyEnum, FlowType, FlowTypeEnum } from "db";
 export class GetFlowsDto {
   id: string;
   human_id: string;
-  human_id_alias: string | null;
   project_id: string;
   name: string;
   @ApiProperty({ enum: FlowTypeEnum })
@@ -45,9 +44,6 @@ export class CompleteUpdateFlowDto {
   @IsString()
   @Length(3, 32)
   human_id: string;
-  @IsString()
-  @Length(3, 32)
-  human_id_alias: string;
   @IsBoolean()
   enabled: boolean;
   @IsString()
