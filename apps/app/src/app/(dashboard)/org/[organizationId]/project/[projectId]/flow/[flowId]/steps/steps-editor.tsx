@@ -34,6 +34,7 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
       api["PATCH /flows/:flowId"](flow.id, {
         steps: JSON.parse(data.steps || "[]"),
       }),
+      { errorMessage: t.toasts.saveStepsFailed },
     );
     if (res.error) return;
     toast.success(t.toasts.updateFlowSuccess);

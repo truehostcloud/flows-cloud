@@ -27,7 +27,9 @@ export const ProjectDeleteDialog: FC<Props> = ({ project }) => {
   const router = useRouter();
   const { send, loading } = useSend();
   const handleDelete = async (): Promise<void> => {
-    const res = await send(api["DELETE /projects/:projectId"](project.id));
+    const res = await send(api["DELETE /projects/:projectId"](project.id), {
+      errorMessage: t.toasts.deleteProjectFailed,
+    });
     if (res.error) return;
     toast.success(t.toasts.deleteProjectSuccess);
     void mutate("/organizations/:organizationId/projects", [project.organization_id]);

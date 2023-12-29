@@ -4,7 +4,17 @@ import { api } from "lib/api";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import { useState } from "react";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Text } from "ui";
+import { t } from "translations";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Text,
+  toast,
+} from "ui";
 
 type Props = {
   flow: FlowDetail;
@@ -16,9 +26,12 @@ export const FlowPublishChangesDialog: FC<Props> = ({ flow }) => {
   const { loading, send } = useSend();
   const router = useRouter();
   const handlePublish = async (): Promise<void> => {
-    const res = await send(api["POST /flows/:flowId/publish"](flow.id));
+    const res = await send(api["POST /flows/:flowId/publish"](flow.id), {
+      errorMessage: t.toasts.publishFlowFailed,
+    });
     if (res.error) return;
     setOpen(false);
+    toast.success(t.toasts.publishFlowSuccess);
     router.refresh();
   };
 

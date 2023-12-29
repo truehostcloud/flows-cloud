@@ -28,7 +28,9 @@ export const FlowDeleteDialog: FC<Props> = ({ flow, organizationId, trigger }) =
   const router = useRouter();
   const { send, loading } = useSend();
   const handleDelete = async (): Promise<void> => {
-    const res = await send(api["DELETE /flows/:flowId"](flow.id));
+    const res = await send(api["DELETE /flows/:flowId"](flow.id), {
+      errorMessage: t.toasts.deleteFlowFailed,
+    });
     if (res.error) return;
     toast.success(t.toasts.deleteFlowSuccess);
     router.replace(routes.project({ projectId: flow.project_id, organizationId }));

@@ -34,7 +34,9 @@ export const CreateOrganizationDialog: FC<Props> = ({ trigger }) => {
   const router = useRouter();
   const { send, loading } = useSend();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const res = await send(api["POST /organizations"](data));
+    const res = await send(api["POST /organizations"](data), {
+      errorMessage: t.toasts.createOrgFailed,
+    });
     if (!res.data) return;
     setOpen(false);
     toast.success(t.toasts.createOrgSuccess);

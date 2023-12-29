@@ -36,7 +36,9 @@ export const InviteDialog: FC<Props> = ({ organizationId }) => {
 
   const { register, handleSubmit } = useForm<FormData>();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const res = await send(api["POST /organizations/:organizationId/users"](organizationId, data));
+    const res = await send(api["POST /organizations/:organizationId/users"](organizationId, data), {
+      errorMessage: t.toasts.createInviteFailed,
+    });
     if (res.error) return;
     toast.success(t.toasts.inviteSent);
     router.refresh();

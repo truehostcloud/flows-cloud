@@ -42,6 +42,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
         description: data.description || undefined,
         name: data.name,
       }),
+      { errorMessage: t.toasts.saveProjectFailed },
     );
     if (res.error) return;
     toast.success(t.toasts.updateProjectSuccess);

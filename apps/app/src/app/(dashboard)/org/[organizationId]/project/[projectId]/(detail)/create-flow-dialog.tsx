@@ -36,7 +36,9 @@ export const CreateFlowDialog: FC<Props> = ({ projectId, organizationId, trigger
 
   const { register, handleSubmit } = useForm<FormData>();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const res = await send(api["POST /projects/:projectId/flows"](projectId, data));
+    const res = await send(api["POST /projects/:projectId/flows"](projectId, data), {
+      errorMessage: t.toasts.createFlowFailed,
+    });
     if (!res.data) return;
     toast.success(t.toasts.createFlowSuccess);
     router.push(routes.flow({ flowId: res.data.id, projectId, organizationId }));

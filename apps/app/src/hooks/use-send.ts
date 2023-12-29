@@ -1,6 +1,7 @@
 import { useAuth } from "auth/client";
 import type { FetcherContext } from "lib/api/types";
 import { useCallback, useState } from "react";
+import { toast } from "ui";
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- not needed
 export const useSend = () => {
@@ -9,7 +10,10 @@ export const useSend = () => {
   const auth = useAuth();
 
   const send = useCallback(
-    <T>(fn: (ctx: FetcherContext) => Promise<T>): Promise<{ data?: T; error?: Error }> => {
+    <T>(
+      fn: (ctx: FetcherContext) => Promise<T>,
+      options: { errorMessage: string },
+    ): Promise<{ data?: T; error?: Error }> => {
       if (!auth) {
         const err = new Error("Not authenticated");
         setError(err);
@@ -22,6 +26,9 @@ export const useSend = () => {
         .then((data) => ({ data }))
         .catch((err: Error) => {
           setError(err);
+
+          const description = err.message;
+          toast.error(`${options.errorMessage}: ${description}`);
           return { error: err };
         })
         .finally(() => {

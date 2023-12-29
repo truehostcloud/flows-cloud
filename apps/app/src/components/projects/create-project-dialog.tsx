@@ -37,6 +37,7 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(
       api["POST /organizations/:organizationId/projects"](organizationId, data),
+      { errorMessage: t.toasts.createProjectFailed },
     );
     if (!res.data) return;
     setOpen(false);

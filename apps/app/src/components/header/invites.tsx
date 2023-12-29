@@ -7,6 +7,7 @@ import { api } from "lib/api";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import { routes } from "routes";
+import { t } from "translations";
 import { Button, Text } from "ui";
 
 export const Invites: FC = () => {
@@ -15,7 +16,9 @@ export const Invites: FC = () => {
 
   const { send, loading } = useSend();
   const handleAccept = async (inviteId: string): Promise<void> => {
-    const res = await send(api["POST /invites/:inviteId/accept"](inviteId));
+    const res = await send(api["POST /invites/:inviteId/accept"](inviteId), {
+      errorMessage: t.toasts.acceptInviteFailed,
+    });
     if (!res.data) return;
     void mutate("/me");
     void mutate("/organizations");

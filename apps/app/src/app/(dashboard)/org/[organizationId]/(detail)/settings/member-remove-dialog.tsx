@@ -27,6 +27,7 @@ export const MemberRemoveDialog: FC<Props> = ({ organization, user }) => {
   const handleDelete = async (): Promise<void> => {
     const res = await send(
       api["DELETE /organizations/:organizationId/users/:userId"](organization.id, user.id),
+      { errorMessage: t.toasts.removeMemberFailed },
     );
     if (res.error) return;
     toast.success(t.toasts.memberRemoved);

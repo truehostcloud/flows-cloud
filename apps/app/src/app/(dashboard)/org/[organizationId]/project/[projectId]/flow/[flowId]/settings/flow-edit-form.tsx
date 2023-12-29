@@ -37,6 +37,7 @@ export const FlowEditForm: FC<Props> = ({ flow }) => {
         ...data,
         userProperties: fixedUserProperties,
       }),
+      { errorMessage: t.toasts.saveFlowFailed },
     );
     if (res.error) return;
     if (res.data) reset(createDefaultValues(res.data));

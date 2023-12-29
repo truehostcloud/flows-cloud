@@ -32,9 +32,10 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
       api["PATCH /flows/:flowId"](flow.id, {
         enabled,
       }),
+      { errorMessage: enabled ? t.toasts.enableFlowFailed : t.toasts.disableFlowFailed },
     );
     if (res.error) return;
-    toast.success(enabled ? t.toasts.publishFlowSuccess : t.toasts.unpublishFlowSuccess);
+    toast.success(enabled ? t.toasts.enableFlowSuccess : t.toasts.disableFlowSuccess);
     router.refresh();
   };
 

@@ -11,7 +11,7 @@ import { useParams } from "next/navigation";
 import { type FC, useState } from "react";
 import { routes } from "routes";
 import { t } from "translations";
-import { Icon, Popover, PopoverContent, PopoverTrigger, Text } from "ui";
+import { Icon, Popover, PopoverContent, PopoverTrigger, Skeleton, Text } from "ui";
 
 import { MenuItem } from "./menu-item";
 import { MenuSection } from "./menu-section";
@@ -19,9 +19,10 @@ import { MenuSection } from "./menu-section";
 type TriggerProps = {
   projectName?: string;
   orgName?: string;
+  loading?: boolean;
 };
 
-const Trigger: FC<TriggerProps> = ({ projectName, orgName }) => {
+const Trigger: FC<TriggerProps> = ({ projectName, orgName, loading }) => {
   return (
     <div
       className={css({
@@ -49,28 +50,37 @@ const Trigger: FC<TriggerProps> = ({ projectName, orgName }) => {
           flex: 1,
         })}
       >
-        <Text
-          className={css({
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          })}
-          variant="titleS"
-          weight="600"
-        >
-          {projectName ? projectName : "Select a project"}
-        </Text>
-        <Text
-          className={css({
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          })}
-          color="muted"
-          variant="bodyXs"
-        >
-          {orgName}
-        </Text>
+        {loading ? (
+          <>
+            <Skeleton className={css({ height: "14px", mt: "3px", mb: "5px", width: "90%" })} />
+            <Skeleton className={css({ height: "12px", mb: "2px", width: "60%" })} />
+          </>
+        ) : (
+          <>
+            <Text
+              className={css({
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              })}
+              variant="titleS"
+              weight="600"
+            >
+              {projectName ? projectName : "Select a project"}
+            </Text>
+            <Text
+              className={css({
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              })}
+              color="muted"
+              variant="bodyXs"
+            >
+              {orgName}
+            </Text>
+          </>
+        )}
       </div>
       <Icon icon={ChevronDown16} />
     </div>
@@ -84,14 +94,14 @@ export const ProjectsMenu: FC = () => {
     organizationId?: string;
     projectId?: string;
   }>();
-  const { data: organizations } = useFetch("/organizations");
-  const { data: projects } = useFetch(
+  const { data: organizations, isLoading: isLoadingOrganizations } = useFetch("/organizations");
+  const { data: projects, isLoading: isLoadingProjects } = useFetch(
     "/organizations/:organizationId/projects",
     organizationId ? [organizationId] : null,
   );
 
   const auth = useAuth();
-  if (!auth) return <Trigger orgName="Loading..." projectName="Loading..." />;
+  if (!auth || isLoadingProjects || isLoadingOrganizations) return <Trigger loading />;
 
   const currentOrg = organizations?.find((org) => org.id === organizationId);
   const currentProject = projects?.find((proj) => proj.id === projectId);

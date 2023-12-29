@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
+import { t } from "translations";
 import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
 
 type Props = {
@@ -30,7 +31,9 @@ export const FlowPreviewDialog: FC<Props> = ({ flow }) => {
 
     window.open(url, "_blank");
 
-    const res = await send(api["PATCH /flows/:flowId"](flow.id, { preview_url: data.url }));
+    const res = await send(api["PATCH /flows/:flowId"](flow.id, { preview_url: data.url }), {
+      errorMessage: t.toasts.savePreviewUrlFailed,
+    });
     if (res.error) return;
     router.refresh();
   };

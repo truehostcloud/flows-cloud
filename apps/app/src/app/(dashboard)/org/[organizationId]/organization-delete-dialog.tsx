@@ -27,7 +27,9 @@ export const OrganizationDeleteDialog: FC<Props> = ({ organization }) => {
   const router = useRouter();
   const { send, loading } = useSend();
   const handleDelete = async (): Promise<void> => {
-    const res = await send(api["DELETE /organizations/:organizationId"](organization.id));
+    const res = await send(api["DELETE /organizations/:organizationId"](organization.id), {
+      errorMessage: t.toasts.deleteOrgFailed,
+    });
     if (res.error) return;
     toast.success(t.toasts.deleteOrgSuccess);
     void mutate("/organizations");
