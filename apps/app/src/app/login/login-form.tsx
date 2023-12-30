@@ -1,6 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import { createClient } from "auth/client";
 import { signIn, signUp } from "auth/server-actions";
 import { useSearchParams } from "next/navigation";
 import type { FC } from "react";
@@ -10,6 +11,7 @@ import { Button, Input, Text } from "ui";
 export const LoginForm: FC = () => {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const supabase = createClient();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -24,6 +26,22 @@ export const LoginForm: FC = () => {
     });
   };
 
+  const handleGithubSignUp = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${window.origin}/auth/callback`,
+      },
+    });
+  };
+  const handleGoogleSignUp = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.origin}/auth/callback`,
+      },
+    });
+  };
   const error = searchParams.get("error");
   const message = searchParams.get("message");
 
@@ -41,13 +59,35 @@ export const LoginForm: FC = () => {
       {error ? <Text>{error}</Text> : null}
       {message ? <Text>{message}</Text> : null}
 
-      <div className={css({ display: "flex", gap: "space12" })}>
-        <Button loading={isPending} name="sign-in" type="submit">
-          Sign In
-        </Button>
-        <Button loading={isPending} name="sign-up" type="submit" variant="black">
-          Sign Up
-        </Button>
+      <div className={css({ display: "flex", flexDir: "column", gap: "space12" })}>
+        <div className={css({ display: "flex", gap: "space12" })}>
+          <Button loading={isPending} name="sign-in" type="submit">
+            Sign In
+          </Button>
+          <Button loading={isPending} name="sign-up" type="submit" variant="black">
+            Sign Up
+          </Button>
+        </div>
+        <div className={css({ display: "flex", gap: "space12" })}>
+          <Button
+            loading={isPending}
+            name="sign-up-github"
+            onClick={handleGithubSignUp}
+            type="button"
+            variant="black"
+          >
+            😺 GitHub
+          </Button>
+          <Button
+            loading={isPending}
+            name="sign-up-google"
+            onClick={handleGoogleSignUp}
+            type="button"
+            variant="black"
+          >
+            🔎 Google
+          </Button>
+        </div>
       </div>
     </form>
   );
