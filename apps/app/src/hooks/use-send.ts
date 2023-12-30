@@ -27,8 +27,7 @@ export const useSend = () => {
         .catch((err: Error) => {
           setError(err);
 
-          const description = err.message;
-          toast.error(`${options.errorMessage}: ${description}`);
+          toast.error(options.errorMessage, { description: err.message });
           return { error: err };
         })
         .finally(() => {
