@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- test */
 "use client";
 
 import { css } from "@flows/styled-system/css";
@@ -35,12 +36,17 @@ export const LoginForm: FC = () => {
     });
   };
   const handleGoogleSignUp = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.origin}/auth/callback`,
-      },
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.origin}/auth/callback`,
+        },
+      });
+      console.log({ data, error });
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const error = searchParams.get("error");
