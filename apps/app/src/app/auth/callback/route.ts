@@ -1,4 +1,5 @@
 import { createClient } from "auth/server";
+import { PRODUCTION } from "lib/constants";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { routes } from "routes";
@@ -15,7 +16,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  const newUrl = new URL(routes.home, requestUrl.origin);
+  const newUrl = PRODUCTION ? routes.home : new URL(routes.home, requestUrl.origin);
   // URL to redirect to after sign in process completes
   return NextResponse.redirect(newUrl);
 }

@@ -60,6 +60,7 @@ export class FlowsService {
     }));
   }
 
+  // TODO: @pesickadavid use one query instead of many in file
   async getFlowDetail({ auth, flowId }: { auth: Auth; flowId: string }): Promise<GetFlowDetailDto> {
     const plainFlow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
@@ -139,6 +140,7 @@ export class FlowsService {
     };
   }
 
+  // TODO: @pesickadavid add startDate?: Date; endDate?: Date;
   async getFlowAnalytics({
     auth,
     flowId,
@@ -187,6 +189,7 @@ export class FlowsService {
 
     const calendarTable = sql`generate_series( now() - interval '30 day', now(), '1 day'::interval) cal`;
 
+    // TODO: @pesickadavid does this make sense?, limit calendar to gte created_at
     const dailyStatsQuery = this.databaseService.db
       .with(eventTypes, flowEvents)
       .select({

@@ -42,6 +42,7 @@ export const LoginForm: FC = () => {
       },
     });
   };
+
   const error = searchParams.get("error");
   const message = searchParams.get("message");
 
