@@ -24,7 +24,7 @@ const createDefaultValues = (flow: FlowDetail): FrequencyForm => {
 };
 
 export const FrequencyForm: FC<Props> = ({ flow }) => {
-  const { control, handleSubmit } = useForm<FrequencyForm>({
+  const { control, handleSubmit, formState, reset } = useForm<FrequencyForm>({
     defaultValues: createDefaultValues(flow),
   });
   const { send, loading } = useSend();
@@ -34,6 +34,7 @@ export const FrequencyForm: FC<Props> = ({ flow }) => {
       errorMessage: t.toasts.saveFrequencyFailed,
     });
     if (res.error) return;
+    if (res.data) reset(createDefaultValues(res.data));
     toast.success(t.toasts.saveFrequencySuccess);
     router.refresh();
   };
@@ -48,24 +49,32 @@ export const FrequencyForm: FC<Props> = ({ flow }) => {
       </Flex>
       {isCloud ? (
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            control={control}
-            name="frequency"
-            render={({ field }) => (
-              <Select
-                buttonClassName={css({ width: "200px" })}
-                onChange={field.onChange}
-                options={[
-                  { value: "once", label: "Once" },
-                  { value: "every-time", label: "Every time" },
-                ]}
-                value={field.value}
-              />
-            )}
-          />
-          <Button loading={loading} type="submit" variant="black">
-            Save
-          </Button>
+          <Flex gap="space8">
+            <Controller
+              control={control}
+              name="frequency"
+              render={({ field }) => (
+                <Select
+                  buttonClassName={css({ width: "200px" })}
+                  onChange={field.onChange}
+                  options={[
+                    { value: "once", label: "Once" },
+                    { value: "every-time", label: "Every time" },
+                  ]}
+                  value={field.value}
+                />
+              )}
+            />
+            <Button
+              disabled={!formState.isDirty}
+              loading={loading}
+              size="small"
+              type="submit"
+              variant="black"
+            >
+              Save
+            </Button>
+          </Flex>
         </form>
       ) : (
         <Flex justifyContent="center" padding="space32">

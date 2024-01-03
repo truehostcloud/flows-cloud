@@ -61,13 +61,6 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
         </MenuItem>
       ),
     },
-    {
-      item: (
-        <MenuItem as="button" key="settings">
-          <Text as="span">Settings TODO</Text>
-        </MenuItem>
-      ),
-    },
   ];
   return (
     <Flex flexDirection="column" gap="space8" mb="space16">

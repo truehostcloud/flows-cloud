@@ -17,13 +17,17 @@ type Props = {
 
 type LaunchForm = Pick<UpdateFlow, "element" | "location">;
 
-export const LaunchForm: FC<Props> = ({ flow }) => {
+const createDefaultValues = (flow: FlowDetail): LaunchForm => {
   const editVersion = flow.draftVersion ?? flow.publishedVersion;
-  const { register, handleSubmit, formState } = useForm<LaunchForm>({
-    defaultValues: {
-      element: editVersion?.element,
-      location: editVersion?.location,
-    },
+  return {
+    element: editVersion?.element,
+    location: editVersion?.location,
+  };
+};
+
+export const LaunchForm: FC<Props> = ({ flow }) => {
+  const { register, handleSubmit, formState, reset } = useForm<LaunchForm>({
+    defaultValues: createDefaultValues(flow),
   });
   const { send, loading } = useSend();
   const router = useRouter();
@@ -32,11 +36,14 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
       errorMessage: t.toasts.saveLaunchFailed,
     });
     if (res.error) return;
+    if (res.data) reset(createDefaultValues(res.data));
     toast.success(t.toasts.saveLaunchSuccess);
     router.refresh();
   };
 
   const isCloud = flow.flow_type === "cloud";
+
+  //TODO: improve this form to make it clear what the fields do
 
   return (
     <Box cardWrap="" p="space16">
@@ -58,7 +65,7 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
             fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Location"
           />
-          <Button loading={loading} type="submit" variant="black">
+          <Button disabled={!formState.isDirty} loading={loading} type="submit" variant="black">
             Save
           </Button>
         </form>

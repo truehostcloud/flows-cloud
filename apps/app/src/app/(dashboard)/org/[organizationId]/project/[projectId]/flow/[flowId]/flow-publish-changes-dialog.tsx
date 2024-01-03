@@ -42,7 +42,7 @@ export const FlowPublishChangesDialog: FC<Props> = ({ flow }) => {
     <Dialog
       onOpenChange={setOpen}
       open={open}
-      trigger={<Button variant="secondary">Publish changes</Button>}
+      trigger={<Button variant="black">Publish changes</Button>}
     >
       <DialogTitle>Publish changes</DialogTitle>
       <DialogContent>

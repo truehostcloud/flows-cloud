@@ -27,7 +27,7 @@ const createDefaultValues = (flow: FlowDetail): TargetingForm => {
 };
 
 export const FlowTargetingForm: FC<Props> = ({ flow }) => {
-  const { watch, setValue, control, handleSubmit, reset } = useForm<TargetingForm>({
+  const { watch, setValue, control, handleSubmit, reset, formState } = useForm<TargetingForm>({
     defaultValues: createDefaultValues(flow),
   });
   const { send, loading } = useSend();
@@ -93,19 +93,18 @@ export const FlowTargetingForm: FC<Props> = ({ flow }) => {
               </Fragment>
             ))}
           </Box>
-          <Box p="space16">
+          <Flex gap="space8" p="space16">
+            <Button disabled={!formState.isDirty} loading={loading} type="submit" variant="black">
+              Save
+            </Button>
             <Button
               onClick={() => setValue("userProperties", [...userProperties, []])}
-              size="small"
               startIcon={<Plus16 />}
               variant="secondary"
             >
               {t.targeting.addGroup}
             </Button>
-          </Box>
-          <Button loading={loading} type="submit" variant="black">
-            Save
-          </Button>
+          </Flex>
         </form>
       ) : (
         <Flex justifyContent="center" padding="space40">

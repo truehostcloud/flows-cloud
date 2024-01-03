@@ -67,7 +67,7 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
       >
         <textarea rows={4} />
       </Input>
-      <Flex gap="space16">
+      <Flex gap="space16" mb="space16">
         <Input
           description="Unique identifier for this flow. Cannot be changed."
           disabled
@@ -76,7 +76,7 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
           value={flow.human_id}
         />
       </Flex>
-      <Button loading={loading} type="submit" variant="black">
+      <Button disabled={!formState.isDirty} loading={loading} type="submit" variant="black">
         {t.actions.save}
       </Button>
     </form>

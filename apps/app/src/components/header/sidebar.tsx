@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type FC, useMemo } from "react";
 import { routes } from "routes";
-import { Button, Icon, Text, toast } from "ui";
+import { Icon, Text } from "ui";
 
 import { HelpMenu } from "./help-menu";
 import { Invites } from "./invites";
@@ -107,32 +107,6 @@ export const Sidebar: FC = () => {
             mt: "space16",
           })}
         >
-          <Button
-            onClick={() => {
-              toast("Hello basic toast", {
-                duration: 500000,
-                description: "Monday, January 3rd at 6:00pm",
-              });
-              toast.success("Hello success", {
-                duration: 500000,
-                description: "Monday, January 3rd at 6:00pm",
-              });
-              toast.error("Hello error", {
-                duration: 500000,
-                description: "Monday, January 3rd at 6:00pm",
-              });
-              toast.warning("Hello warning", {
-                duration: 500000,
-                description: "Monday, January 3rd at 6:00pm",
-              });
-              toast.info("Hello info", {
-                duration: 500000,
-                description: "Monday, January 3rd at 6:00pm",
-              });
-            }}
-          >
-            Toast test
-          </Button>
           {HEADER_ITEMS.map((item) => (
             <li key={item.label}>
               <Link href={item.href}>
