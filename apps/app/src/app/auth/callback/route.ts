@@ -15,7 +15,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // if "next" is in param, use it as the redirect URL
   const next = searchParams.get("next") ?? "/";
 
-  console.log("kam to forwardne:", `${origin}${next}`);
+  console.log("kam to forwardne - headers:", headers());
+  console.log("kam to forwardne - url:", request.url);
   if (code) {
     const supabase = createClient(cookies());
     const { error } = await supabase.auth.exchangeCodeForSession(code);
