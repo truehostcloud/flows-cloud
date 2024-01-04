@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars -- test*/
 import { createClient } from "auth/server";
 import { cookies, headers } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -21,5 +22,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const redirectTo = `${protocol}://${origin}${routes.home}`;
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(redirectTo);
+  return NextResponse.redirect(requestUrl.origin);
 }
