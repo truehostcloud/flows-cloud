@@ -23,7 +23,7 @@ const createDefaultValues = (flow: FlowDetail): GeneralForm => ({
 });
 
 export const FlowGeneralForm: FC<Props> = ({ flow }) => {
-  const { register, handleSubmit, formState } = useForm<GeneralForm>({
+  const { register, handleSubmit, formState, reset } = useForm<GeneralForm>({
     defaultValues: createDefaultValues(flow),
   });
 
@@ -34,6 +34,7 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
       errorMessage: t.toasts.saveFlowFailed,
     });
     if (res.error) return;
+    if (res.data) reset(createDefaultValues(res.data));
     toast.success(t.toasts.updateFlowSuccess);
     router.refresh();
   };

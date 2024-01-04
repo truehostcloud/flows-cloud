@@ -43,27 +43,30 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
 
   const isCloud = flow.flow_type === "cloud";
 
-  //TODO: improve this form to make it clear what the fields do
-
   return (
     <Box cardWrap="" p="space16">
-      <Text className={css({ mb: "space12" })} variant="titleL">
-        Launch
-      </Text>
+      <Flex flexDirection="column" mb="space12">
+        <Text variant="titleL">{t.launch.launch}</Text>
+        <Text color="muted">{t.launch.description}</Text>
+      </Flex>
 
       {isCloud ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
             {...register("element")}
             defaultValue={formState.defaultValues?.element}
+            description={t.launch.element}
             fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Element"
+            placeholder=".onboarding-flow"
           />
           <Input
             {...register("location")}
             defaultValue={formState.defaultValues?.location}
+            description={t.launch.location}
             fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Location"
+            placeholder="^\/home$ <- shows up only on the home page"
           />
           <Button disabled={!formState.isDirty} loading={loading} type="submit" variant="black">
             Save

@@ -91,6 +91,13 @@ export const t = {
     once: "One time",
     "every-time": "Every time",
   },
+  launch: {
+    launch: "Launch",
+    description: "When and where should the flow be shown to your users.",
+    localState: "Local flow launch settings need to be changed in your codebase",
+    element: "After clicking on a specified element.",
+    location: "After visiting a specified url. Supports regex.",
+  },
   analytics: {
     starts: "Starts",
     finishes: "Finishes",
