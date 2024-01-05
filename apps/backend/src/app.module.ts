@@ -7,12 +7,14 @@ import cors from "cors";
 
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
+import { EmailModule } from "./email/email.module";
 import { FlowsModule } from "./flows/flows.module";
 import { OrganizationsModule } from "./organizations/organizations.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { SdkModule } from "./sdk/sdk.module";
+import { UsersModule } from "./users/users.module";
 
-const publicRoutes: string[] = ["/sdk/flows", "/sdk/events"];
+const publicRoutes: string[] = ["/sdk/flows", "/sdk/events", "/sdk/flows/:flowId"];
 
 @Module({
   imports: [
@@ -20,14 +22,16 @@ const publicRoutes: string[] = ["/sdk/flows", "/sdk/events"];
     ThrottlerModule.forRoot([
       {
         ttl: minutes(1),
-        limit: 100,
+        limit: 250,
       },
     ]),
     DatabaseModule,
+    EmailModule,
     SdkModule,
     FlowsModule,
     ProjectsModule,
     OrganizationsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [

@@ -2,7 +2,12 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/commo
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
-import type { GetFlowDetailDto, GetFlowsDto, GetFlowVersionsDto } from "./flows.dto";
+import type {
+  GetFlowAnalyticsDto,
+  GetFlowDetailDto,
+  GetFlowsDto,
+  GetFlowVersionsDto,
+} from "./flows.dto";
 import { CreateFlowDto, UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
@@ -29,12 +34,18 @@ export class FlowsControllers {
   }
 
   @Patch("flows/:flowId")
-  updateFlow(
+  async updateFlow(
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
     @Body() body: UpdateFlowDto,
-  ): Promise<void> {
-    return this.flowsService.updateFlow({ auth, flowId, data: body });
+  ): Promise<GetFlowDetailDto> {
+    await this.flowsService.updateFlow({ auth, flowId, data: body });
+    return this.flowsService.getFlowDetail({ auth, flowId });
+  }
+
+  @Post("flows/:flowId/publish")
+  publishFlow(@Authorization() auth: Auth, @Param("flowId") flowId: string): Promise<void> {
+    return this.flowsService.publishFlow({ auth, flowId });
   }
 
   @Post("projects/:projectId/flows")
@@ -57,5 +68,13 @@ export class FlowsControllers {
     @Param("flowId") flowId: string,
   ): Promise<GetFlowVersionsDto[]> {
     return this.flowsService.getFlowVersions({ auth, flowId });
+  }
+
+  @Get("flows/:flowId/analytics")
+  getFlowAnalytics(
+    @Authorization() auth: Auth,
+    @Param("flowId") flowId: string,
+  ): Promise<GetFlowAnalyticsDto> {
+    return this.flowsService.getFlowAnalytics({ flowId, auth });
   }
 }

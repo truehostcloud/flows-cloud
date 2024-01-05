@@ -18,15 +18,26 @@ type Props = {
 export const AuthProvider: FC<Props> = ({ children }) => {
   const supabase = createClient();
   const [value, setValue] = useState<AuthContextType>(null);
+
   useEffect(() => {
-    void supabase.auth.getSession().then((res) => {
-      if (!res.data.session) return setValue(null);
+    const setSession = (
+      session: { access_token: string; user: { email?: string } } | null,
+    ): void => {
+      if (!session) return setValue(null);
       setValue({
-        token: res.data.session.access_token,
+        token: session.access_token,
         user: {
-          email: res.data.session.user.email ?? "",
+          email: session.user.email ?? "",
         },
       });
+    };
+
+    void supabase.auth.getSession().then((res) => {
+      setSession(res.data.session);
+    });
+
+    supabase.auth.onAuthStateChange((_, session) => {
+      setSession(session);
     });
   }, [supabase.auth]);
 

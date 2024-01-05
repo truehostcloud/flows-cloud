@@ -1,4 +1,5 @@
 import { Test } from "@nestjs/testing";
+import { flows, flowVersions } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { FlowsControllers } from "./flows.controller";
@@ -6,7 +7,8 @@ import type { UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
 let flowsController: FlowsControllers;
-const db = {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- ignore
+const getDB = () => ({
   query: {
     projects: {
       findFirst: jest.fn(),
@@ -26,18 +28,30 @@ const db = {
   from: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   groupBy: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
   insert: jest.fn().mockReturnThis(),
   values: jest.fn().mockReturnThis(),
   returning: jest.fn().mockReturnThis(),
   update: jest.fn().mockReturnThis(),
   set: jest.fn().mockReturnThis(),
   delete: jest.fn().mockReturnThis(),
-};
+  leftJoin: jest.fn().mockReturnThis(),
+  fullJoin: jest.fn().mockReturnThis(),
+  with: jest.fn().mockReturnThis(),
+  $with: jest.fn().mockReturnThis(),
+  selectDistinct: jest.fn().mockReturnThis(),
+  as: jest.fn().mockReturnThis(),
+});
+let db = getDB();
 
 beforeEach(async () => {
+  db = getDB();
   db.query.projects.findFirst.mockResolvedValue({ id: "projId" });
   db.query.flows.findMany.mockResolvedValue([{ id: "flowId" }]);
-  db.query.flows.findFirst.mockResolvedValue({ id: "flowId" });
+  db.query.flows.findFirst.mockResolvedValue({
+    id: "flowId",
+    draftVersion: { data: { steps: [], userProperties: [] } },
+  });
   db.query.organizations.findFirst.mockResolvedValue({
     organizationsToUsers: [{ user_id: "userId" }],
   });
@@ -85,7 +99,13 @@ describe("Get flows", () => {
 
 describe("Get flow detail", () => {
   beforeEach(() => {
-    db.groupBy.mockResolvedValue([{ count: 1 }]);
+    db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
+    db.where.mockImplementationOnce(
+      jest.fn(function returnThis() {
+        return this as typeof db;
+      }),
+    );
+    db.where.mockResolvedValueOnce([{ count: 2 }]);
   });
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
@@ -110,21 +130,71 @@ describe("Get flow detail", () => {
   it("should return flow", async () => {
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).resolves.toEqual({
       id: "flowId",
-      daily_stats: [{ count: 1 }],
+      draftVersion: { steps: [], userProperties: [] },
+      preview_stats: [
+        { count: 1, type: "type" },
+        { count: 2, type: "uniqueUsers" },
+      ],
     });
+  });
+});
+
+describe("Get flow analytics", () => {
+  beforeEach(() => {
+    db.leftJoin.mockResolvedValueOnce([{ count: 1 }]);
+    db.leftJoin.mockImplementationOnce(
+      jest.fn(function returnThis() {
+        return this as typeof db;
+      }),
+    );
+    db.orderBy.mockResolvedValue([{ count: 2 }]);
+  });
+  it("should throw without flow", async () => {
+    db.query.flows.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Not Found",
+    );
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockResolvedValue(null);
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "project not found",
+    );
+  });
+  it("should throw without access to organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({
+      organizationsToUsers: [],
+    });
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "Forbidden",
+    );
+  });
+  it("should return flow analytics", async () => {
+    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).resolves.toEqual(
+      {
+        daily_stats: [{ count: 1 }, { count: 2, type: "uniqueUsers" }],
+      },
+    );
   });
 });
 
 describe("Update flow", () => {
   beforeEach(() => {
     db.returning.mockResolvedValue([{ id: "newVerId" }]);
-    db.where.mockResolvedValue(undefined);
+    db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
+    db.where.mockResolvedValueOnce(undefined);
+    db.where.mockImplementationOnce(
+      jest.fn(function returnThis() {
+        return this as typeof db;
+      }),
+    );
+    db.where.mockResolvedValueOnce([{ count: 2 }]);
   });
   const data: UpdateFlowDto = {
     name: "newName",
-    data: JSON.stringify({ el: "newEl" }),
+    element: "newEl",
     human_id: "new human id",
-    published: true,
+    enabled: true,
     description: "new description",
   };
   it("should throw without flow", async () => {
@@ -150,27 +220,43 @@ describe("Update flow", () => {
   it("should throw without new version", async () => {
     db.returning.mockResolvedValue([]);
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
-      "failed to create new version",
+      "Failed to update data",
     );
   });
   it("should not create new version without data", async () => {
     await expect(
-      flowsController.updateFlow({ userId: "userId" }, "flowId", { ...data, data: undefined }),
-    ).resolves.toBeUndefined();
+      flowsController.updateFlow({ userId: "userId" }, "flowId", {
+        name: "newName",
+      }),
+    ).resolves.toEqual({
+      id: "flowId",
+      preview_stats: [
+        { count: 1, type: "type" },
+        { count: 2, type: "uniqueUsers" },
+      ],
+      draftVersion: { steps: [], userProperties: [] },
+    });
     expect(db.insert).not.toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
-    await expect(
-      flowsController.updateFlow({ userId: "userId" }, "flowId", data),
-    ).resolves.toBeUndefined();
-    expect(db.insert).toHaveBeenCalled();
-    expect(db.update).toHaveBeenCalled();
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
+      {
+        id: "flowId",
+        draftVersion: { steps: [], userProperties: [] },
+        preview_stats: [
+          { count: 1, type: "type" },
+          { count: 2, type: "uniqueUsers" },
+        ],
+      },
+    );
+    expect(db.insert).toHaveBeenCalledWith(flowVersions);
+    expect(db.update).toHaveBeenCalledWith(flows);
     expect(db.set).toHaveBeenCalledWith({
-      flow_version_id: "newVerId",
+      draft_version_id: "newVerId",
       name: "newName",
       updated_at: expect.any(Date),
       description: "new description",
-      published_at: expect.any(Date),
+      enabled_at: expect.any(Date),
       human_id: "new human id",
     });
   });

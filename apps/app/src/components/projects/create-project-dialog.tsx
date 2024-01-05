@@ -1,6 +1,6 @@
 "use client";
 
-import { css } from "@flows/styled-system/css";
+import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
 import { api } from "lib/api";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,17 @@ import { type FC, type ReactNode, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { routes } from "routes";
-import { Button, Dialog, DialogActions, DialogClose, DialogContent, DialogTitle, Input } from "ui";
+import { t } from "translations";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  Input,
+  toast,
+} from "ui";
 
 type Props = {
   trigger: ReactNode;
@@ -27,10 +37,12 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const res = await send(
       api["POST /organizations/:organizationId/projects"](organizationId, data),
+      { errorMessage: t.toasts.createProjectFailed },
     );
     if (!res.data) return;
     setOpen(false);
-
+    toast.success(t.toasts.createProjectSuccess);
+    void mutate("/organizations/:organizationId/projects", [organizationId]);
     router.push(routes.project({ projectId: res.data.id, organizationId }));
   };
 
@@ -39,16 +51,11 @@ export const CreateProjectDialog: FC<Props> = ({ trigger, organizationId }) => {
       <DialogTitle>Create Project</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Input
-            {...register("name")}
-            inputClassName={css({ width: "100%" })}
-            label="Name"
-            wrapperClassName={css({ display: "block", mt: "space4" })}
-          />
+          <Input {...register("name")} label="Name" />
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>
-            <Button size="small" variant="black">
+            <Button shadow={false} size="small" variant="secondary">
               Close
             </Button>
           </DialogClose>

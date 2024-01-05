@@ -1,9 +1,15 @@
 import { css } from "@flows/styled-system/css";
 import type { FC } from "react";
-import { Text } from "ui";
+import { Spinner } from "ui";
 
 export const PageLoading: FC = () => (
-  <Text align="center" className={css({ py: "space32" })}>
-    Loading..
-  </Text>
+  <div
+    className={css({
+      display: "grid",
+      placeItems: "center",
+      py: "space32",
+    })}
+  >
+    <Spinner />
+  </div>
 );

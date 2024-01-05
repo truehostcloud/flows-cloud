@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Param, Post, Query } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { minutes, Throttle } from "@nestjs/throttler";
 
@@ -12,7 +12,7 @@ export class SdkController {
   constructor(private sdkService: SdkService) {}
 
   @Get("flows")
-  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
+  @Throttle({ default: { limit: 20, ttl: minutes(1) } })
   @ApiQuery({ name: "userHash", required: false })
   getFlows(
     @Headers("origin") origin: string,
@@ -20,6 +20,16 @@ export class SdkController {
     @Query("userHash") userHash?: string,
   ): Promise<GetSdkFlowsDto[]> {
     return this.sdkService.getFlows({ projectId, requestOrigin: origin, userHash });
+  }
+
+  @Get("flows/:flowId")
+  @Throttle({ default: { limit: 20, ttl: minutes(1) } })
+  getPreviewFlow(
+    @Headers("origin") origin: string,
+    @Query("projectId") projectId: string,
+    @Param("flowId") flowId: string,
+  ): Promise<GetSdkFlowsDto> {
+    return this.sdkService.getPreviewFlow({ projectId, requestOrigin: origin, flowId });
   }
 
   @Post("events")

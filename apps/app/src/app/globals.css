@@ -1,1 +1,14 @@
 @layer reset, base, tokens, recipes, utilities;
+
+html {
+  scrollbar-gutter: stable;
+}
+@supports (scrollbar-gutter: stable) {
+  html body {
+    margin: 0 !important;
+  }
+}
+
+.dark-mode {
+  color-scheme: dark;
+}

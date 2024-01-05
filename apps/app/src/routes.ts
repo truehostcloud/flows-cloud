@@ -5,8 +5,9 @@ export const routes = {
   authCallback: "/auth/callback",
 
   home: "/",
-  dashboard: "/dashboard",
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
+  organizationSettings: (params: { organizationId: string }) =>
+    `/org/${params.organizationId}/settings`,
 
   project: (params: { projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}`,
@@ -15,6 +16,15 @@ export const routes = {
 
   flow: (params: { flowId: string; projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}`,
+  flowAnalytics: (params: {
+    flowId: string;
+    projectId: string;
+    organizationId: string;
+    category?: string;
+  }) =>
+    `/org/${params.organizationId}/project/${params.projectId}/flow/${
+      params.flowId
+    }/analytics${createParams({ category: params.category })}`,
   flowSteps: (params: { flowId: string; projectId: string; organizationId: string }) =>
     `/org/${params.organizationId}/project/${params.projectId}/flow/${params.flowId}/steps`,
   flowVersions: (params: {

@@ -1,5 +1,5 @@
 import { defineConfig } from "@pandacss/dev";
-import { theme, conditions } from "ui/theme";
+import { theme, conditions, utilities } from "ui/theme";
 
 export default defineConfig({
   // Whether to use css reset
@@ -12,6 +12,8 @@ export default defineConfig({
   exclude: [],
 
   theme,
+
+  utilities,
 
   // The output directory for your css system
   outdir: "@flows/pandacss",

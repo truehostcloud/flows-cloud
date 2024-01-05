@@ -11,6 +11,9 @@ export interface paths {
   "/sdk/flows": {
     get: operations["SdkController_getFlows"];
   };
+  "/sdk/flows/{flowId}": {
+    get: operations["SdkController_getPreviewFlow"];
+  };
   "/sdk/events": {
     post: operations["SdkController_createEvent"];
   };
@@ -23,8 +26,14 @@ export interface paths {
     delete: operations["FlowsControllers_deleteFlow"];
     patch: operations["FlowsControllers_updateFlow"];
   };
+  "/flows/{flowId}/publish": {
+    post: operations["FlowsControllers_publishFlow"];
+  };
   "/flows/{flowId}/versions": {
     get: operations["FlowsControllers_getFlowVersions"];
+  };
+  "/flows/{flowId}/analytics": {
+    get: operations["FlowsControllers_getFlowAnalytics"];
   };
   "/organizations/{organizationId}/projects": {
     get: operations["ProjectsController_getProjects"];
@@ -43,6 +52,19 @@ export interface paths {
     get: operations["OrganizationsController_getOrganizationDetail"];
     delete: operations["OrganizationsController_deleteOrganization"];
   };
+  "/organizations/{organizationId}/users": {
+    get: operations["OrganizationsController_getUsers"];
+    post: operations["OrganizationsController_inviteUser"];
+  };
+  "/organizations/{organizationId}/users/{userId}": {
+    delete: operations["OrganizationsController_removeUser"];
+  };
+  "/me": {
+    get: operations["UsersController_me"];
+  };
+  "/invites/{inviteId}/accept": {
+    post: operations["UsersController_acceptInvite"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -50,11 +72,13 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     GetSdkFlowsDto: {
-      /** @enum {string} */
-      frequency: "once" | "every-time";
+      /** @enum {string|null} */
+      frequency?: "once" | "every-time" | null;
       id: string;
       element?: string;
       steps: Record<string, never>[];
+      location?: string;
+      userProperties?: Record<string, never>;
     };
     CreateEventDto: {
       /** Format: date-time */
@@ -70,11 +94,8 @@ export interface components {
     GetFlowsDto: {
       /** @enum {string} */
       flow_type: "cloud" | "local";
-      /** @enum {string|null} */
-      frequency?: "once" | "every-time" | null;
       id: string;
       human_id: string;
-      human_id_alias: string | null;
       project_id: string;
       name: string;
       description: string;
@@ -83,7 +104,63 @@ export interface components {
       /** Format: date-time */
       updated_at: string;
       /** Format: date-time */
-      published_at: string | null;
+      enabled_at: string | null;
+      preview_url: string | null;
+    };
+    PreviewStatBucketDto: {
+      count: number;
+      type: string;
+    };
+    FlowVersionDto: {
+      /** @enum {string} */
+      frequency: "once" | "every-time";
+      userProperties: Record<string, never>[][];
+      element?: string;
+      location?: string;
+      steps: Record<string, never>[];
+    };
+    GetFlowDetailDto: {
+      /** @enum {string} */
+      flow_type: "cloud" | "local";
+      id: string;
+      human_id: string;
+      project_id: string;
+      name: string;
+      description: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: date-time */
+      enabled_at: string | null;
+      preview_url: string | null;
+      preview_stats: components["schemas"]["PreviewStatBucketDto"][];
+      draftVersion?: components["schemas"]["FlowVersionDto"];
+      publishedVersion?: components["schemas"]["FlowVersionDto"];
+    };
+    UpdateFlowDto: {
+      userProperties?: unknown[][];
+      name?: string;
+      description?: string;
+      human_id?: string;
+      enabled?: boolean;
+      element?: string;
+      location?: string;
+      steps?: Record<string, never>[];
+      /** @enum {string} */
+      frequency?: "once" | "every-time";
+      preview_url?: string;
+    };
+    CreateFlowDto: {
+      name: string;
+    };
+    GetFlowVersionsDto: {
+      /** @enum {string} */
+      frequency: "once" | "every-time";
+      id: string;
+      /** Format: date-time */
+      created_at: string;
+      data: Record<string, never>;
     };
     StatBucketDto: {
       /** Format: date-time */
@@ -91,49 +168,11 @@ export interface components {
       count: number;
       type: string;
     };
-    GetFlowDetailDto: {
-      /** @enum {string} */
-      flow_type: "cloud" | "local";
-      /** @enum {string|null} */
-      frequency?: "once" | "every-time" | null;
-      id: string;
-      human_id: string;
-      human_id_alias: string | null;
-      project_id: string;
-      name: string;
-      description: string;
-      /** Format: date-time */
-      created_at: string;
-      /** Format: date-time */
-      updated_at: string;
-      /** Format: date-time */
-      published_at: string | null;
-      data: Record<string, never>;
+    GetFlowAnalyticsDto: {
       daily_stats: components["schemas"]["StatBucketDto"][];
-    };
-    UpdateFlowDto: {
-      /** @enum {string} */
-      frequency?: "once" | "every-time";
-      name?: string;
-      description?: string;
-      human_id?: string;
-      human_id_alias?: string;
-      published?: boolean;
-      data?: string;
-    };
-    CreateFlowDto: {
-      name: string;
-    };
-    GetFlowVersionsDto: {
-      id: string;
-      /** Format: date-time */
-      created_at: string;
-      data: Record<string, never>;
     };
     GetProjectsDto: {
       id: string;
-      human_id: string;
-      human_id_alias: string | null;
       organization_id: string;
       name: string;
       description: string | null;
@@ -145,8 +184,6 @@ export interface components {
     };
     GetProjectDetailDto: {
       id: string;
-      human_id: string;
-      human_id_alias: string | null;
       organization_id: string;
       name: string;
       description: string | null;
@@ -163,8 +200,6 @@ export interface components {
       name: string;
       description?: string;
       domains: string[];
-      human_id: string;
-      human_id_alias?: string;
     };
     GetOrganizationsDto: {
       id: string;
@@ -186,6 +221,25 @@ export interface components {
     };
     CreateOrganizationDto: {
       name: string;
+    };
+    InviteUserDto: {
+      email: string;
+    };
+    GetOrganizationMembersDto: {
+      id: string;
+      email: string;
+    };
+    Invite: {
+      id: string;
+      /** Format: date-time */
+      expires_at: string;
+      organizationName: string;
+    };
+    GetMeDto: {
+      pendingInvites: components["schemas"]["Invite"][];
+    };
+    AcceptInviteResponseDto: {
+      organization_id: string;
     };
   };
   responses: never;
@@ -224,6 +278,26 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetSdkFlowsDto"][];
+        };
+      };
+    };
+  };
+  SdkController_getPreviewFlow: {
+    parameters: {
+      query: {
+        projectId: string;
+      };
+      header: {
+        origin: string;
+      };
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetSdkFlowsDto"];
         };
       };
     };
@@ -317,6 +391,20 @@ export interface operations {
     };
     responses: {
       200: {
+        content: {
+          "application/json": components["schemas"]["GetFlowDetailDto"];
+        };
+      };
+    };
+  };
+  FlowsControllers_publishFlow: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      201: {
         content: never;
       };
     };
@@ -331,6 +419,20 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["GetFlowVersionsDto"][];
+        };
+      };
+    };
+  };
+  FlowsControllers_getFlowAnalytics: {
+    parameters: {
+      path: {
+        flowId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetFlowAnalyticsDto"];
         };
       };
     };
@@ -459,6 +561,73 @@ export interface operations {
     responses: {
       200: {
         content: never;
+      };
+    };
+  };
+  OrganizationsController_getUsers: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetOrganizationMembersDto"][];
+        };
+      };
+    };
+  };
+  OrganizationsController_inviteUser: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InviteUserDto"];
+      };
+    };
+    responses: {
+      201: {
+        content: never;
+      };
+    };
+  };
+  OrganizationsController_removeUser: {
+    parameters: {
+      path: {
+        organizationId: string;
+        userId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  UsersController_me: {
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetMeDto"];
+        };
+      };
+    };
+  };
+  UsersController_acceptInvite: {
+    parameters: {
+      path: {
+        inviteId: string;
+      };
+    };
+    responses: {
+      201: {
+        content: {
+          "application/json": components["schemas"]["AcceptInviteResponseDto"];
+        };
       };
     };
   };

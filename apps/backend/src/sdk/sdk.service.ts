@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { events, flows, projects } from "db";
-import { and, arrayContains, desc, eq, inArray, isNotNull, or } from "drizzle-orm";
+import { and, arrayContains, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
 import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
@@ -18,14 +18,10 @@ export class SdkService {
     requestOrigin: string;
     userHash?: string;
   }): Promise<GetSdkFlowsDto[]> {
-    if (!projectId) throw new NotFoundException();
-    if (!requestOrigin) throw new BadRequestException("Origin is required");
+    if (!projectId || !requestOrigin) throw new NotFoundException();
 
     const project = await this.databaseService.db.query.projects.findFirst({
-      where: and(
-        or(eq(projects.human_id, projectId), eq(projects.human_id_alias, projectId)),
-        arrayContains(projects.domains, [requestOrigin]),
-      ),
+      where: and(eq(projects.id, projectId), arrayContains(projects.domains, [requestOrigin])),
     });
     if (!project) throw new NotFoundException();
 
@@ -33,10 +29,10 @@ export class SdkService {
       where: and(
         eq(flows.project_id, project.id),
         eq(flows.flow_type, "cloud"),
-        isNotNull(flows.published_at),
+        isNotNull(flows.enabled_at),
       ),
       with: {
-        version: true,
+        publishedVersion: true,
       },
     });
 
@@ -67,21 +63,68 @@ export class SdkService {
     return dbFlows
       .filter((flow) => {
         if (!userHash) return true;
-        if (flow.frequency === "every-time") return true;
+        if (flow.publishedVersion?.frequency === "every-time") return true;
         const event = seenEventsByFlowId.get(flow.id);
-        if (flow.frequency === "once" && event) return false;
+        if (flow.publishedVersion?.frequency === "once" && event) return false;
         return true;
       })
       .flatMap((f) => {
-        const data = f.version?.data as undefined | { steps: unknown[]; element?: string };
-        if (!data) return [];
+        if (!f.publishedVersion) return [];
         return {
           id: f.human_id,
-          steps: data.steps,
-          element: data.element,
-          frequency: f.frequency,
+          frequency: f.publishedVersion.frequency,
+          steps: f.publishedVersion.data.steps,
+          element: f.publishedVersion.data.element,
+          location: f.publishedVersion.data.location,
+          userProperties: f.publishedVersion.data.userProperties,
         };
       });
+  }
+
+  async getPreviewFlow({
+    flowId,
+    projectId,
+    requestOrigin,
+  }: {
+    requestOrigin: string;
+    projectId: string;
+    flowId: string;
+  }): Promise<GetSdkFlowsDto> {
+    if (!projectId || !flowId || !requestOrigin) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: and(eq(projects.id, projectId), arrayContains(projects.domains, [requestOrigin])),
+    });
+    if (!project) throw new NotFoundException();
+
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: and(
+        eq(flows.project_id, project.id),
+        eq(flows.flow_type, "cloud"),
+        eq(flows.human_id, flowId),
+      ),
+      with: {
+        draftVersion: true,
+        publishedVersion: true,
+      },
+    });
+    if (!flow) throw new NotFoundException();
+
+    const version = flow.draftVersion ?? flow.publishedVersion;
+    if (!version) throw new NotFoundException();
+
+    const data = version.data as
+      | undefined
+      | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
+    if (!data) throw new NotFoundException();
+    return {
+      id: flow.human_id,
+      steps: data.steps,
+      element: data.element,
+      location: data.location,
+      userProperties: data.userProperties,
+      frequency: version.frequency,
+    };
   }
 
   async createEvent({
@@ -95,17 +138,14 @@ export class SdkService {
 
     const project = await this.databaseService.db.query.projects.findFirst({
       where: and(
-        or(eq(projects.human_id, event.projectId), eq(projects.human_id_alias, event.projectId)),
+        eq(projects.id, event.projectId),
         arrayContains(projects.domains, [requestOrigin]),
       ),
     });
     if (!project) throw new BadRequestException("project not found");
     const flow = await (async () => {
       const existingFlow = await this.databaseService.db.query.flows.findFirst({
-        where: and(
-          eq(flows.project_id, project.id),
-          or(eq(flows.human_id, event.flowId), eq(flows.human_id_alias, event.flowId)),
-        ),
+        where: and(eq(flows.project_id, project.id), eq(flows.human_id, event.flowId)),
       });
       if (existingFlow) return existingFlow;
       const newFlows = await this.databaseService.db

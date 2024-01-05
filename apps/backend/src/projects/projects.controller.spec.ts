@@ -126,8 +126,6 @@ describe("Update project", () => {
     name: "New name",
     description: "desc",
     domains: ["new domain"],
-    human_id: "new-human-id",
-    human_id_alias: "new-human-id-alias",
   };
   beforeEach(() => {
     db.returning.mockResolvedValue([{ name: "New name" }]);
