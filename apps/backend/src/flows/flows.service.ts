@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { alias, union } from "drizzle-orm/pg-core";
 import slugify from "slugify";
 
 import type { Auth } from "../auth";
@@ -60,52 +61,53 @@ export class FlowsService {
     }));
   }
 
-  // TODO: @pesickadavid use one query instead of many in file
   async getFlowDetail({ auth, flowId }: { auth: Auth; flowId: string }): Promise<GetFlowDetailDto> {
-    const plainFlow = await this.databaseService.db.query.flows.findFirst({
-      where: eq(flows.id, flowId),
-    });
-    if (!plainFlow) throw new NotFoundException();
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, plainFlow.project_id),
-    });
-    if (!project) throw new BadRequestException("project not found");
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
-    const flow = await this.databaseService.db.query.flows.findFirst({
-      where: eq(flows.id, flowId),
-      with: {
-        draftVersion: true,
-        publishedVersion: true,
-      },
-    });
-    if (!flow) throw new BadRequestException("flow not found");
+    const draftFlowVersion = alias(flowVersions, "draftFlowVersion");
+    const publishedFlowVersion = alias(flowVersions, "publishedFlowVersion");
 
-    const previewStatsQuery = this.databaseService.db
+    const complexQuery = await this.databaseService.db
+      .select()
+      .from(flows)
+      .leftJoin(projects, eq(flows.project_id, projects.id))
+      .leftJoin(organizations, eq(projects.organization_id, organizations.id))
+      .leftJoin(
+        organizationsToUsers,
+        and(
+          eq(organizations.id, organizationsToUsers.organization_id),
+          eq(organizationsToUsers.user_id, auth.userId),
+        ),
+      )
+      .leftJoin(draftFlowVersion, eq(flows.draft_version_id, draftFlowVersion.id))
+      .leftJoin(publishedFlowVersion, eq(flows.published_version_id, publishedFlowVersion.id))
+      .where(eq(flows.id, flowId));
+
+    if (!complexQuery.length) throw new NotFoundException();
+    const data = complexQuery[0];
+    if (!data.project) throw new NotFoundException();
+    if (!data.organization_to_user) throw new ForbiddenException();
+
+    const uniqueUsersQuerySql = this.databaseService.db
       .select({
-        type: events.type,
-        count: sql<number>`cast(count(${events.id}) as int)`,
-      })
-      .from(events)
-      .where(and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)))
-      .groupBy(events.type);
-    const uniqueUsersQuery = this.databaseService.db
-      .select({
+        type: sql<string>`'uniqueUsers'`,
         count: sql<number>`cast(count(${events.user_hash}) as int)`,
+        uniqueUsers: sql<number>`0`,
       })
       .from(events)
       .where(
         and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)),
       );
-    const [previewStats, uniqueUsers] = await Promise.all([previewStatsQuery, uniqueUsersQuery]);
+
+    const previewStatsQuerySql = this.databaseService.db
+      .select({
+        type: events.type,
+        count: sql<number>`cast(count(${events.id}) as int)`,
+        uniqueUsers: sql<number>`cast(count(distinct ${events.user_hash}) as int)`,
+      })
+      .from(events)
+      .where(and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)))
+      .groupBy(events.type);
+
+    const stats = await union(previewStatsQuerySql, uniqueUsersQuerySql);
 
     const createFlowVersionDto = (
       version?: typeof flowVersions.$inferSelect | null,
@@ -121,22 +123,19 @@ export class FlowsService {
     };
 
     return {
-      id: flow.id,
-      name: flow.name,
-      description: flow.description,
-      created_at: flow.created_at,
-      updated_at: flow.updated_at,
-      enabled_at: flow.enabled_at,
-      project_id: flow.project_id,
-      flow_type: flow.flow_type,
-      human_id: flow.human_id,
-      draftVersion: createFlowVersionDto(flow.draftVersion),
-      publishedVersion: createFlowVersionDto(flow.publishedVersion),
-      preview_url: flow.preview_url,
-      preview_stats: [
-        ...previewStats,
-        { type: "uniqueUsers", count: uniqueUsers.at(0)?.count ?? 0 },
-      ],
+      id: data.flow.id,
+      name: data.flow.name,
+      description: data.flow.description,
+      created_at: data.flow.created_at,
+      updated_at: data.flow.updated_at,
+      enabled_at: data.flow.enabled_at,
+      project_id: data.flow.project_id,
+      flow_type: data.flow.flow_type,
+      human_id: data.flow.human_id,
+      draftVersion: createFlowVersionDto(data.draftFlowVersion),
+      publishedVersion: createFlowVersionDto(data.publishedFlowVersion),
+      preview_url: data.flow.preview_url,
+      preview_stats: stats,
     };
   }
 

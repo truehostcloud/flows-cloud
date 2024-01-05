@@ -1,5 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { flows, flowVersions } from "db";
+import { union } from "drizzle-orm/pg-core";
 
 import { DatabaseService } from "../database/database.service";
 import { FlowsControllers } from "./flows.controller";
@@ -7,6 +8,12 @@ import type { UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
 let flowsController: FlowsControllers;
+
+jest.mock("drizzle-orm/pg-core", (): unknown => ({
+  ...jest.requireActual("drizzle-orm/pg-core"),
+  union: jest.fn(),
+}));
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- ignore
 const getDB = () => ({
   query: {
@@ -53,7 +60,7 @@ beforeEach(async () => {
     draftVersion: { data: { steps: [], userProperties: [] } },
   });
   db.query.organizations.findFirst.mockResolvedValue({
-    organizationsToUsers: [{ user_id: "userId" }],
+    organizationsToUsers: [{ organization_id: "orgId", user_id: "userId" }],
   });
 
   const moduleRef = await Test.createTestingModule({
@@ -99,36 +106,72 @@ describe("Get flows", () => {
 
 describe("Get flow detail", () => {
   beforeEach(() => {
-    db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
-    db.where.mockImplementationOnce(
-      jest.fn(function returnThis() {
-        return this as typeof db;
-      }),
-    );
-    db.where.mockResolvedValueOnce([{ count: 2 }]);
+    // db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
+    // db.where.mockImplementationOnce(
+    //   jest.fn(function returnThis() {
+    //     return this as typeof db;
+    //   }),
+    // );
+    (union as jest.MockedFunction<typeof union>).mockResolvedValue([
+      { count: 1, type: "type" },
+      { count: 2, type: "uniqueUsers" },
+    ]);
+    db.where.mockResolvedValueOnce([
+      {
+        flow: {
+          id: "flowId",
+        },
+        project: {},
+        organization: {},
+        organization_to_user: {
+          organization_id: "orgId",
+          user_id: "userId",
+        },
+        draftFlowVersion: {
+          data: {
+            steps: [],
+            userProperties: [],
+          },
+        },
+        publishedFlowVersion: null,
+      },
+    ]);
   });
   it("should throw without flow", async () => {
-    db.query.flows.findFirst.mockResolvedValue(null);
+    db.where.mockReset();
+    db.where.mockResolvedValue([]);
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
       "Not Found",
     );
   });
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "project not found",
-    );
-  });
+
   it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
-    });
+    db.where.mockReset();
+    db.where.mockResolvedValueOnce([
+      {
+        flow: {
+          id: "flowId",
+        },
+        project: {},
+        organization: {},
+        organization_to_user: null,
+        draftFlowVersion: {
+          data: {
+            steps: [],
+            userProperties: [],
+          },
+        },
+        publishedFlowVersion: null,
+      },
+    ]);
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
       "Forbidden",
     );
   });
   it("should return flow", async () => {
-    await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).resolves.toEqual({
+    const data = await flowsController.getFlowDetail({ userId: "userId" }, "flowId");
+
+    expect(data).toEqual({
       id: "flowId",
       draftVersion: { steps: [], userProperties: [] },
       preview_stats: [
@@ -228,27 +271,13 @@ describe("Update flow", () => {
       flowsController.updateFlow({ userId: "userId" }, "flowId", {
         name: "newName",
       }),
-    ).resolves.toEqual({
-      id: "flowId",
-      preview_stats: [
-        { count: 1, type: "type" },
-        { count: 2, type: "uniqueUsers" },
-      ],
-      draftVersion: { steps: [], userProperties: [] },
-    });
+    ).resolves.toBeUndefined();
     expect(db.insert).not.toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
-    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
-      {
-        id: "flowId",
-        draftVersion: { steps: [], userProperties: [] },
-        preview_stats: [
-          { count: 1, type: "type" },
-          { count: 2, type: "uniqueUsers" },
-        ],
-      },
-    );
+    await expect(
+      flowsController.updateFlow({ userId: "userId" }, "flowId", data),
+    ).resolves.toBeUndefined();
     expect(db.insert).toHaveBeenCalledWith(flowVersions);
     expect(db.update).toHaveBeenCalledWith(flows);
     expect(db.set).toHaveBeenCalledWith({

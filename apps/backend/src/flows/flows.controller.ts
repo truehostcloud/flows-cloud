@@ -38,9 +38,8 @@ export class FlowsControllers {
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
     @Body() body: UpdateFlowDto,
-  ): Promise<GetFlowDetailDto> {
+  ): Promise<void> {
     await this.flowsService.updateFlow({ auth, flowId, data: body });
-    return this.flowsService.getFlowDetail({ auth, flowId });
   }
 
   @Post("flows/:flowId/publish")
