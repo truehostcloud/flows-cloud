@@ -12,7 +12,7 @@ export const useSend = () => {
   const send = useCallback(
     <T>(
       fn: (ctx: FetcherContext) => Promise<T>,
-      options: { errorMessage: string },
+      options: { errorMessage: string | null },
     ): Promise<{ data?: T; error?: Error }> => {
       if (!auth) {
         const err = new Error("Not authenticated");

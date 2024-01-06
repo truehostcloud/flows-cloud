@@ -34,7 +34,9 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
       errorMessage: t.toasts.saveFlowFailed,
     });
     if (res.error) return;
-    if (res.data) reset(createDefaultValues(res.data));
+    void send(api["/flows/:flowId"](flow.id), { errorMessage: null }).then((flowRes) => {
+      if (flowRes.data) reset(createDefaultValues(flowRes.data));
+    });
     toast.success(t.toasts.updateFlowSuccess);
     router.refresh();
   };

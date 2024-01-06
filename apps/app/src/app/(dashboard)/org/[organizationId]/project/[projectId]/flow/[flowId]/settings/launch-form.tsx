@@ -36,7 +36,9 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
       errorMessage: t.toasts.saveLaunchFailed,
     });
     if (res.error) return;
-    if (res.data) reset(createDefaultValues(res.data));
+    void send(api["/flows/:flowId"](flow.id), { errorMessage: null }).then((flowRes) => {
+      if (flowRes.data) reset(createDefaultValues(flowRes.data));
+    });
     toast.success(t.toasts.saveLaunchSuccess);
     router.refresh();
   };

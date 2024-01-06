@@ -39,7 +39,7 @@ export type Api = {
   "/flows/:flowId": Endpoint<FlowDetail, [string]>;
   "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string]>;
   "/flows/:flowId/versions": Endpoint<FlowVersion[], [string]>;
-  "PATCH /flows/:flowId": Endpoint<FlowDetail, [string, UpdateFlow]>;
+  "PATCH /flows/:flowId": Endpoint<void, [string, UpdateFlow]>;
   "POST /flows/:flowId/publish": Endpoint<void, [string]>;
   "POST /projects/:projectId/flows": Endpoint<FlowPreview, [string, CreateFlow]>;
   "DELETE /flows/:flowId": Endpoint<void, [string]>;
