@@ -1,15 +1,14 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import { LoginMessage } from "app/login/login-message";
 import { createClient } from "auth/client";
 import { signIn, signUp } from "auth/server-actions";
-import { useSearchParams } from "next/navigation";
 import type { FC } from "react";
-import { useTransition } from "react";
-import { Button, Input, Text } from "ui";
+import { Suspense, useTransition } from "react";
+import { Button, Input } from "ui";
 
 export const LoginForm: FC = () => {
-  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
 
@@ -35,9 +34,6 @@ export const LoginForm: FC = () => {
     });
   };
 
-  const error = searchParams.get("error");
-  const message = searchParams.get("message");
-
   return (
     <form
       className={css({
@@ -49,8 +45,9 @@ export const LoginForm: FC = () => {
     >
       <Input label="Email" name="email" required type="email" />
       <Input label="Password" minLength={8} name="password" required type="password" />
-      {error ? <Text>{error}</Text> : null}
-      {message ? <Text>{message}</Text> : null}
+      <Suspense>
+        <LoginMessage />
+      </Suspense>
 
       <div className={css({ display: "flex", flexDir: "column", gap: "space12" })}>
         <div className={css({ display: "flex", gap: "space12" })}>

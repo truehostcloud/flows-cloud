@@ -27,7 +27,6 @@
     "@visx/scale": "^3.5.0",
     "@visx/shape": "^3.5.0",
     "@visx/tooltip": "^3.3.0",
-    "shared": "workspace:*",
     "cookies-next": "^4.1.0",
     "dayjs": "^1.11.10",
     "icons": "workspace:*",
@@ -36,6 +35,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
+    "shared": "workspace:*",
     "swr": "^2.2.4",
     "ui": "workspace:*"
   },
