@@ -1,4 +1,3 @@
-/* eslint-disable no-console -- test */
 "use client";
 
 import { css } from "@flows/styled-system/css";
@@ -27,26 +26,13 @@ export const LoginForm: FC = () => {
     });
   };
 
-  const handleGithubSignUp = async () => {
+  const handleSocialSignIn = async (provider: "google" | "github"): Promise<void> => {
     await supabase.auth.signInWithOAuth({
-      provider: "github",
+      provider,
       options: {
         redirectTo: `${window.origin}/auth/callback`,
       },
     });
-  };
-  const handleGoogleSignUp = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.origin}/auth/callback`,
-        },
-      });
-      console.log({ data, error });
-    } catch (error) {
-      console.log("error", error);
-    }
   };
 
   const error = searchParams.get("error");
@@ -79,7 +65,7 @@ export const LoginForm: FC = () => {
           <Button
             loading={isPending}
             name="sign-up-github"
-            onClick={handleGithubSignUp}
+            onClick={() => handleSocialSignIn("github")}
             type="button"
             variant="black"
           >
@@ -88,7 +74,7 @@ export const LoginForm: FC = () => {
           <Button
             loading={isPending}
             name="sign-up-google"
-            onClick={handleGoogleSignUp}
+            onClick={() => handleSocialSignIn("google")}
             type="button"
             variant="black"
           >

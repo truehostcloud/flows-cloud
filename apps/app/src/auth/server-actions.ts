@@ -13,10 +13,6 @@ export const signOut = async (): Promise<void> => {
 };
 
 export const signIn = async (formData: FormData): Promise<void> => {
-  const host = headers().get("x-forwarded-host");
-  const protocol = headers().get("x-forwarded-proto");
-  const origin = `${protocol}://${host}`;
-
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const supabase = createClient(cookies());
@@ -27,10 +23,10 @@ export const signIn = async (formData: FormData): Promise<void> => {
   });
 
   if (error) {
-    return redirect(origin + routes.login({ message: "Could not authenticate user" }));
+    return redirect(routes.login({ message: "Could not authenticate user" }));
   }
 
-  return redirect(origin + routes.home);
+  return redirect(routes.home);
 };
 
 export const signUp = async (formData: FormData): Promise<void> => {
