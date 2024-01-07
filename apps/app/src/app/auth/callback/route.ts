@@ -1,6 +1,6 @@
 /* eslint-disable no-console -- verify */
 import { createClient } from "auth/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { routes } from "routes";
@@ -17,10 +17,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  console.log("request.url", request);
-  console.log("nextUrl", request.nextUrl);
-  console.log("headers", request.headers);
+  const origin = headers().get("x-forwarded-host");
+  const protocol = headers().get("x-forwarded-proto");
+  const redirectTo = `${protocol}://${origin}${routes.home}`;
+
+  console.log("redirectTo", redirectTo);
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(new URL(routes.home, requestUrl));
+  return NextResponse.redirect(redirectTo);
 }
