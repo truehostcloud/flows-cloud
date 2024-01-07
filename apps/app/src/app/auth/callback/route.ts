@@ -1,7 +1,9 @@
+/* eslint-disable no-console -- verify */
 import { createClient } from "auth/server";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { routes } from "routes";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // The `/auth/callback` route is required for the server-side auth flow implemented
@@ -15,6 +17,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
+  console.log("request.url", request.url);
+  console.log("nextUrl", request.nextUrl);
+
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin);
+  return NextResponse.redirect(new URL(routes.home, requestUrl));
 }
