@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
@@ -37,7 +37,7 @@ export class ProjectsController {
     return this.projectsService.createProject({ auth, organizationId, data: body });
   }
 
-  @Put("projects/:projectId")
+  @Patch("projects/:projectId")
   updateProject(
     @Authorization() auth: Auth,
     @Param("projectId") projectId: string,

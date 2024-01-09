@@ -16,6 +16,7 @@ import type {
   GetOrganizationDetailDto,
   GetOrganizationMembersDto,
   GetOrganizationsDto,
+  UpdateOrganizationDto,
 } from "./organizations.dto";
 
 @Injectable()
@@ -95,6 +96,47 @@ export class OrganizationsService {
       description: org.description,
       created_at: org.created_at,
       updated_at: org.updated_at,
+    };
+  }
+
+  async updateOrganization({
+    auth,
+    data,
+    organizationId,
+  }: {
+    auth: Auth;
+    data: UpdateOrganizationDto;
+    organizationId: string;
+  }): Promise<GetOrganizationDetailDto> {
+    const org = await this.databaseService.db.query.organizations.findFirst({
+      where: eq(organizations.id, organizationId),
+      with: {
+        organizationsToUsers: {
+          where: eq(organizationsToUsers.user_id, auth.userId),
+        },
+      },
+    });
+    if (!org) throw new NotFoundException();
+    const userHasAccessToOrg = !!org.organizationsToUsers.length;
+    if (!userHasAccessToOrg) throw new ForbiddenException();
+
+    const updatedOrganizations = await this.databaseService.db
+      .update(organizations)
+      .set({
+        name: data.name,
+        updated_at: new Date(),
+      })
+      .where(eq(organizations.id, organizationId))
+      .returning();
+    const updatedOrg = updatedOrganizations.at(0);
+    if (!updatedOrg) throw new BadRequestException("Failed to update organization");
+
+    return {
+      id: updatedOrg.id,
+      name: updatedOrg.name,
+      description: updatedOrg.description,
+      created_at: updatedOrg.created_at,
+      updated_at: updatedOrg.updated_at,
     };
   }
 

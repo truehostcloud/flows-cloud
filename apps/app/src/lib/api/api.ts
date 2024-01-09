@@ -25,6 +25,10 @@ export type AcceptInviteResponse = Schemas["AcceptInviteResponseDto"];
 export type Api = {
   "/organizations": Endpoint<OrganizationPreview[]>;
   "POST /organizations": Endpoint<OrganizationDetail, [CreateOrganization]>;
+  "PATCH /organizations/:organizationId": Endpoint<
+    OrganizationDetail,
+    [string, CreateOrganization]
+  >;
   "/organizations/:organizationId": Endpoint<OrganizationDetail, [string]>;
   "/organizations/:organizationId/users": Endpoint<OrganizationUser[], [string]>;
   "POST /organizations/:organizationId/users": Endpoint<void, [string, InviteUser]>;
@@ -32,7 +36,7 @@ export type Api = {
   "DELETE /organizations/:organizationId": Endpoint<void, [string]>;
   "/organizations/:organizationId/projects": Endpoint<ProjectPreview[], [string]>;
   "/projects/:projectId": Endpoint<ProjectDetail, [string]>;
-  "PUT /projects/:projectId": Endpoint<ProjectDetail, [string, UpdateProject]>;
+  "PATCH /projects/:projectId": Endpoint<ProjectDetail, [string, UpdateProject]>;
   "DELETE /projects/:projectId": Endpoint<void, [string]>;
   "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
   "POST /organizations/:organizationId/projects": Endpoint<ProjectDetail, [string, CreateProject]>;
@@ -50,6 +54,8 @@ export type Api = {
 export const api: Api = {
   "/organizations": () => fetcher("/organizations"),
   "POST /organizations": (body) => fetcher("/organizations", { method: "POST", body }),
+  "PATCH /organizations/:organizationId": (organizationId, body) =>
+    fetcher(`/organizations/${organizationId}`, { method: "PATCH", body }),
   "/organizations/:organizationId": (organizationId) => fetcher(`/organizations/${organizationId}`),
   "/organizations/:organizationId/users": (organizationId) =>
     fetcher(`/organizations/${organizationId}/users`),
@@ -62,8 +68,8 @@ export const api: Api = {
   "/organizations/:organizationId/projects": (organizationId) =>
     fetcher(`/organizations/${organizationId}/projects`),
   "/projects/:projectId": (projectId) => fetcher(`/projects/${projectId}`),
-  "PUT /projects/:projectId": (projectId, body) =>
-    fetcher(`/projects/${projectId}`, { method: "PUT", body }),
+  "PATCH /projects/:projectId": (projectId, body) =>
+    fetcher(`/projects/${projectId}`, { method: "PATCH", body }),
   "DELETE /projects/:projectId": (projectId) =>
     fetcher(`/projects/${projectId}`, { method: "DELETE" }),
   "POST /organizations/:organizationId/projects": (organizationId, body) =>

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
@@ -7,7 +7,7 @@ import type {
   GetOrganizationMembersDto,
   GetOrganizationsDto,
 } from "./organizations.dto";
-import { CreateOrganizationDto, InviteUserDto } from "./organizations.dto";
+import { CreateOrganizationDto, InviteUserDto, UpdateOrganizationDto } from "./organizations.dto";
 import { OrganizationsService } from "./organizations.service";
 
 @ApiTags("organizations")
@@ -35,6 +35,15 @@ export class OrganizationsController {
     @Body() body: CreateOrganizationDto,
   ): Promise<GetOrganizationDetailDto> {
     return this.organizationsService.createOrganization({ auth, data: body });
+  }
+
+  @Patch("organizations/:organizationId")
+  updateOrganization(
+    @Authorization() auth: Auth,
+    @Param("organizationId") organizationId: string,
+    @Body() body: UpdateOrganizationDto,
+  ): Promise<GetOrganizationDetailDto> {
+    return this.organizationsService.updateOrganization({ auth, organizationId, data: body });
   }
 
   @Delete("organizations/:organizationId")

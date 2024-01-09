@@ -41,8 +41,8 @@ export interface paths {
   };
   "/projects/{projectId}": {
     get: operations["ProjectsController_getProjectDetail"];
-    put: operations["ProjectsController_updateProject"];
     delete: operations["ProjectsController_deleteProject"];
+    patch: operations["ProjectsController_updateProject"];
   };
   "/organizations": {
     get: operations["OrganizationsController_getOrganizations"];
@@ -51,6 +51,7 @@ export interface paths {
   "/organizations/{organizationId}": {
     get: operations["OrganizationsController_getOrganizationDetail"];
     delete: operations["OrganizationsController_deleteOrganization"];
+    patch: operations["OrganizationsController_updateOrganization"];
   };
   "/organizations/{organizationId}/users": {
     get: operations["OrganizationsController_getUsers"];
@@ -197,9 +198,9 @@ export interface components {
       name: string;
     };
     UpdateProjectDto: {
-      name: string;
+      name?: string;
       description?: string;
-      domains: string[];
+      domains?: string[];
     };
     GetOrganizationsDto: {
       id: string;
@@ -221,6 +222,9 @@ export interface components {
     };
     CreateOrganizationDto: {
       name: string;
+    };
+    UpdateOrganizationDto: {
+      name?: string;
     };
     InviteUserDto: {
       email: string;
@@ -482,6 +486,18 @@ export interface operations {
       };
     };
   };
+  ProjectsController_deleteProject: {
+    parameters: {
+      path: {
+        projectId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
   ProjectsController_updateProject: {
     parameters: {
       path: {
@@ -498,18 +514,6 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["GetProjectDetailDto"];
         };
-      };
-    };
-  };
-  ProjectsController_deleteProject: {
-    parameters: {
-      path: {
-        projectId: string;
-      };
-    };
-    responses: {
-      200: {
-        content: never;
       };
     };
   };
@@ -559,6 +563,25 @@ export interface operations {
     responses: {
       200: {
         content: never;
+      };
+    };
+  };
+  OrganizationsController_updateOrganization: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateOrganizationDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetOrganizationDetailDto"];
+        };
       };
     };
   };

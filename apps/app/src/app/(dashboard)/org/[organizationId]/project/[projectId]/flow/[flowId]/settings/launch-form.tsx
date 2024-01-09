@@ -20,8 +20,8 @@ type LaunchForm = Pick<UpdateFlow, "element" | "location">;
 const createDefaultValues = (flow: FlowDetail): LaunchForm => {
   const editVersion = flow.draftVersion ?? flow.publishedVersion;
   return {
-    element: editVersion?.element,
-    location: editVersion?.location,
+    element: editVersion?.element || "",
+    location: editVersion?.location || "",
   };
 };
 

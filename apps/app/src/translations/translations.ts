@@ -14,6 +14,7 @@ export const t = {
   },
   toasts: {
     createOrgSuccess: "Organization created",
+    updateOrgSuccess: "Organization updated",
     deleteOrgSuccess: "Organization deleted",
     createProjectSuccess: "Project created",
     updateProjectSuccess: "Project updated",
@@ -34,6 +35,7 @@ export const t = {
     createInviteFailed: "Failed to send invite",
     createProjectFailed: "Failed to create project",
     createOrgFailed: "Failed to create organization",
+    updateOrgFailed: "Failed to update organization",
     acceptInviteFailed: "Failed to accept invite",
     saveStepsFailed: "Failed to update steps",
     saveFlowFailed: "Failed to update flow",

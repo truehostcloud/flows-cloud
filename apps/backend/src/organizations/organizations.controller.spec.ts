@@ -17,6 +17,8 @@ const db = {
   where: jest.fn().mockReturnThis(),
   delete: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  set: jest.fn().mockReturnThis(),
   query: {
     organizations: {
       findFirst: jest.fn(),
@@ -107,6 +109,33 @@ describe("Create organization", () => {
     ).resolves.toEqual({ id: "org1" });
     expect(db.insert).toHaveBeenCalledWith(organizations);
     expect(db.insert).toHaveBeenCalledWith(organizationsToUsers);
+  });
+});
+
+describe("Update organization", () => {
+  beforeEach(() => {
+    db.returning.mockResolvedValue([{ id: "org1" }]);
+  });
+  it("should throw without organization", async () => {
+    db.query.organizations.findFirst.mockResolvedValue(null);
+    await expect(
+      organizationsController.updateOrganization({ userId: "userId" }, "org1", { name: "org1" }),
+    ).rejects.toThrow("Not Found");
+  });
+  it("should throw without access", async () => {
+    db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    await expect(
+      organizationsController.updateOrganization({ userId: "userId" }, "org1", { name: "org1" }),
+    ).rejects.toThrow("Forbidden");
+  });
+  it("should update organization", async () => {
+    await expect(
+      organizationsController.updateOrganization({ userId: "userId" }, "org1", { name: "org1" }),
+    ).resolves.toEqual({ id: "org1" });
+    expect(db.update).toHaveBeenCalledWith(organizations);
+    expect(db.set).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "org1", updated_at: expect.any(Date) }),
+    );
   });
 });
 
