@@ -61,7 +61,7 @@ export const FlowTargetingForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   return (
-    <Flex cardWrap="" flexDirection="column" mb="space16">
+    <Flex cardWrap="-" flexDirection="column" mb="space16">
       <Flex flexDirection="column" padding="space16">
         <Text variant="titleL">{t.targeting.targeting}</Text>
         <Text color="muted">{t.targeting.description}</Text>

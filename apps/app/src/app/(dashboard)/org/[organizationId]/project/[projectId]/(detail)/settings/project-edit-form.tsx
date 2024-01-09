@@ -59,7 +59,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div
         className={css({
-          cardWrap: "",
+          cardWrap: "-",
           padding: "space16",
           mb: "space16",
         })}
@@ -97,7 +97,7 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
           <textarea rows={4} />
         </Input>
       </div>
-      <Flex cardWrap="" flexDirection="column" gap="space16" mb="space16" padding="space16">
+      <Flex cardWrap="-" flexDirection="column" gap="space16" mb="space16" padding="space16">
         <Flex flexDirection="column">
           <Text variant="titleL">{t.project.domains.domains}</Text>
           <Text color="muted">{t.project.domains.description}</Text>

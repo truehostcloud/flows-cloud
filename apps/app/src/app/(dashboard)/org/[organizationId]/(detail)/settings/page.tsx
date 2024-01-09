@@ -30,7 +30,7 @@ export default async function OrganizationSettingsPage({ params }: Props): Promi
 
       <Flex
         alignItems="flex-start"
-        cardWrap=""
+        cardWrap="-"
         flexDirection="column"
         gap="space16"
         padding="space16"

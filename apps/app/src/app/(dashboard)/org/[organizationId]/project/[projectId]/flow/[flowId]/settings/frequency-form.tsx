@@ -44,7 +44,7 @@ export const FrequencyForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   return (
-    <Flex cardWrap="" flexDirection="column" gap="space12" mb="space16" padding="space16">
+    <Flex cardWrap="-" flexDirection="column" gap="space12" mb="space16" padding="space16">
       <Flex flexDirection="column">
         <Text variant="titleL">{t.frequency.frequency}</Text>
         <Text color="muted">{t.frequency.description}</Text>

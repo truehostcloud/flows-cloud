@@ -46,7 +46,7 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   return (
-    <Box cardWrap="" p="space16">
+    <Box cardWrap="-" p="space16">
       <Flex flexDirection="column" mb="space12">
         <Text variant="titleL">{t.launch.launch}</Text>
         <Text color="muted">{t.launch.description}</Text>

@@ -22,7 +22,7 @@ export const AnalyticsTable: FC<Props> = ({ categories }) => {
     <Grid
       borderBottomLeftRadius="0!"
       borderBottomRightRadius="0!"
-      cardWrap=""
+      cardWrap="-"
       gap={0}
       gridTemplateColumns="120px 1fr"
       overflow="auto"

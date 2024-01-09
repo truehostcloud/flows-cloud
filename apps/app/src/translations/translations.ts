@@ -51,6 +51,27 @@ export const t = {
     deleteOrgFailed: "Failed to delete organization",
     removeMemberFailed: "Failed to remove member",
   },
+  steps: {
+    stepType: {
+      tooltip: "Tooltip",
+      modal: "Modal",
+      wait: "Wait",
+    },
+    placement: {
+      top: "Top",
+      right: "Right",
+      bottom: "Bottom",
+      left: "Left",
+      "top-start": "Top start",
+      "top-end": "Top end",
+      "right-start": "Right start",
+      "right-end": "Right end",
+      "bottom-start": "Bottom start",
+      "bottom-end": "Bottom end",
+      "left-start": "Left start",
+      "left-end": "Left end",
+    },
+  },
   targeting: {
     targeting: "Targeting",
     description:

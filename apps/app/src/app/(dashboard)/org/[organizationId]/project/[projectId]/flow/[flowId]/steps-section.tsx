@@ -17,7 +17,7 @@ export const StepsSection: FC<Props> = ({ params, flow }) => {
   const steps = flow.publishedVersion?.steps as FlowSteps | undefined;
 
   return (
-    <Flex cardWrap="" direction="column" padding="space16" width="100%">
+    <Flex cardWrap="-" direction="column" padding="space16" width="100%">
       <Flex alignItems="flex-start" justifyContent="space-between" width="100%">
         <Text variant="titleL">Published steps</Text>
         <Button asChild variant="secondary">

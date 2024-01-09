@@ -44,7 +44,7 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
   return (
     <form
       className={css({
-        cardWrap: "",
+        cardWrap: "-",
         padding: "space16",
         mb: "space16",
       })}
