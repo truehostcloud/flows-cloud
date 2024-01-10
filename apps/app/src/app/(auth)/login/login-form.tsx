@@ -1,7 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
-import { LoginMessage } from "app/login/login-message";
+import { LoginMessage } from "app/(auth)/login/login-message";
 import { createClient } from "auth/client";
 import { signIn, signUp } from "auth/server-actions";
 import type { FC } from "react";
