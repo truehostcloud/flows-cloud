@@ -4,8 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import dayjs from "dayjs";
 import { events, flows, flowVersions, organizations, organizationsToUsers, projects } from "db";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, gte, lte, sql } from "drizzle-orm";
 import { alias, union } from "drizzle-orm/pg-core";
 import slugify from "slugify";
 
@@ -24,6 +25,74 @@ import type {
 @Injectable()
 export class FlowsService {
   constructor(private databaseService: DatabaseService) {}
+
+  // TODO: Add tests and use it in the functions below
+  async doesUserHaveAccessToProject({
+    auth,
+    projectId,
+  }: {
+    auth: Auth;
+    projectId: string;
+  }): Promise<boolean> {
+    const complexQuery = await this.databaseService.db
+      .select({
+        projectId: projects.id,
+        organizationId: organizations.id,
+        organizationToUser: organizationsToUsers,
+      })
+      .from(projects)
+      .leftJoin(organizations, eq(projects.organization_id, organizations.id))
+      .leftJoin(
+        organizationsToUsers,
+        and(
+          eq(organizations.id, organizationsToUsers.organization_id),
+          eq(organizationsToUsers.user_id, auth.userId),
+        ),
+      )
+      .where(eq(projects.id, projectId));
+
+    if (!complexQuery.length) throw new NotFoundException();
+    const data = complexQuery[0];
+    if (!data.organizationId) throw new NotFoundException();
+    if (!data.organizationToUser) throw new ForbiddenException();
+
+    return true;
+  }
+
+  // TODO: Add tests and use it in the functions below
+  async doesUserHaveAccessToFlow({
+    auth,
+    flowId,
+  }: {
+    auth: Auth;
+    flowId: string;
+  }): Promise<boolean> {
+    const complexQuery = await this.databaseService.db
+      .select({
+        flowId: flows.id,
+        projectId: projects.id,
+        organizationId: organizations.id,
+        organizationToUser: organizationsToUsers,
+      })
+      .from(flows)
+      .leftJoin(projects, eq(flows.project_id, projects.id))
+      .leftJoin(organizations, eq(projects.organization_id, organizations.id))
+      .leftJoin(
+        organizationsToUsers,
+        and(
+          eq(organizations.id, organizationsToUsers.organization_id),
+          eq(organizationsToUsers.user_id, auth.userId),
+        ),
+      )
+      .where(eq(flows.id, flowId));
+
+    if (!complexQuery.length) throw new NotFoundException();
+    const data = complexQuery[0];
+    if (!data.projectId) throw new NotFoundException();
+    if (!data.organizationToUser) throw new ForbiddenException();
+
+    return true;
+  }
 
   async getFlows({ auth, projectId }: { auth: Auth; projectId: string }): Promise<GetFlowsDto[]> {
     const project = await this.databaseService.db.query.projects.findFirst({
@@ -139,13 +208,22 @@ export class FlowsService {
     };
   }
 
-  // TODO: @pesickadavid add startDate?: Date; endDate?: Date;
   async getFlowAnalytics({
     auth,
     flowId,
+    startDate,
+    endDate,
   }: {
     auth: Auth;
     flowId: string;
+    /**
+     * default 30 days ago
+     */
+    startDate?: Date;
+    /**
+     * default now
+     */
+    endDate?: Date;
   }): Promise<GetFlowAnalyticsDto> {
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
@@ -168,9 +246,15 @@ export class FlowsService {
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
+    // TODO: @pesickadavid distinct on large table is slow, we should separate event types to item list table and use that instead
     const eventTypes = this.databaseService.db
       .$with("event_types")
       .as(this.databaseService.db.selectDistinct({ type: events.type }).from(events));
+
+    const sD = startDate
+      ? dayjs(startDate).format("YYYY-MM-DD")
+      : dayjs(startDate).subtract(30, "day").format("YYYY-MM-DD");
+    const eD = dayjs(endDate).format("YYYY-MM-DD");
 
     const flowEvents = this.databaseService.db.$with("flow_events").as(
       this.databaseService.db
@@ -181,14 +265,17 @@ export class FlowsService {
         })
         .from(events)
         .where(
-          and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)),
+          and(
+            eq(events.flow_id, flowId),
+            gte(events.event_time, sql`${sD}`),
+            lte(events.event_time, sql`${eD}`),
+          ),
         )
         .groupBy((row) => [row.date, row.type]),
     );
 
-    const calendarTable = sql`generate_series( now() - interval '30 day', now(), '1 day'::interval) cal`;
+    const calendarTable = sql`generate_series( ${sD}, ${eD}, '1 day'::interval) cal`;
 
-    // TODO: @pesickadavid does this make sense?, limit calendar to gte created_at
     const dailyStatsQuery = this.databaseService.db
       .with(eventTypes, flowEvents)
       .select({

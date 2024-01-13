@@ -106,12 +106,6 @@ describe("Get flows", () => {
 
 describe("Get flow detail", () => {
   beforeEach(() => {
-    // db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
-    // db.where.mockImplementationOnce(
-    //   jest.fn(function returnThis() {
-    //     return this as typeof db;
-    //   }),
-    // );
     (union as jest.MockedFunction<typeof union>).mockResolvedValue([
       { count: 1, type: "type" },
       { count: 2, type: "uniqueUsers" },

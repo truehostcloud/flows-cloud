@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
@@ -73,7 +73,9 @@ export class FlowsControllers {
   getFlowAnalytics(
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
+    @Query("startDate") startDate?: Date,
+    @Query("endDate") endDate?: Date,
   ): Promise<GetFlowAnalyticsDto> {
-    return this.flowsService.getFlowAnalytics({ flowId, auth });
+    return this.flowsService.getFlowAnalytics({ flowId, auth, startDate, endDate });
   }
 }

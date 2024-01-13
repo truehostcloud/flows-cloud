@@ -1,4 +1,3 @@
-/* eslint-disable no-console -- verify */
 import { createClient } from "auth/server";
 import { cookies, headers } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -20,8 +19,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const origin = headers().get("x-forwarded-host");
   const protocol = headers().get("x-forwarded-proto");
   const redirectTo = `${protocol}://${origin}${routes.home}`;
-
-  console.log("redirectTo", redirectTo);
 
   // URL to redirect to after sign in process completes
   return NextResponse.redirect(redirectTo);
