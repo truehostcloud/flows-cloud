@@ -41,7 +41,7 @@ export type Api = {
   "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
   "POST /organizations/:organizationId/projects": Endpoint<ProjectDetail, [string, CreateProject]>;
   "/flows/:flowId": Endpoint<FlowDetail, [string]>;
-  "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string]>;
+  "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string, Date?, Date?]>;
   "/flows/:flowId/versions": Endpoint<FlowVersion[], [string]>;
   "PATCH /flows/:flowId": Endpoint<void, [string, UpdateFlow]>;
   "POST /flows/:flowId/publish": Endpoint<void, [string]>;
@@ -76,7 +76,15 @@ export const api: Api = {
     fetcher(`/organizations/${organizationId}/projects`, { method: "POST", body }),
   "/projects/:projectId/flows": (projectId) => fetcher(`/projects/${projectId}/flows`),
   "/flows/:flowId": (flowId) => fetcher(`/flows/${flowId}`),
-  "/flows/:flowId/analytics": (flowId) => fetcher(`/flows/${flowId}/analytics`),
+  "/flows/:flowId/analytics": (flowId, startDate?: Date, endDate?: Date) => {
+    const params = new URLSearchParams();
+    if (startDate) params.set("startDate", startDate.toISOString());
+    if (endDate) params.set("endDate", endDate.toISOString());
+
+    const query = `${params.keys.length > 0 ? "?" : ""}${params.toString()}`;
+
+    return fetcher(`/flows/${flowId}/analytics${query}`);
+  },
   "/flows/:flowId/versions": (flowId) => fetcher(`/flows/${flowId}/versions`),
   "PATCH /flows/:flowId": (flowId, body) => fetcher(`/flows/${flowId}`, { method: "PATCH", body }),
   "POST /flows/:flowId/publish": (flowId) =>

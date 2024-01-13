@@ -7,6 +7,7 @@ import cors from "cors";
 
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
+import { DbPermissionModule } from "./db-permission/db-permission.module";
 import { EmailModule } from "./email/email.module";
 import { FlowsModule } from "./flows/flows.module";
 import { OrganizationsModule } from "./organizations/organizations.module";
@@ -26,6 +27,7 @@ const publicRoutes: string[] = ["/sdk/flows", "/sdk/events", "/sdk/flows/:flowId
       },
     ]),
     DatabaseModule,
+    DbPermissionModule,
     EmailModule,
     SdkModule,
     FlowsModule,

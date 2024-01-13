@@ -12,6 +12,7 @@ import slugify from "slugify";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
+import { DbPermissionService } from "../db-permission/db-permission.service";
 import type {
   CreateFlowDto,
   FlowVersionDto,
@@ -24,110 +25,45 @@ import type {
 
 @Injectable()
 export class FlowsService {
-  constructor(private databaseService: DatabaseService) {}
-
-  // TODO: Add tests and use it in the functions below
-  async doesUserHaveAccessToProject({
-    auth,
-    projectId,
-  }: {
-    auth: Auth;
-    projectId: string;
-  }): Promise<boolean> {
-    const complexQuery = await this.databaseService.db
-      .select({
-        projectId: projects.id,
-        organizationId: organizations.id,
-        organizationToUser: organizationsToUsers,
-      })
-      .from(projects)
-      .leftJoin(organizations, eq(projects.organization_id, organizations.id))
-      .leftJoin(
-        organizationsToUsers,
-        and(
-          eq(organizations.id, organizationsToUsers.organization_id),
-          eq(organizationsToUsers.user_id, auth.userId),
-        ),
-      )
-      .where(eq(projects.id, projectId));
-
-    if (!complexQuery.length) throw new NotFoundException();
-    const data = complexQuery[0];
-    if (!data.organizationId) throw new NotFoundException();
-    if (!data.organizationToUser) throw new ForbiddenException();
-
-    return true;
-  }
-
-  // TODO: Add tests and use it in the functions below
-  async doesUserHaveAccessToFlow({
-    auth,
-    flowId,
-  }: {
-    auth: Auth;
-    flowId: string;
-  }): Promise<boolean> {
-    const complexQuery = await this.databaseService.db
-      .select({
-        flowId: flows.id,
-        projectId: projects.id,
-        organizationId: organizations.id,
-        organizationToUser: organizationsToUsers,
-      })
-      .from(flows)
-      .leftJoin(projects, eq(flows.project_id, projects.id))
-      .leftJoin(organizations, eq(projects.organization_id, organizations.id))
-      .leftJoin(
-        organizationsToUsers,
-        and(
-          eq(organizations.id, organizationsToUsers.organization_id),
-          eq(organizationsToUsers.user_id, auth.userId),
-        ),
-      )
-      .where(eq(flows.id, flowId));
-
-    if (!complexQuery.length) throw new NotFoundException();
-    const data = complexQuery[0];
-    if (!data.projectId) throw new NotFoundException();
-    if (!data.organizationToUser) throw new ForbiddenException();
-
-    return true;
-  }
+  constructor(
+    private databaseService: DatabaseService,
+    private dbPermissionService: DbPermissionService,
+  ) {}
 
   async getFlows({ auth, projectId }: { auth: Auth; projectId: string }): Promise<GetFlowsDto[]> {
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, projectId),
-    });
-    if (!project) throw new BadRequestException("project not found");
-
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToProject({ auth, projectId });
 
     const projectFlows = await this.databaseService.db.query.flows.findMany({
       where: eq(flows.project_id, projectId),
       orderBy: [desc(flows.updated_at)],
+      columns: {
+        id: true,
+        human_id: true,
+        project_id: true,
+        name: true,
+        flow_type: true,
+        description: true,
+        created_at: true,
+        updated_at: true,
+        enabled_at: true,
+        preview_url: true,
+      },
     });
 
-    return projectFlows.map((flow) => ({
-      id: flow.id,
-      name: flow.name,
-      description: flow.description,
-      created_at: flow.created_at,
-      updated_at: flow.updated_at,
-      enabled_at: flow.enabled_at,
-      project_id: flow.project_id,
-      flow_type: flow.flow_type,
-      human_id: flow.human_id,
-      preview_url: flow.preview_url,
-    }));
+    return projectFlows.map(
+      (flow): GetFlowsDto => ({
+        id: flow.id,
+        name: flow.name,
+        description: flow.description,
+        created_at: flow.created_at,
+        updated_at: flow.updated_at,
+        enabled_at: flow.enabled_at,
+        project_id: flow.project_id,
+        flow_type: flow.flow_type,
+        human_id: flow.human_id,
+        preview_url: flow.preview_url,
+      }),
+    );
   }
 
   async getFlowDetail({ auth, flowId }: { auth: Auth; flowId: string }): Promise<GetFlowDetailDto> {
@@ -225,26 +161,7 @@ export class FlowsService {
      */
     endDate?: Date;
   }): Promise<GetFlowAnalyticsDto> {
-    const flow = await this.databaseService.db.query.flows.findFirst({
-      where: eq(flows.id, flowId),
-    });
-    if (!flow) throw new NotFoundException();
-
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, flow.project_id),
-    });
-    if (!project) throw new BadRequestException("project not found");
-
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
 
     // TODO: @pesickadavid distinct on large table is slow, we should separate event types to item list table and use that instead
     const eventTypes = this.databaseService.db
@@ -311,7 +228,6 @@ export class FlowsService {
       .orderBy((row) => row.date);
 
     const [dailyStats, uniqueUsers] = await Promise.all([dailyStatsQuery, uniqueUsersQuery]);
-
     return {
       daily_stats: [...dailyStats, ...uniqueUsers.map((row) => ({ ...row, type: "uniqueUsers" }))],
     };
@@ -326,6 +242,8 @@ export class FlowsService {
     flowId: string;
     data: UpdateFlowDto;
   }): Promise<void> {
+    await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
+
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
       with: {
@@ -334,20 +252,6 @@ export class FlowsService {
       },
     });
     if (!flow) throw new NotFoundException();
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, flow.project_id),
-    });
-    if (!project) throw new BadRequestException("project not found");
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
 
     const currentVersion = flow.draftVersion ?? flow.publishedVersion;
     const updatedVersionData = {
@@ -407,24 +311,12 @@ export class FlowsService {
   }
 
   async publishFlow({ auth, flowId }: { auth: Auth; flowId: string }): Promise<void> {
+    await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
+
     const flow = await this.databaseService.db.query.flows.findFirst({
       where: eq(flows.id, flowId),
     });
     if (!flow) throw new NotFoundException();
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, flow.project_id),
-    });
-    if (!project) throw new BadRequestException("project not found");
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
 
     if (!flow.draft_version_id) throw new BadRequestException("No draft version found");
 
@@ -453,21 +345,7 @@ export class FlowsService {
     projectId: string;
     data: CreateFlowDto;
   }): Promise<GetFlowsDto> {
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, projectId),
-    });
-    if (!project) throw new BadRequestException("project not found");
-
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToProject({ auth, projectId });
 
     const newFlows = await this.databaseService.db
       .insert(flows)
@@ -497,24 +375,7 @@ export class FlowsService {
   }
 
   async deleteFlow({ auth, flowId }: { auth: Auth; flowId: string }): Promise<void> {
-    const flow = await this.databaseService.db.query.flows.findFirst({
-      where: eq(flows.id, flowId),
-    });
-    if (!flow) throw new NotFoundException();
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, flow.project_id),
-    });
-    if (!project) throw new BadRequestException("project not found");
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
 
     await this.databaseService.db.delete(flows).where(eq(flows.id, flowId));
   }
@@ -526,24 +387,7 @@ export class FlowsService {
     auth: Auth;
     flowId: string;
   }): Promise<GetFlowVersionsDto[]> {
-    const flow = await this.databaseService.db.query.flows.findFirst({
-      where: eq(flows.id, flowId),
-    });
-    if (!flow) throw new NotFoundException();
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, flow.project_id),
-    });
-    if (!project) throw new BadRequestException("project not found");
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
 
     const versions = await this.databaseService.db.query.flowVersions.findMany({
       where: eq(flowVersions.flow_id, flowId),
