@@ -10,7 +10,7 @@ import { type FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { t } from "translations";
-import { Button, toast } from "ui";
+import { Button, Text, toast } from "ui";
 
 import { StepsPreview } from "../steps-preview";
 import { Step } from "./step";
@@ -55,10 +55,17 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
       </Flex>
 
       <Flex gap="space8" mb="space32">
-        <Button onClick={() => append({ title: "" })}>Add step</Button>
-        <Button onClick={() => append([[]])}>Add fork</Button>
+        <Button onClick={() => append({ title: "" })} variant="secondary">
+          Add step
+        </Button>
+        <Button onClick={() => append([[]])} variant="secondary">
+          Add fork
+        </Button>
       </Flex>
 
+      <Text className={css({ mb: "space8" })} variant="titleM">
+        Steps preview
+      </Text>
       <StepsPreview steps={watch("steps")} />
 
       <Button className={css({ mt: "space24" })} loading={loading} type="submit">

@@ -1,9 +1,10 @@
-import { Box, Flex } from "@flows/styled-system/jsx";
+import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import type { FlowModalStep, FlowTooltipStep, FlowWaitStep } from "@rbnd/flows";
 import { type FC, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { t } from "translations";
-import { Button, Select, Text } from "ui";
+import { Accordion, Button, Select } from "ui";
 
 import { ModalStepForm } from "./modal-step-form";
 import type { StepsForm } from "./steps-editor.types";
@@ -43,24 +44,38 @@ export const StepForm: FC<Props> = ({ control, index, onRemove }) => {
   );
 
   return (
-    <Box cardWrap="-" p="space16">
-      <Flex mb="space8">
+    <Accordion
+      title={
+        <>
+          {t.steps.stepType[stepType]}
+          <span
+            className={css({
+              textStyle: "bodyS",
+              color: "text.subtle",
+              ml: "space8",
+            })}
+          >
+            {index}
+          </span>
+        </>
+      }
+    >
+      <Flex mb="space12">
         <Flex alignItems="center" flex={1} gap="space4">
           <Select
             onChange={(v) => field.onChange(STEP_DEFAULT[v])}
             options={typeOptions}
             value={stepType}
           />
-          <Text variant="titleS">step</Text>
         </Flex>
-        <Button onClick={onRemove} size="small">
-          Remove
+        <Button onClick={onRemove} shadow={false} size="small" variant="secondary">
+          Remove step
         </Button>
       </Flex>
 
       {stepType === "tooltip" && <TooltipStepForm control={control} index={index} />}
       {stepType === "modal" && <ModalStepForm control={control} index={index} />}
       {stepType === "wait" && <WaitStepForm control={control} index={index} />}
-    </Box>
+    </Accordion>
   );
 };

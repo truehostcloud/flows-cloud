@@ -73,6 +73,13 @@ export const t = {
       "left-start": "Left start",
       "left-end": "Left end",
     },
+    footer: {
+      buttonAlignment: {
+        left: "Left",
+        center: "Center",
+        right: "Right",
+      },
+    },
   },
   targeting: {
     targeting: "Targeting",

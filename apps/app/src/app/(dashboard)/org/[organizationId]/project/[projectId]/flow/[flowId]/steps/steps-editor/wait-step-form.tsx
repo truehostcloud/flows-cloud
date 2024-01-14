@@ -1,7 +1,8 @@
+import { Box } from "@flows/styled-system/jsx";
 import type { FlowWaitStep } from "@rbnd/flows";
 import type { FC } from "react";
 import { type Control, useController } from "react-hook-form";
-import { Input } from "ui";
+import { Accordion, Input } from "ui";
 
 import { StepWaitOptionList } from "./step-wait-option-list";
 import type { StepsForm } from "./steps-editor.types";
@@ -19,13 +20,18 @@ export const WaitStepForm: FC<Props> = ({ control, index }) => {
 
   return (
     <>
-      <Input
-        {...control.register(`${stepKey}.key`)}
-        defaultValue={value.key}
-        label="Key"
-        placeholder="my-step-id"
-      />
-      <StepWaitOptionList control={control} fieldName={`${stepKey}.wait`} />
+      <Box mb="space16">
+        <StepWaitOptionList control={control} fieldName={`${stepKey}.wait`} />
+      </Box>
+
+      <Accordion title="Advanced">
+        <Input
+          {...control.register(`${stepKey}.key`)}
+          defaultValue={value.key}
+          label="Key"
+          placeholder="my-step-id"
+        />
+      </Accordion>
     </>
   );
 };
