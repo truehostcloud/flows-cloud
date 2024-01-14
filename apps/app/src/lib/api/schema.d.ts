@@ -427,6 +427,10 @@ export interface operations {
   };
   FlowsControllers_getFlowAnalytics: {
     parameters: {
+      query?: {
+        startDate?: string;
+        endDate?: string;
+      };
       path: {
         flowId: string;
       };

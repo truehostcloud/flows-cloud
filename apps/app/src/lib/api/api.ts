@@ -1,5 +1,7 @@
+import { createParams } from "lib/create-params";
+
 import { fetcher } from "./fetcher";
-import type { components } from "./schema";
+import type { components, operations as Operations } from "./schema";
 import type { Endpoint } from "./types";
 
 type Schemas = components["schemas"];
@@ -15,6 +17,8 @@ export type UpdateProject = Schemas["UpdateProjectDto"];
 export type CreateProject = Schemas["CreateProjectDto"];
 export type FlowPreview = Schemas["GetFlowsDto"];
 export type FlowDetail = Schemas["GetFlowDetailDto"];
+export type FlowAnalyticsRequest =
+  Operations["FlowsControllers_getFlowAnalytics"]["parameters"]["query"];
 export type FlowAnalytics = Schemas["GetFlowAnalyticsDto"];
 export type FlowVersion = Schemas["GetFlowVersionsDto"];
 export type UpdateFlow = Schemas["UpdateFlowDto"];
@@ -41,7 +45,7 @@ export type Api = {
   "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
   "POST /organizations/:organizationId/projects": Endpoint<ProjectDetail, [string, CreateProject]>;
   "/flows/:flowId": Endpoint<FlowDetail, [string]>;
-  "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string, Date?, Date?]>;
+  "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string, FlowAnalyticsRequest?]>;
   "/flows/:flowId/versions": Endpoint<FlowVersion[], [string]>;
   "PATCH /flows/:flowId": Endpoint<void, [string, UpdateFlow]>;
   "POST /flows/:flowId/publish": Endpoint<void, [string]>;
@@ -76,15 +80,8 @@ export const api: Api = {
     fetcher(`/organizations/${organizationId}/projects`, { method: "POST", body }),
   "/projects/:projectId/flows": (projectId) => fetcher(`/projects/${projectId}/flows`),
   "/flows/:flowId": (flowId) => fetcher(`/flows/${flowId}`),
-  "/flows/:flowId/analytics": (flowId, startDate?: Date, endDate?: Date) => {
-    const params = new URLSearchParams();
-    if (startDate) params.set("startDate", startDate.toISOString());
-    if (endDate) params.set("endDate", endDate.toISOString());
-
-    const query = `${params.keys.length > 0 ? "?" : ""}${params.toString()}`;
-
-    return fetcher(`/flows/${flowId}/analytics${query}`);
-  },
+  "/flows/:flowId/analytics": (flowId, request) =>
+    fetcher(`/flows/${flowId}/analytics${createParams(request)}`),
   "/flows/:flowId/versions": (flowId) => fetcher(`/flows/${flowId}/versions`),
   "PATCH /flows/:flowId": (flowId, body) => fetcher(`/flows/${flowId}`, { method: "PATCH", body }),
   "POST /flows/:flowId/publish": (flowId) =>

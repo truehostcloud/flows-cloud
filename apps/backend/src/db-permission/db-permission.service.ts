@@ -9,7 +9,6 @@ import { DatabaseService } from "../database/database.service";
 export class DbPermissionService {
   constructor(private databaseService: DatabaseService) {}
 
-  // TODO: Add tests and use it in the functions below
   async doesUserHaveAccessToProject({
     auth,
     projectId,
@@ -42,7 +41,6 @@ export class DbPermissionService {
     return true;
   }
 
-  // TODO: Add tests and use it in the functions below
   async doesUserHaveAccessToFlow({
     auth,
     flowId,
@@ -72,6 +70,7 @@ export class DbPermissionService {
     if (!complexQuery.length) throw new NotFoundException();
     const data = complexQuery[0];
     if (!data.projectId) throw new NotFoundException();
+    if (!data.organizationId) throw new NotFoundException();
     if (!data.organizationToUser) throw new ForbiddenException();
 
     return true;

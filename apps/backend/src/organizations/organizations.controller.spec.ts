@@ -3,39 +3,21 @@ import { organizations, organizationsToUsers, userInvite } from "db";
 
 import { DatabaseService } from "../database/database.service";
 import { EmailService } from "../email/email.service";
+import type { MockDB } from "../mocks";
+import { getMockDB } from "../mocks";
 import { OrganizationsController } from "./organizations.controller";
 import { OrganizationsService } from "./organizations.service";
 
 let organizationsController: OrganizationsController;
-const db = {
-  insert: jest.fn().mockReturnThis(),
-  values: jest.fn().mockReturnThis(),
-  returning: jest.fn(),
-  select: jest.fn().mockReturnThis(),
-  from: jest.fn().mockReturnThis(),
-  leftJoin: jest.fn().mockReturnThis(),
-  where: jest.fn().mockReturnThis(),
-  delete: jest.fn().mockReturnThis(),
-  orderBy: jest.fn().mockReturnThis(),
-  update: jest.fn().mockReturnThis(),
-  set: jest.fn().mockReturnThis(),
-  query: {
-    organizations: {
-      findFirst: jest.fn(),
-    },
-    userInvite: {
-      findFirst: jest.fn(),
-    },
-    organizationsToUsers: {
-      findMany: jest.fn(),
-    },
-  },
-};
 const emailService = {
   sendInvite: jest.fn(),
 };
 
+let db: MockDB;
+
 beforeEach(async () => {
+  db = getMockDB();
+
   db.orderBy.mockResolvedValue([{ organization: { id: "org1" } }]);
   db.query.organizations.findFirst.mockResolvedValue({
     id: "org1",
@@ -59,10 +41,6 @@ beforeEach(async () => {
     .compile();
 
   organizationsController = moduleRef.get(OrganizationsController);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
 });
 
 describe("Get organizations", () => {

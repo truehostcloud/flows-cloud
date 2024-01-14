@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
 import type {
@@ -70,6 +70,8 @@ export class FlowsControllers {
   }
 
   @Get("flows/:flowId/analytics")
+  @ApiQuery({ name: "startDate", required: false })
+  @ApiQuery({ name: "endDate", required: false })
   getFlowAnalytics(
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
