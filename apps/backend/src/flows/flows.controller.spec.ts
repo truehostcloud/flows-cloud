@@ -1,7 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { flows, flowVersions } from "db";
-import { union } from "drizzle-orm/pg-core";
 
 import { DatabaseService } from "../database/database.service";
 import { DbPermissionService } from "../db-permission/db-permission.service";
@@ -15,7 +14,11 @@ let flowsController: FlowsControllers;
 
 jest.mock("drizzle-orm/pg-core", (): unknown => ({
   ...jest.requireActual("drizzle-orm/pg-core"),
-  union: jest.fn(),
+  union: jest
+    .fn()
+    .mockImplementation((...args: Promise<unknown>[]) =>
+      Promise.all(args).then((promises) => promises.flat()),
+    ),
 }));
 
 let dbPermissionService: MockDbPermissionService;
@@ -66,10 +69,8 @@ describe("Get flow detail", () => {
       id: "flowId",
       draftVersion: { data: { steps: [], userProperties: [] } },
     });
-    (union as jest.Mock).mockResolvedValue([
-      { count: 1, type: "type" },
-      { count: 2, type: "uniqueUsers" },
-    ]);
+    db.where.mockResolvedValueOnce({ count: 2, type: "uniqueUsers" });
+    db.groupBy.mockResolvedValueOnce({ count: 1, type: "type" });
   });
 
   it("should throw without access to flow", async () => {
