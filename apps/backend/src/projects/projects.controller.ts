@@ -33,7 +33,7 @@ export class ProjectsController {
     @Authorization() auth: Auth,
     @Param("organizationId") organizationId: string,
     @Body() body: CreateProjectDto,
-  ): Promise<GetProjectDetailDto> {
+  ): Promise<GetProjectsDto> {
     return this.projectsService.createProject({ auth, organizationId, data: body });
   }
 

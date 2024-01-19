@@ -14,6 +14,8 @@ export const projects = pgTable(
     domains: text("domains").array().notNull(),
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at").notNull().defaultNow(),
+    css_vars: text("css_vars"),
+    css_template: text("css_template"),
   },
   (table) => {
     return {

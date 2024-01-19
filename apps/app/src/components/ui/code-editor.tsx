@@ -1,16 +1,19 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
+import type { OnChange, OnValidate } from "@monaco-editor/react";
 import { Editor } from "@monaco-editor/react";
 import type { FC } from "react";
 import { Spinner } from "ui";
 
 type Props = {
   defaultValue: string;
-  onChange?: (value: string) => void;
+  onChange?: OnChange;
+  language: "json" | "css";
+  onValidate?: OnValidate;
 };
 
-export const CodeEditor: FC<Props> = ({ defaultValue, onChange }) => {
+export const CodeEditor: FC<Props> = (props) => {
   return (
     <Editor
       className={css({
@@ -18,9 +21,7 @@ export const CodeEditor: FC<Props> = ({ defaultValue, onChange }) => {
         borderStyle: "solid",
         borderColor: "border",
       })}
-      defaultValue={defaultValue}
       height="400px"
-      language="json"
       loading={
         <div
           className={css({
@@ -37,14 +38,14 @@ export const CodeEditor: FC<Props> = ({ defaultValue, onChange }) => {
           <Spinner />
         </div>
       }
-      onChange={onChange}
       options={{
         minimap: { enabled: false },
         tabSize: 2,
-        readOnly: !onChange,
+        readOnly: !props.onChange,
         scrollBeyondLastLine: false,
       }}
       theme="vs-dark"
+      {...props}
     />
   );
 };

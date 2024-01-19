@@ -46,6 +46,11 @@ export const Sidebar: FC = () => {
         icon: Graph16,
       },
       {
+        label: "Template",
+        href: routes.projectTemplate({ organizationId, projectId }),
+        icon: Graph16,
+      },
+      {
         label: "Project settings",
         href: routes.projectSettings({ organizationId, projectId }),
         icon: Settings16,

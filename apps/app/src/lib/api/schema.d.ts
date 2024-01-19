@@ -177,7 +177,6 @@ export interface components {
       organization_id: string;
       name: string;
       description: string | null;
-      domains: string[];
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
@@ -188,11 +187,13 @@ export interface components {
       organization_id: string;
       name: string;
       description: string | null;
-      domains: string[];
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
       updated_at: string;
+      domains: string[];
+      css_vars?: string;
+      css_template?: string;
     };
     CreateProjectDto: {
       name: string;
@@ -201,6 +202,8 @@ export interface components {
       name?: string;
       description?: string;
       domains?: string[];
+      css_vars?: string | null;
+      css_template?: string | null;
     };
     GetOrganizationsDto: {
       id: string;
@@ -471,7 +474,7 @@ export interface operations {
     responses: {
       201: {
         content: {
-          "application/json": components["schemas"]["GetProjectDetailDto"];
+          "application/json": components["schemas"]["GetProjectsDto"];
         };
       };
     };

@@ -7,5 +7,5 @@ type Props = {
 };
 
 export const VersionPreview: FC<Props> = ({ version }) => {
-  return <CodeEditor defaultValue={JSON.stringify(version.data, null, 2)} />;
+  return <CodeEditor defaultValue={JSON.stringify(version.data, null, 2)} language="json" />;
 };

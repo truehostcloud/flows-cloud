@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { organizations, organizationsToUsers, projects } from "db";
 import { asc, eq } from "drizzle-orm";
+import cssValidator from "w3c-css-validator";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
@@ -41,6 +42,14 @@ export class ProjectsService {
     const orgProjects = await this.databaseService.db.query.projects.findMany({
       where: eq(projects.organization_id, organizationId),
       orderBy: [asc(projects.name)],
+      columns: {
+        id: true,
+        name: true,
+        description: true,
+        created_at: true,
+        updated_at: true,
+        organization_id: true,
+      },
     });
 
     return orgProjects.map((project) => ({
@@ -50,7 +59,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      domains: project.domains,
     }));
   }
 
@@ -84,6 +92,8 @@ export class ProjectsService {
       updated_at: project.updated_at,
       organization_id: project.organization_id,
       domains: project.domains,
+      css_vars: project.css_vars ?? undefined,
+      css_template: project.css_template ?? undefined,
     };
   }
 
@@ -95,7 +105,7 @@ export class ProjectsService {
     auth: Auth;
     organizationId: string;
     data: CreateProjectDto;
-  }): Promise<GetProjectDetailDto> {
+  }): Promise<GetProjectsDto> {
     const org = await this.databaseService.db.query.organizations.findFirst({
       where: eq(organizations.id, organizationId),
       with: {
@@ -126,7 +136,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      domains: project.domains,
     };
   }
 
@@ -154,6 +163,19 @@ export class ProjectsService {
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
+    const cssStringsToValidate = [data.css_vars, data.css_template].filter((x): x is string => !!x);
+    await Promise.all(
+      cssStringsToValidate.map((cssString) =>
+        cssValidator.validateText(cssString).then((result) => {
+          if (!result.valid) throw new BadRequestException("Invalid CSS");
+        }),
+      ),
+    );
+
+    //     if (data.css_template) {
+    //   cssValidator.validateText(data.css_template)
+    // }
+
     const updatedProjects = await this.databaseService.db
       .update(projects)
       .set({
@@ -161,6 +183,8 @@ export class ProjectsService {
         description: data.description,
         domains: data.domains,
         name: data.name,
+        css_vars: data.css_vars,
+        css_template: data.css_template,
       })
       .where(eq(projects.id, projectId))
       .returning();
