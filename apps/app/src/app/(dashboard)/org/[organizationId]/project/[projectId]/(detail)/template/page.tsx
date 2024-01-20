@@ -16,8 +16,11 @@ export default async function ProjectTemplatePage({ params }: Props): Promise<JS
   return (
     <>
       <Flex flexDirection="column" gap="space8" mb="space16">
-        <Text variant="titleXl">{project.name}</Text>
-        <Text color="muted">{project.description}</Text>
+        <Text variant="titleXl">Style template</Text>
+        <Text color="muted">
+          Customize the look and feel of your flows by changing CSS variables or using full CSS
+          template.
+        </Text>
       </Flex>
       <CssVarsForm project={project} />
       <CssTemplateForm project={project} />

@@ -3,7 +3,7 @@
 import { css, cx } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { SettingsMenu } from "components/header/settings-menu";
-import { Flows16, Graph16, Home16, Settings16 } from "icons";
+import { Flows16, Graph16, Home16, Paintbrush16, Settings16 } from "icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -46,9 +46,9 @@ export const Sidebar: FC = () => {
         icon: Graph16,
       },
       {
-        label: "Template",
+        label: "Style template",
         href: routes.projectTemplate({ organizationId, projectId }),
-        icon: Graph16,
+        icon: Paintbrush16,
       },
       {
         label: "Project settings",

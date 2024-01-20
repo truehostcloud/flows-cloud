@@ -1,7 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
-import { Box } from "@flows/styled-system/jsx";
+import { Box, Flex } from "@flows/styled-system/jsx";
 import { CodeEditor } from "components/ui/code-editor";
 import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
@@ -11,7 +11,7 @@ import { type FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
 import { t } from "translations";
-import { Button, Checkbox, Text, toast } from "ui";
+import { Button, Switch, Text, toast } from "ui";
 
 type Props = {
   project: ProjectDetail;
@@ -43,11 +43,19 @@ export const CssTemplateForm: FC<Props> = ({ project }) => {
 
   return (
     <Box cardWrap="-" p="space16">
-      <Checkbox
-        checked={value !== null}
-        label="CSS Template"
-        onCheckedChange={(checked) => setValue("cssTemplate", checked ? "" : null)}
-      />
+      <Box mb="space12">
+        <Text variant="titleL">Full CSS template</Text>
+        <Text color="muted">
+          Full CSS template gives you full control over all elements of flows.
+        </Text>
+      </Box>
+      <Flex gap="space8" mb="space12">
+        <Switch
+          checked={value !== null}
+          onChange={(checked) => setValue("cssTemplate", checked ? "" : null)}
+        />
+        <Text>Customize full CSS template</Text>
+      </Flex>
       <form onSubmit={handleSubmit(onSubmit)}>
         {value !== null && (
           <Controller
@@ -75,6 +83,7 @@ export const CssTemplateForm: FC<Props> = ({ project }) => {
           />
         )}
 
+        {/* TODO: @VojtechVidra disable this button if the form isn't dirty I couldn't figure it our with the toggle */}
         <Button disabled={!formState.isValid} loading={loading} type="submit">
           Save
         </Button>
