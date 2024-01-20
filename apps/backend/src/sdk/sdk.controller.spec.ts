@@ -47,6 +47,22 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+describe("Get css", () => {
+  beforeEach(() => {
+    db.query.projects.findFirst.mockReturnValue({ css_vars: "vars", css_template: "template" });
+  });
+  it("should throw without projectId", async () => {
+    await expect(sdkController.getCss("")).rejects.toThrow("Not Found");
+  });
+  it("should throw without project", async () => {
+    db.query.projects.findFirst.mockReturnValue(null);
+    await expect(sdkController.getCss("projectId")).rejects.toThrow("Not Found");
+  });
+  it("should return css", async () => {
+    await expect(sdkController.getCss("projectId")).resolves.toEqual("vars\ntemplate");
+  });
+});
+
 describe("Get flows", () => {
   const mockFlows = [
     {

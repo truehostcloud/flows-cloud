@@ -9,6 +9,21 @@ import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
 export class SdkService {
   constructor(private databaseService: DatabaseService) {}
 
+  async getCss({ projectId }: { projectId: string }): Promise<string> {
+    if (!projectId) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+      columns: {
+        css_vars: true,
+        css_template: true,
+      },
+    });
+    if (!project) throw new NotFoundException();
+
+    return [project.css_vars, project.css_template].filter(Boolean).join("\n");
+  }
+
   async getFlows({
     projectId,
     requestOrigin,

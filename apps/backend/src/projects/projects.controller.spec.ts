@@ -127,6 +127,14 @@ describe("Update project", () => {
       projectsController.updateProject({ userId: "userId" }, "projId", data),
     ).rejects.toThrow("Forbidden");
   });
+  it("should throw without valid css", async () => {
+    await expect(
+      projectsController.updateProject({ userId: "userId" }, "projId", {
+        ...data,
+        css_vars: "invalid",
+      }),
+    ).rejects.toThrow("Invalid CSS");
+  });
   it("should throw without updated project", async () => {
     db.returning.mockResolvedValue([]);
     await expect(

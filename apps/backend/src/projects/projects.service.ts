@@ -167,14 +167,13 @@ export class ProjectsService {
     await Promise.all(
       cssStringsToValidate.map((cssString) =>
         cssValidator.validateText(cssString).then((result) => {
-          if (!result.valid) throw new BadRequestException("Invalid CSS");
+          if (!result.valid)
+            throw new BadRequestException(
+              `Invalid CSS on line ${result.errors.at(0)?.line}: ${result.errors.at(0)?.message}`,
+            );
         }),
       ),
     );
-
-    //     if (data.css_template) {
-    //   cssValidator.validateText(data.css_template)
-    // }
 
     const updatedProjects = await this.databaseService.db
       .update(projects)
