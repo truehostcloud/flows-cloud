@@ -3,6 +3,7 @@ import { createParams } from "lib/create-params";
 export const routes = {
   login: (params?: { message?: string }) => `/login${createParams(params)}`,
   authCallback: "/auth/callback",
+  signUp: (params?: { message?: string }) => `/signup${createParams(params)}`,
 
   home: "/",
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
