@@ -310,9 +310,9 @@ importers:
 
   apps/web:
     dependencies:
-      '@rbnd/flows':
-        specifier: 0.0.15
-        version: 0.0.15
+      '@flows/js':
+        specifier: 0.0.31
+        version: 0.0.31
       '@rbnd/react-dark-mode':
         specifier: ^2.0.1
         version: 2.0.1(react@18.2.0)
@@ -2831,6 +2831,13 @@ packages:
   /@floating-ui/utils@0.1.6:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
 
+  /@flows/js@0.0.31:
+    resolution: {integrity: sha512-2Xc1xzYInaHs9x21TS1Q4Bt3pCNB1p706GCqT6s8e7d9NrqqP2xNImNkQhg5gN/T0oZzD6V5WyUuYNjVQPNq1g==}
+    dependencies:
+      '@floating-ui/dom': 1.5.3
+      superstruct: 1.0.3
+    dev: false
+
   /@grpc/grpc-js@1.9.4:
     resolution: {integrity: sha512-oEnzYiDuEsBydZBtP84BkpduLsE1nSAO4KrhTLHRzNrIQE647fhchmosTQsJdCo8X9zBBt+l5+fNk+m/yCFJ/Q==}
     engines: {node: ^8.13.0 || >=10.10.0}
@@ -5152,12 +5159,6 @@ packages:
     resolution: {integrity: sha512-fyrgCaedtvMg9NK3en0pnOYJdtfwxUcNolezkNPUsoX57X8oQk+NkqcvzHXD2uKNij6GXmWU9NDru2IWjrO4BQ==}
     dependencies:
       '@babel/runtime': 7.22.15
-
-  /@rbnd/flows@0.0.15:
-    resolution: {integrity: sha512-mFkdxNW6PawE1dyCSUMm7I0Mc7oMXLbz9OAqXVLrJ3TuU5BdAOBwG5pLkDfFFyBphi0lbV/B9jND3puCZXMCsA==}
-    dependencies:
-      '@floating-ui/dom': 1.5.3
-    dev: false
 
   /@rbnd/flows@0.0.28:
     resolution: {integrity: sha512-UernLtilcYeEexWx3WAY92qkaZP80r/+qSSz2O9aw7EIo86FkuvNk1L/DVFLl517v+yTKmACM/UabL123AjJ4g==}
