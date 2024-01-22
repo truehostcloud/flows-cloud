@@ -53,6 +53,9 @@ export type Api = {
   "DELETE /flows/:flowId": Endpoint<void, [string]>;
   "/me": Endpoint<Me>;
   "POST /invites/:inviteId/accept": Endpoint<AcceptInviteResponse, [string]>;
+
+  "/css/vars": Endpoint<string>;
+  "/css/template": Endpoint<string>;
 };
 
 export const api: Api = {
@@ -92,4 +95,7 @@ export const api: Api = {
   "/me": () => fetcher("/me"),
   "POST /invites/:inviteId/accept": (inviteId) =>
     fetcher(`/invites/${inviteId}/accept`, { method: "POST" }),
+
+  "/css/vars": () => fetcher("/css/vars"),
+  "/css/template": () => fetcher("/css/template"),
 };

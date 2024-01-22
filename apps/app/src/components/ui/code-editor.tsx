@@ -1,7 +1,7 @@
 "use client";
 
 import { css } from "@flows/styled-system/css";
-import type { OnChange, OnValidate } from "@monaco-editor/react";
+import type { OnChange, OnMount, OnValidate } from "@monaco-editor/react";
 import { Editor } from "@monaco-editor/react";
 import type { FC } from "react";
 import { Spinner } from "ui";
@@ -11,6 +11,7 @@ type Props = {
   onChange?: OnChange;
   language: "json" | "css";
   onValidate?: OnValidate;
+  onMount?: OnMount;
 };
 
 export const CodeEditor: FC<Props> = (props) => {

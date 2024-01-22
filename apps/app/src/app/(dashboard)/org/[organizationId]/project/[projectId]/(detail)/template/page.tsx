@@ -11,7 +11,11 @@ type Props = {
 };
 
 export default async function ProjectTemplatePage({ params }: Props): Promise<JSX.Element> {
-  const project = await load(api["/projects/:projectId"](params.projectId));
+  const [project, defaultVars, defaultTemplate] = await Promise.all([
+    load(api["/projects/:projectId"](params.projectId)),
+    load(api["/css/vars"]()),
+    load(api["/css/template"]()),
+  ]);
 
   return (
     <>
@@ -22,8 +26,8 @@ export default async function ProjectTemplatePage({ params }: Props): Promise<JS
           template.
         </Text>
       </Flex>
-      <CssVarsForm project={project} />
-      <CssTemplateForm project={project} />
+      <CssVarsForm defaultVars={defaultVars} project={project} />
+      <CssTemplateForm defaultTemplate={defaultTemplate} project={project} />
     </>
   );
 }

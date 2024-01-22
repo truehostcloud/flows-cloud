@@ -133,6 +133,9 @@ importers:
       '@fastify/static':
         specifier: ^6.12.0
         version: 6.12.0
+      '@flows/js':
+        specifier: 0.0.31
+        version: 0.0.31
       '@nestjs/common':
         specifier: ^10.2.10
         version: 10.2.10(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
@@ -184,9 +187,6 @@ importers:
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
-      w3c-css-validator:
-        specifier: ^1.3.2
-        version: 1.3.2
     devDependencies:
       '@nestjs/cli':
         specifier: ^10.2.1
@@ -18129,10 +18129,6 @@ packages:
 
   /vscode-textmate@8.0.0:
     resolution: {integrity: sha512-AFbieoL7a5LMqcnOF04ji+rpXadgOXnZsxQr//r83kLPr7biP7am3g9zbaZIaBGwBRWeSvoMD4mgPdX3e4NWBg==}
-    dev: false
-
-  /w3c-css-validator@1.3.2:
-    resolution: {integrity: sha512-pRlJuPllgQFlBGDRa2APS3nRs5/QvkG4F+FlyOn7PZlF3azP3wXNco1OsmtINyBD9p61WRSBfKg8pqReyqeGQw==}
     dev: false
 
   /walk-up-path@3.0.1:

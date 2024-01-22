@@ -6,7 +6,6 @@ import {
 } from "@nestjs/common";
 import { organizations, organizationsToUsers, projects } from "db";
 import { asc, eq } from "drizzle-orm";
-import cssValidator from "w3c-css-validator";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
@@ -163,18 +162,6 @@ export class ProjectsService {
     const userHasAccessToOrg = !!org?.organizationsToUsers.length;
     if (!userHasAccessToOrg) throw new ForbiddenException();
 
-    const cssStringsToValidate = [data.css_vars, data.css_template].filter((x): x is string => !!x);
-    await Promise.all(
-      cssStringsToValidate.map((cssString) =>
-        cssValidator.validateText(cssString).then((result) => {
-          if (!result.valid)
-            throw new BadRequestException(
-              `Invalid CSS on line ${result.errors.at(0)?.line}: ${result.errors.at(0)?.message}`,
-            );
-        }),
-      ),
-    );
-
     const updatedProjects = await this.databaseService.db
       .update(projects)
       .set({
@@ -182,8 +169,8 @@ export class ProjectsService {
         description: data.description,
         domains: data.domains,
         name: data.name,
-        css_vars: data.css_vars,
-        css_template: data.css_template,
+        css_vars: data.css_vars?.trim(),
+        css_template: data.css_template?.trim(),
       })
       .where(eq(projects.id, projectId))
       .returning();
@@ -198,6 +185,8 @@ export class ProjectsService {
       updated_at: updatedProj.updated_at,
       organization_id: updatedProj.organization_id,
       domains: updatedProj.domains,
+      css_vars: updatedProj.css_vars ?? undefined,
+      css_template: updatedProj.css_template ?? undefined,
     };
   }
 

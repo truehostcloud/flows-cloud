@@ -8,6 +8,9 @@ export interface paths {
   "/status": {
     get: operations["AppController_getStatus"];
   };
+  "/sdk/css": {
+    get: operations["SdkController_getCss"];
+  };
   "/sdk/flows": {
     get: operations["SdkController_getFlows"];
   };
@@ -65,6 +68,12 @@ export interface paths {
   };
   "/invites/{inviteId}/accept": {
     post: operations["UsersController_acceptInvite"];
+  };
+  "/css/vars": {
+    get: operations["CssController_getDefaultCssVars"];
+  };
+  "/css/template": {
+    get: operations["CssController_getDefaultCssTemplate"];
   };
 }
 
@@ -267,6 +276,20 @@ export interface operations {
       200: {
         content: {
           "application/json": boolean;
+        };
+      };
+    };
+  };
+  SdkController_getCss: {
+    parameters: {
+      query: {
+        projectId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": string;
         };
       };
     };
@@ -655,6 +678,24 @@ export interface operations {
       201: {
         content: {
           "application/json": components["schemas"]["AcceptInviteResponseDto"];
+        };
+      };
+    };
+  };
+  CssController_getDefaultCssVars: {
+    responses: {
+      200: {
+        content: {
+          "application/json": string;
+        };
+      };
+    };
+  };
+  CssController_getDefaultCssTemplate: {
+    responses: {
+      200: {
+        content: {
+          "application/json": string;
         };
       };
     };
