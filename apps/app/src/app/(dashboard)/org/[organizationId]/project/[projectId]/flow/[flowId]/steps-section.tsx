@@ -1,5 +1,5 @@
+import type { FlowSteps } from "@flows/js";
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowSteps } from "@rbnd/flows";
 import type { FlowDetail } from "lib/api";
 import Link from "next/link";
 import type { FC } from "react";

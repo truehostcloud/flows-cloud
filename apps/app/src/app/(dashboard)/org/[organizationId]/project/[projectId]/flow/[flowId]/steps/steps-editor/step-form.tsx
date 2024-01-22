@@ -1,6 +1,6 @@
+import type { FlowModalStep, FlowTooltipStep, FlowWaitStep } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowModalStep, FlowTooltipStep, FlowWaitStep } from "@rbnd/flows";
 import { type FC, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { t } from "translations";

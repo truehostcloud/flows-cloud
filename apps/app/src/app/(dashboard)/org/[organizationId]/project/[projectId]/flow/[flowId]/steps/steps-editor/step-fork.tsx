@@ -1,5 +1,5 @@
+import type { FlowStep } from "@flows/js";
 import { Box, Flex } from "@flows/styled-system/jsx";
-import type { FlowStep } from "@rbnd/flows";
 import type { FC } from "react";
 import { type Control, useFieldArray } from "react-hook-form";
 import { Button, Text } from "ui";

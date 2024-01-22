@@ -1,5 +1,5 @@
+import type { FlowWaitStep } from "@flows/js";
 import { Box } from "@flows/styled-system/jsx";
-import type { FlowWaitStep } from "@rbnd/flows";
 import type { FC } from "react";
 import { type Control, useController } from "react-hook-form";
 import { Accordion, Input } from "ui";

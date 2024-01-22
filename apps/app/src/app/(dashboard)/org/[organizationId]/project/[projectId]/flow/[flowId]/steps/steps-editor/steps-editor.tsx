@@ -1,8 +1,8 @@
 "use client";
 
+import type { FlowSteps } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowSteps } from "@rbnd/flows";
 import { useSend } from "hooks/use-send";
 import type { FlowDetail, UpdateFlow } from "lib/api";
 import { api } from "lib/api";

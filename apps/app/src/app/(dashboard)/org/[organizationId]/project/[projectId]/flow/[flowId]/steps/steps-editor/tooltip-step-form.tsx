@@ -1,6 +1,6 @@
+import type { FlowTooltipStep } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Box, Flex, Grid } from "@flows/styled-system/jsx";
-import type { FlowTooltipStep } from "@rbnd/flows";
 import { type FC } from "react";
 import { type Control, Controller, useController } from "react-hook-form";
 import { t } from "translations";

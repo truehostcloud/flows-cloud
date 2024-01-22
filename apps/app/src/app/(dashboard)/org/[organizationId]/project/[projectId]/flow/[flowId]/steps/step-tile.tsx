@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key -- there's no better key */
 
+import type { FlowStep } from "@flows/js";
 import { css } from "@flows/styled-system/css";
-import type { FlowStep } from "@rbnd/flows";
 import type { FC } from "react";
 
 type Props = {

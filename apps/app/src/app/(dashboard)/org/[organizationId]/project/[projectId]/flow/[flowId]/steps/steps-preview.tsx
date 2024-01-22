@@ -1,11 +1,11 @@
 "use client";
 
-import "@rbnd/flows/flows.css";
+import "@flows/js/flows.css";
 
+import type { FlowStep, FlowSteps } from "@flows/js";
+import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowStep, FlowSteps } from "@rbnd/flows";
-import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@rbnd/flows";
 import type { FC } from "react";
 import { useEffect, useMemo, useState } from "react";
 

@@ -1,6 +1,6 @@
+import type { FlowModalStep } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Flex, Grid } from "@flows/styled-system/jsx";
-import type { FlowModalStep } from "@rbnd/flows";
 import type { FC } from "react";
 import { type Control, Controller, useController } from "react-hook-form";
 import { Accordion, Checkbox, Input, Text } from "ui";
