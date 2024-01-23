@@ -75,11 +75,26 @@ export const t = {
       "left-start": "Left start",
       "left-end": "Left end",
     },
+    keyLabel: "ID",
+    keyDescription: "Unique ID of the step. Useful for programmatic control of the flow.",
     footer: {
       buttonAlignment: {
         left: "Left",
         center: "Center",
         right: "Right",
+      },
+      variant: {
+        href: "Link",
+        action: "Action",
+        next: "Next",
+        prev: "Previous",
+      },
+    },
+    wait: {
+      variant: {
+        submit: "Form submit",
+        click: "Click",
+        change: "Input change",
       },
     },
   },

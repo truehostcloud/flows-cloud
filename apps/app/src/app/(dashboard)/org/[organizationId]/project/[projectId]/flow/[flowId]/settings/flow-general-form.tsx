@@ -56,15 +56,15 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
 
       <Input
         {...register("name")}
+        className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
         defaultValue={formState.defaultValues?.name}
-        fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
         label="Flow name"
       />
       <Input
         {...register("description")}
         asChild
+        className={css({ mb: "space12" })}
         defaultValue={formState.defaultValues?.description}
-        fullClassName={css({ mb: "space12" })}
         inputClassName={css({ height: "unset" })}
         label="Description"
       >
@@ -72,9 +72,9 @@ export const FlowGeneralForm: FC<Props> = ({ flow }) => {
       </Input>
       <Flex gap="space16" mb="space16">
         <Input
+          className={css({ maxWidth: "400px", width: "100%" })}
           description="Unique identifier for this flow. Cannot be changed."
           disabled
-          fullClassName={css({ maxWidth: "400px", width: "100%" })}
           label="Human ID"
           value={flow.human_id}
         />

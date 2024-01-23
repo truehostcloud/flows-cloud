@@ -65,8 +65,8 @@ export const ProjectDomains: FC<Props> = ({ project }) => {
                 <Input
                   type="url"
                   {...register(`domains.${i}.value`)}
+                  className={css({ flex: 1 })}
                   required
-                  wrapperClassName={css({ maxWidth: "400px", width: "100%" })}
                 />
                 <Button onClick={() => remove(i)} variant="secondary">
                   {t.actions.remove}

@@ -1,8 +1,9 @@
 import { css } from "@flows/styled-system/css";
-import { Box, Flex, Grid } from "@flows/styled-system/jsx";
+import { Box, Flex } from "@flows/styled-system/jsx";
 import { Close16, Plus16 } from "icons";
 import type { FC } from "react";
 import { type Control, Controller, useController, useFieldArray } from "react-hook-form";
+import { t } from "translations";
 import { Button, Icon, Input, Text } from "ui";
 
 import type { StepsForm } from "./steps-editor.types";
@@ -23,6 +24,31 @@ export const StepWaitOption: FC<Props> = ({ control, fieldName, index, onRemove 
   const changeFieldArray = useFieldArray({ name: `${fieldName}.change`, control });
   const submitValueFieldArray = useFieldArray({ name: `${fieldName}.form.values`, control });
 
+  const currentVariant = (() => {
+    if (controller.field.value.form) return "submit";
+    if (controller.field.value.change) return "change";
+    return "click";
+  })();
+  const handleVariantChange = (variant: typeof currentVariant): void => {
+    if (variant === "change")
+      return controller.field.onChange({
+        location: controller.field.value.location,
+        action: controller.field.value.action,
+        change: [],
+      });
+    if (variant === "submit")
+      return controller.field.onChange({
+        location: controller.field.value.location,
+        action: controller.field.value.action,
+        form: {},
+      });
+    return controller.field.onChange({
+      location: controller.field.value.location,
+      action: controller.field.value.action,
+      element: "",
+    });
+  };
+
   return (
     <Box>
       <Flex align="center" justify="space-between" mb="space8">
@@ -31,7 +57,28 @@ export const StepWaitOption: FC<Props> = ({ control, fieldName, index, onRemove 
           <Icon icon={Close16} />
         </Button>
       </Flex>
-      <Grid gap="space8" gridTemplateColumns="1fr 1fr" mb="space16">
+      <Input
+        {...control.register(`${fieldName}.location`)}
+        defaultValue={value.location}
+        description="Wait for the user to navigate to this location. Leave empty for any location"
+        label="Location"
+        placeholder="^/path$ (uses regex)"
+      />
+
+      <Flex gap="space4" my="space16">
+        {(["click", "change", "submit"] as const).map((variant) => (
+          <Button
+            key={variant}
+            onClick={() => handleVariantChange(variant)}
+            size="small"
+            variant={currentVariant === variant ? "black" : "secondary"}
+          >
+            {t.steps.wait.variant[variant]}
+          </Button>
+        ))}
+      </Flex>
+
+      {currentVariant === "click" && (
         <Input
           {...control.register(`${fieldName}.element`)}
           defaultValue={value.element}
@@ -39,16 +86,9 @@ export const StepWaitOption: FC<Props> = ({ control, fieldName, index, onRemove 
           label="Element"
           placeholder=".element"
         />
-        <Input
-          {...control.register(`${fieldName}.location`)}
-          defaultValue={value.location}
-          description="Wait for the user to navigate to this location. Leave empty for any location"
-          label="Location"
-          placeholder="^/path$ (uses regex)"
-        />
-      </Grid>
+      )}
 
-      <Grid gap="space8" gridTemplateColumns="1fr 1fr" mb="space16">
+      {currentVariant === "change" && (
         <Box bor="1px" borderRadius="radius8">
           <Box borBottom="1px" padding="space12">
             <Text variant="titleS">On Change</Text>
@@ -77,7 +117,9 @@ export const StepWaitOption: FC<Props> = ({ control, fieldName, index, onRemove 
             </Button>
           </Box>
         </Box>
+      )}
 
+      {currentVariant === "submit" && (
         <Box bor="1px" borderRadius="radius8">
           <Box borBottom="1px" padding="space12">
             <Text variant="titleS">On Submit</Text>
@@ -113,15 +155,15 @@ export const StepWaitOption: FC<Props> = ({ control, fieldName, index, onRemove 
             </Button>
           </Box>
         </Box>
-      </Grid>
+      )}
 
       <Controller
         control={control}
         name={`${fieldName}.action`}
         render={({ field }) => (
           <Input
+            className={css({ my: "space16" })}
             description="Which branch to take. Leave empty is there is no fork step after this step."
-            fullClassName={css({ mb: "space16" })}
             label="Action"
             onChange={(e) => field.onChange(Number(e.target.value))}
             placeholder="0"
@@ -156,9 +198,9 @@ const ChangeForm: FC<ChangeProps> = ({ control, fieldName, index, onRemove }) =>
       </Flex>
       <Input
         {...control.register(`${fieldName}.element`)}
+        className={css({ mb: "space12" })}
         defaultValue={field.value.element}
         description="Value of this element will be checked when its 'onchange' event is fired."
-        fullClassName={css({ mb: "space12" })}
         label="Element"
         placeholder=".element"
       />
@@ -194,9 +236,9 @@ const SubmitValueForm: FC<SubmitValueProps> = ({ control, fieldName, index, onRe
       </Flex>
       <Input
         {...control.register(`${fieldName}.element`)}
+        className={css({ mb: "space12" })}
         defaultValue={field.value.element}
         description="Value of this element will be checked when the form is submitted."
-        fullClassName={css({ mb: "space12" })}
         label="Form field"
         placeholder=".element"
       />

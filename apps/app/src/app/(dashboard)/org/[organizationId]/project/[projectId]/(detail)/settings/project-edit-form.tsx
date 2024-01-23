@@ -55,14 +55,14 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
       </Text>
       <Input
         {...register("name")}
+        className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
         defaultValue={formState.defaultValues?.name}
-        fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
         label="Project name"
       />
       <Flex alignItems="flex-end" gap="space8" mb="space16">
         <Input
+          className={css({ maxWidth: "400px", width: "100%" })}
           disabled
-          fullClassName={css({ maxWidth: "400px", width: "100%" })}
           label="Project ID"
           value={project.id}
         />
@@ -73,8 +73,8 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
       <Input
         {...register("description")}
         asChild
+        className={css({ mb: "space12" })}
         defaultValue={formState.defaultValues?.description}
-        fullClassName={css({ mb: "space12" })}
         inputClassName={css({ height: "unset" })}
         key="description"
         label="Project description"

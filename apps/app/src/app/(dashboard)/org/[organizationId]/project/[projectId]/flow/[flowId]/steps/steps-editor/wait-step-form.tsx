@@ -2,6 +2,7 @@ import type { FlowWaitStep } from "@flows/js";
 import { Box } from "@flows/styled-system/jsx";
 import type { FC } from "react";
 import { type Control, useController } from "react-hook-form";
+import { t } from "translations";
 import { Accordion, Input } from "ui";
 
 import { StepWaitOptionList } from "./step-wait-option-list";
@@ -28,7 +29,8 @@ export const WaitStepForm: FC<Props> = ({ control, index }) => {
         <Input
           {...control.register(`${stepKey}.key`)}
           defaultValue={value.key}
-          label="Key"
+          description={t.steps.keyDescription}
+          label={t.steps.keyLabel}
           placeholder="my-step-id"
         />
       </Accordion>

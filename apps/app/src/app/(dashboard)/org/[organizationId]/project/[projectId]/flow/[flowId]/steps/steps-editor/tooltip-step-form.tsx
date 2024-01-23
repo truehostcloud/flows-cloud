@@ -4,9 +4,9 @@ import { Box, Flex, Grid } from "@flows/styled-system/jsx";
 import { type FC } from "react";
 import { type Control, Controller, useController } from "react-hook-form";
 import { t } from "translations";
-import { Accordion, Checkbox, Input, Select, Text } from "ui";
+import { Accordion, Checkbox, Input, Select } from "ui";
 
-import { StepFooterActions } from "./step-footer-actions";
+import { StepFooter } from "./step-footer";
 import { StepWaitOptionList } from "./step-wait-option-list";
 import type { StepsForm } from "./steps-editor.types";
 
@@ -45,9 +45,9 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
           <Box>
             <Input
               {...control.register(`${stepKey}.title`)}
+              className={css({ mb: "space16" })}
               defaultValue={value.title}
               description="HTML title of the tooltip"
-              fullClassName={css({ mb: "space16" })}
               label="Title"
             />
             <Input
@@ -66,9 +66,9 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
         <Box>
           <Input
             {...control.register(`${stepKey}.element`)}
+            className={css({ mb: "space16" })}
             defaultValue={value.element}
             description="Element to attach tooltip to"
-            fullClassName={css({ mb: "space16" })}
             label="Element"
             placeholder=".element"
           />
@@ -111,69 +111,7 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
       </Grid>
 
       <Flex flexDirection="column" gap="space8">
-        <Accordion title="Footer">
-          <Grid gap="space24" gridTemplateColumns="1fr 1fr" mb="space16">
-            <Input
-              {...control.register(`${stepKey}.prevText`)}
-              defaultValue={value.prevText}
-              description="Replace default text of the previous step button"
-              disabled={value.hidePrev}
-              label={
-                <Flex justifyContent="space-between">
-                  <Text>Previous step button</Text>
-                  <Controller
-                    control={control}
-                    name={`${stepKey}.hidePrev`}
-                    render={({ field }) => (
-                      <Checkbox
-                        checked={field.value}
-                        label="Hide button"
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                </Flex>
-              }
-              placeholder="Back"
-            />
-
-            <Input
-              {...control.register(`${stepKey}.nextText`)}
-              defaultValue={value.nextText}
-              description="Replace default text of the next step and finish button (comma separated)"
-              disabled={value.hideNext}
-              label={
-                <Flex justifyContent="space-between">
-                  <Text>Next step button </Text>
-                  <Controller
-                    control={control}
-                    name={`${stepKey}.hideNext`}
-                    render={({ field }) => (
-                      <Checkbox
-                        checked={field.value}
-                        label="Hide button"
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                </Flex>
-              }
-              placeholder="Continue, Finish"
-            />
-          </Grid>
-
-          <Flex flexDirection="column" mb="space8">
-            <Text variant="titleS">Custom actions</Text>
-            <Text color="muted" variant="bodyS">
-              Add custom actions to the footer of the tooltip
-            </Text>
-          </Flex>
-          <Grid gap="space16" gridTemplateColumns="repeat(3, 1fr)">
-            <StepFooterActions control={control} index={index} placement="left" />
-            <StepFooterActions control={control} index={index} placement="center" />
-            <StepFooterActions control={control} index={index} placement="right" />
-          </Grid>
-        </Accordion>
+        <StepFooter control={control} index={index} />
 
         <Accordion title="Wait">
           <StepWaitOptionList control={control} fieldName={`${stepKey}.wait`} />
@@ -182,10 +120,10 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
         <Accordion title="Advanced">
           <Input
             {...control.register(`${stepKey}.key`)}
+            className={css({ mb: "space16" })}
             defaultValue={value.key}
-            description="Unique ID of the step. Useful for programmatic control of the flow."
-            fullClassName={css({ mb: "space16" })}
-            label="ID"
+            description={t.steps.keyDescription}
+            label={t.steps.keyLabel}
             placeholder="my-step-id"
           />
           <Input

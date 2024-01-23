@@ -56,17 +56,17 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
             {...register("element")}
+            className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             defaultValue={formState.defaultValues?.element}
             description={t.launch.element}
-            fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Element"
             placeholder=".onboarding-flow"
           />
           <Input
             {...register("location")}
+            className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             defaultValue={formState.defaultValues?.location}
             description={t.launch.location}
-            fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Location"
             placeholder="^\/home$ <- shows up only on the home page"
           />
