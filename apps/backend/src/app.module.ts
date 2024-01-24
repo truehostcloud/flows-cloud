@@ -52,7 +52,14 @@ export class AppModule implements NestModule {
     consumer
       .apply(
         cors({
-          origin: ["https://app.flows.sh", "https://app.stage.flows.sh", "http://localhost:6001"],
+          origin: [
+            "https://flows.sh",
+            "https://stage.flows.sh",
+            "https://app.flows.sh",
+            "https://app.stage.flows.sh",
+            "http://localhost:6001",
+            "http://localhost:6002",
+          ],
         }),
       )
       .exclude(...publicRoutes)
