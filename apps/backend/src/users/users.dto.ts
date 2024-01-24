@@ -1,3 +1,5 @@
+import { IsEmail, IsString } from "class-validator";
+
 export class Invite {
   id: string;
   expires_at: Date;
@@ -10,4 +12,11 @@ export class GetMeDto {
 
 export class AcceptInviteResponseDto {
   organization_id: string;
+}
+
+export class JoinWaitlistDto {
+  @IsEmail()
+  email: string;
+  @IsString()
+  captchaToken: string;
 }

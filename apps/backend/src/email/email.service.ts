@@ -27,4 +27,13 @@ export class EmailService {
       acceptUrl: `${process.env.BACKEND_APP_URL}`,
     });
   }
+
+  async createContact({
+    email,
+  }: {
+    email: string;
+  }): Promise<ReturnType<LoopsClient["createContact"]>> {
+    const loops = await this.loops();
+    return loops.createContact(email);
+  }
 }
