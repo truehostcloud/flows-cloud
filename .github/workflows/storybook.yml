@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: [self-hosted, stage-env]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: "./storybook"
       - run: docker build -t docker.flows.sh/storybook:${{github.sha}} -f infrastructure/docker/storybook.Dockerfile .
