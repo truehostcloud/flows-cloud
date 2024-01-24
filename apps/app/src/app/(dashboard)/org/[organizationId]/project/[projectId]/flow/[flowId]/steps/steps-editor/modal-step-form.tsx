@@ -47,8 +47,8 @@ export const ModalStepForm: FC<Props> = ({ control, index }) => {
         render={({ field }) => (
           <Checkbox
             checked={field.value}
+            className={css({ mb: "space16" })}
             label="Hide close button"
-            labelClassName={css({ mb: "space16" })}
             onCheckedChange={field.onChange}
           />
         )}

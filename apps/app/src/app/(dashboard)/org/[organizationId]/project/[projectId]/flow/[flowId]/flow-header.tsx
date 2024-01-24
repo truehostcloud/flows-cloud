@@ -1,5 +1,6 @@
 "use client";
 
+import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { MenuItem } from "components/header/menu-item";
 import { MenuSection } from "components/header/menu-section";
@@ -70,10 +71,13 @@ export const FlowHeader: FC<Props> = ({ flow, params }) => {
           <Flex alignItems="center" gap="space16">
             <FlowPublishChangesDialog flow={flow} />
             <FlowPreviewDialog flow={flow} />
-            <Flex gap="space8">
-              <Text weight="600">Live</Text>
-              <Switch checked={flowIsPublic} disabled={loading} onChange={handlePublishedToggle} />
-            </Flex>
+            <Switch
+              checked={flowIsPublic}
+              className={css({ flexDir: "row-reverse" })}
+              disabled={loading}
+              label="Live"
+              onChange={handlePublishedToggle}
+            />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost">

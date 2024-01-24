@@ -77,12 +77,13 @@ export const CssTemplateForm: FC<Props> = ({ project, defaultTemplate }) => {
           </Button>
         ) : null}
       </Flex>
-      <Flex gap="space8" mb="space12">
-        <Switch checked={enabled} id="enabled" onChange={setEnabled} />
-        <label className={css({ textStyle: "bodyS", color: "text" })} htmlFor="enabled">
-          Customize full CSS template
-        </label>
-      </Flex>
+      <Switch
+        checked={enabled}
+        className={css({ mb: "space12" })}
+        id="enabled"
+        label="Customize full CSS template"
+        onChange={setEnabled}
+      />
       <form onSubmit={handleSubmit(onSubmit)}>
         {enabled ? (
           <Controller
