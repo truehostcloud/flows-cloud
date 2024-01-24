@@ -6,7 +6,7 @@ declare global {
       BACKEND_LOOPS_API_KEY: string;
       BACKEND_APP_URL: string;
       BACKEND_CAPTCHA_SECRET: string;
-      BACKEND_SLACK_WEBHOOK: string;
+      BACKEND_SLACK_WEBHOOK_URL: string;
     }
   }
 }
