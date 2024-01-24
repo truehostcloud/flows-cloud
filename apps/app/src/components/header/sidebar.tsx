@@ -3,10 +3,10 @@
 import { css, cx } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { SettingsMenu } from "components/header/settings-menu";
-import { Flows16, Graph16, Home16, Settings16 } from "icons";
+import { Flows16, Graph16, Home16, Paintbrush16, Settings16 } from "icons";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { type FC, useMemo } from "react";
 import { routes } from "routes";
 import { Icon, Text } from "ui";
@@ -23,6 +23,7 @@ const NavSectionCss = css({
 
 export const Sidebar: FC = () => {
   const { projectId, organizationId } = useParams<{ projectId?: string; organizationId: string }>();
+  const pathname = usePathname();
 
   const HEADER_ITEMS = useMemo(() => {
     if (!projectId) return [];
@@ -43,6 +44,11 @@ export const Sidebar: FC = () => {
         // TODO: add analytics route
         href: "/",
         icon: Graph16,
+      },
+      {
+        label: "Style template",
+        href: routes.projectTemplate({ organizationId, projectId }),
+        icon: Paintbrush16,
       },
       {
         label: "Project settings",
@@ -107,38 +113,48 @@ export const Sidebar: FC = () => {
             mt: "space16",
           })}
         >
-          {HEADER_ITEMS.map((item) => (
-            <li key={item.label}>
-              <Link href={item.href}>
-                <span
-                  className={css({
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "space8",
+          {HEADER_ITEMS.map((item) => {
+            const active = item.href === pathname;
+            return (
+              <li key={item.label}>
+                <Link href={item.href}>
+                  <span
+                    className={css({
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "space8",
 
-                    paddingY: "space8",
-                    paddingX: "space8",
-                    width: "100%",
+                      paddingY: "space8",
+                      paddingX: "space8",
+                      width: "100%",
 
-                    borderRadius: "radius8",
+                      borderRadius: "radius8",
 
-                    transitionDuration: "fast",
-                    transitionTimingFunction: "easeInOut",
-                    transitionProperty: "background-color",
+                      transitionDuration: "fast",
+                      transitionTimingFunction: "easeInOut",
+                      transitionProperty: "background-color",
+                      color: "text.muted",
 
-                    "&:hover": {
-                      bg: "bg.hover",
-                    },
-                  })}
-                >
-                  <Icon color="text.muted" icon={item.icon} />
-                  <Text color="muted" variant="bodyS" weight="600">
-                    {item.label}
-                  </Text>
-                </span>
-              </Link>
-            </li>
-          ))}
+                      "&:hover": {
+                        bg: "bg.hover",
+                      },
+
+                      "&&[data-active=true]": {
+                        color: "text.primary",
+                        bg: "bg.subtle",
+                      },
+                    })}
+                    data-active={active}
+                  >
+                    <Icon color="inherit" icon={item.icon} />
+                    <Text color="inherit" variant="bodyS" weight="600">
+                      {item.label}
+                    </Text>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
       <Flex direction="column" gap="space12">

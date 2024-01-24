@@ -4,11 +4,18 @@ import { and, eq, gt } from "drizzle-orm";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
-import type { AcceptInviteResponseDto, GetMeDto } from "./users.dto";
+import { EmailService } from "../email/email.service";
+import { verifyCaptcha } from "../lib/captcha";
+import { NewsfeedService } from "../newsfeed/newsfeed.service";
+import type { AcceptInviteResponseDto, GetMeDto, JoinWaitlistDto } from "./users.dto";
 
 @Injectable()
 export class UsersService {
-  constructor(private databaseService: DatabaseService) {}
+  constructor(
+    private databaseService: DatabaseService,
+    private emailService: EmailService,
+    private newsfeedService: NewsfeedService,
+  ) {}
 
   async me({ auth }: { auth: Auth }): Promise<GetMeDto> {
     const user = await this.databaseService.db.query.users.findFirst({
@@ -66,5 +73,17 @@ export class UsersService {
     return {
       organization_id: invite.organization_id,
     };
+  }
+
+  async joinWaitlist({ data }: { data: JoinWaitlistDto }): Promise<void> {
+    const verifyResult = await verifyCaptcha(data.captchaToken);
+    if (!verifyResult?.success) throw new BadRequestException("Invalid captcha");
+
+    const res = await this.emailService.createContact({ email: data.email });
+    if (!res.success) throw new BadRequestException(res.message);
+
+    await this.newsfeedService.postMessage({
+      message: `🤩 ${data.email} has joined the waitlist!`,
+    });
   }
 }

@@ -29,7 +29,7 @@ type Props = {
 export const AnalyticsChart: FC<Props> = ({ data, categoryKey }) => {
   const renderTooltip = useCallback(
     (item: LineChartItem) => (
-      <Box cardWrap={0} px="space12" py="space8" shadow="l3">
+      <Box cardWrap="-" px="space12" py="space8" shadow="l3">
         <Text className={css({ mb: "space4" })} color="muted">
           {monthDayYear(item.label)}
         </Text>

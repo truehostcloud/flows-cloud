@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
 import type {
@@ -38,9 +38,8 @@ export class FlowsControllers {
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
     @Body() body: UpdateFlowDto,
-  ): Promise<GetFlowDetailDto> {
+  ): Promise<void> {
     await this.flowsService.updateFlow({ auth, flowId, data: body });
-    return this.flowsService.getFlowDetail({ auth, flowId });
   }
 
   @Post("flows/:flowId/publish")
@@ -71,10 +70,14 @@ export class FlowsControllers {
   }
 
   @Get("flows/:flowId/analytics")
+  @ApiQuery({ name: "startDate", required: false })
+  @ApiQuery({ name: "endDate", required: false })
   getFlowAnalytics(
     @Authorization() auth: Auth,
     @Param("flowId") flowId: string,
+    @Query("startDate") startDate?: Date,
+    @Query("endDate") endDate?: Date,
   ): Promise<GetFlowAnalyticsDto> {
-    return this.flowsService.getFlowAnalytics({ flowId, auth });
+    return this.flowsService.getFlowAnalytics({ flowId, auth, startDate, endDate });
   }
 }

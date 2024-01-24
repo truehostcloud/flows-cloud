@@ -8,6 +8,9 @@ export interface paths {
   "/status": {
     get: operations["AppController_getStatus"];
   };
+  "/sdk/css": {
+    get: operations["SdkController_getCss"];
+  };
   "/sdk/flows": {
     get: operations["SdkController_getFlows"];
   };
@@ -41,8 +44,8 @@ export interface paths {
   };
   "/projects/{projectId}": {
     get: operations["ProjectsController_getProjectDetail"];
-    put: operations["ProjectsController_updateProject"];
     delete: operations["ProjectsController_deleteProject"];
+    patch: operations["ProjectsController_updateProject"];
   };
   "/organizations": {
     get: operations["OrganizationsController_getOrganizations"];
@@ -51,6 +54,7 @@ export interface paths {
   "/organizations/{organizationId}": {
     get: operations["OrganizationsController_getOrganizationDetail"];
     delete: operations["OrganizationsController_deleteOrganization"];
+    patch: operations["OrganizationsController_updateOrganization"];
   };
   "/organizations/{organizationId}/users": {
     get: operations["OrganizationsController_getUsers"];
@@ -64,6 +68,12 @@ export interface paths {
   };
   "/invites/{inviteId}/accept": {
     post: operations["UsersController_acceptInvite"];
+  };
+  "/css/vars": {
+    get: operations["CssController_getDefaultCssVars"];
+  };
+  "/css/template": {
+    get: operations["CssController_getDefaultCssTemplate"];
   };
 }
 
@@ -176,7 +186,6 @@ export interface components {
       organization_id: string;
       name: string;
       description: string | null;
-      domains: string[];
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
@@ -187,19 +196,23 @@ export interface components {
       organization_id: string;
       name: string;
       description: string | null;
-      domains: string[];
       /** Format: date-time */
       created_at: string;
       /** Format: date-time */
       updated_at: string;
+      domains: string[];
+      css_vars?: string;
+      css_template?: string;
     };
     CreateProjectDto: {
       name: string;
     };
     UpdateProjectDto: {
-      name: string;
+      name?: string;
       description?: string;
-      domains: string[];
+      domains?: string[];
+      css_vars?: string | null;
+      css_template?: string | null;
     };
     GetOrganizationsDto: {
       id: string;
@@ -221,6 +234,9 @@ export interface components {
     };
     CreateOrganizationDto: {
       name: string;
+    };
+    UpdateOrganizationDto: {
+      name?: string;
     };
     InviteUserDto: {
       email: string;
@@ -260,6 +276,20 @@ export interface operations {
       200: {
         content: {
           "application/json": boolean;
+        };
+      };
+    };
+  };
+  SdkController_getCss: {
+    parameters: {
+      query: {
+        projectId: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": string;
         };
       };
     };
@@ -391,9 +421,7 @@ export interface operations {
     };
     responses: {
       200: {
-        content: {
-          "application/json": components["schemas"]["GetFlowDetailDto"];
-        };
+        content: never;
       };
     };
   };
@@ -425,6 +453,10 @@ export interface operations {
   };
   FlowsControllers_getFlowAnalytics: {
     parameters: {
+      query?: {
+        startDate?: string;
+        endDate?: string;
+      };
       path: {
         flowId: string;
       };
@@ -465,7 +497,7 @@ export interface operations {
     responses: {
       201: {
         content: {
-          "application/json": components["schemas"]["GetProjectDetailDto"];
+          "application/json": components["schemas"]["GetProjectsDto"];
         };
       };
     };
@@ -474,25 +506,6 @@ export interface operations {
     parameters: {
       path: {
         projectId: string;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["GetProjectDetailDto"];
-        };
-      };
-    };
-  };
-  ProjectsController_updateProject: {
-    parameters: {
-      path: {
-        projectId: string;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateProjectDto"];
       };
     };
     responses: {
@@ -512,6 +525,25 @@ export interface operations {
     responses: {
       200: {
         content: never;
+      };
+    };
+  };
+  ProjectsController_updateProject: {
+    parameters: {
+      path: {
+        projectId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetProjectDetailDto"];
+        };
       };
     };
   };
@@ -561,6 +593,25 @@ export interface operations {
     responses: {
       200: {
         content: never;
+      };
+    };
+  };
+  OrganizationsController_updateOrganization: {
+    parameters: {
+      path: {
+        organizationId: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateOrganizationDto"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetOrganizationDetailDto"];
+        };
       };
     };
   };
@@ -627,6 +678,24 @@ export interface operations {
       201: {
         content: {
           "application/json": components["schemas"]["AcceptInviteResponseDto"];
+        };
+      };
+    };
+  };
+  CssController_getDefaultCssVars: {
+    responses: {
+      200: {
+        content: {
+          "application/json": string;
+        };
+      };
+    };
+  };
+  CssController_getDefaultCssTemplate: {
+    responses: {
+      200: {
+        content: {
+          "application/json": string;
         };
       };
     };

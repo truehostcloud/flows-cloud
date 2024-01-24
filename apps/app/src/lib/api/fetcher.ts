@@ -25,13 +25,15 @@ export const fetcher =
       headers,
     }).then(async (res) => {
       const text = await res.text();
-      const resBody = text ? JSON.parse(text) : undefined;
+      let resBody;
+      if (res.headers.get("content-type")?.includes("application/json"))
+        resBody = text ? JSON.parse(text) : undefined;
 
       if (!res.ok)
         throw new ApiError(
           (resBody as undefined | { message: string })?.message || res.statusText,
           res,
         );
-      return resBody as T;
+      return (resBody ?? text) as T;
     });
   };

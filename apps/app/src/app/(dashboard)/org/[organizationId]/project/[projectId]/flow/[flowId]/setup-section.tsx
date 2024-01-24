@@ -18,7 +18,7 @@ export const SetupSection: FC<Props> = ({ params, flow }) => {
   return (
     <Flex
       className={css({
-        cardWrap: "",
+        cardWrap: "-",
       })}
       direction="column"
       gap="space12"

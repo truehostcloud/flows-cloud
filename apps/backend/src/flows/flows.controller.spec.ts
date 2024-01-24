@@ -1,97 +1,63 @@
+import { NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { flows, flowVersions } from "db";
 
 import { DatabaseService } from "../database/database.service";
+import { DbPermissionService } from "../db-permission/db-permission.service";
+import type { MockDB, MockDbPermissionService } from "../mocks";
+import { getMockDB, getMockDbPermissionService } from "../mocks";
 import { FlowsControllers } from "./flows.controller";
 import type { UpdateFlowDto } from "./flows.dto";
 import { FlowsService } from "./flows.service";
 
 let flowsController: FlowsControllers;
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- ignore
-const getDB = () => ({
-  query: {
-    projects: {
-      findFirst: jest.fn(),
-    },
-    organizations: {
-      findFirst: jest.fn(),
-    },
-    flows: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    flowVersions: {
-      findMany: jest.fn(),
-    },
-  },
-  select: jest.fn().mockReturnThis(),
-  from: jest.fn().mockReturnThis(),
-  where: jest.fn().mockReturnThis(),
-  groupBy: jest.fn().mockReturnThis(),
-  orderBy: jest.fn().mockReturnThis(),
-  insert: jest.fn().mockReturnThis(),
-  values: jest.fn().mockReturnThis(),
-  returning: jest.fn().mockReturnThis(),
-  update: jest.fn().mockReturnThis(),
-  set: jest.fn().mockReturnThis(),
-  delete: jest.fn().mockReturnThis(),
-  leftJoin: jest.fn().mockReturnThis(),
-  fullJoin: jest.fn().mockReturnThis(),
-  with: jest.fn().mockReturnThis(),
-  $with: jest.fn().mockReturnThis(),
-  selectDistinct: jest.fn().mockReturnThis(),
-  as: jest.fn().mockReturnThis(),
-});
-let db = getDB();
+
+jest.mock("drizzle-orm/pg-core", (): unknown => ({
+  ...jest.requireActual("drizzle-orm/pg-core"),
+  union: jest
+    .fn()
+    .mockImplementation((...args: Promise<unknown>[]) =>
+      Promise.all(args).then((promises) => promises.flat()),
+    ),
+}));
+
+let dbPermissionService: MockDbPermissionService;
+let db: MockDB;
 
 beforeEach(async () => {
-  db = getDB();
-  db.query.projects.findFirst.mockResolvedValue({ id: "projId" });
-  db.query.flows.findMany.mockResolvedValue([{ id: "flowId" }]);
-  db.query.flows.findFirst.mockResolvedValue({
-    id: "flowId",
-    draftVersion: { data: { steps: [], userProperties: [] } },
-  });
-  db.query.organizations.findFirst.mockResolvedValue({
-    organizationsToUsers: [{ user_id: "userId" }],
-  });
+  db = getMockDB();
+  dbPermissionService = getMockDbPermissionService();
 
   const moduleRef = await Test.createTestingModule({
     controllers: [FlowsControllers],
     providers: [FlowsService],
   })
-
     .useMocker((token) => {
       if (token === DatabaseService) {
         return { db };
       }
+      if (token === DbPermissionService) {
+        return dbPermissionService;
+      }
     })
     .compile();
-
   flowsController = moduleRef.get(FlowsControllers);
 });
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
 describe("Get flows", () => {
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlows({ userId: "userId" }, "projId")).rejects.toThrow(
-      "project not found",
-    );
+  beforeEach(() => {
+    db.query.flows.findMany.mockResolvedValue([{ id: "flowId" }]);
   });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
+  it("should throw without project", async () => {
+    dbPermissionService.doesUserHaveAccessToProject.mockImplementationOnce(() => {
+      throw new NotFoundException();
     });
-    await expect(flowsController.getFlows({ userId: "userId" }, "projId")).rejects.toThrow(
-      "Forbidden",
+    await expect(flowsController.getFlows({ userId: "userId" }, "projectId")).rejects.toThrow(
+      "Not Found",
     );
   });
   it("should return flows", async () => {
-    await expect(flowsController.getFlows({ userId: "userId" }, "projId")).resolves.toEqual([
+    await expect(flowsController.getFlows({ userId: "userId" }, "projectId")).resolves.toEqual([
       { id: "flowId" },
     ]);
   });
@@ -99,32 +65,26 @@ describe("Get flows", () => {
 
 describe("Get flow detail", () => {
   beforeEach(() => {
-    db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
-    db.where.mockImplementationOnce(
-      jest.fn(function returnThis() {
-        return this as typeof db;
-      }),
+    db.query.flows.findFirst.mockResolvedValue({
+      id: "flowId",
+      draftVersion: { data: { steps: [], userProperties: [] } },
+    });
+    db.where.mockResolvedValueOnce({ count: 2, type: "uniqueUsers" });
+    db.groupBy.mockResolvedValueOnce({ count: 1, type: "type" });
+  });
+
+  it("should throw without access to flow", async () => {
+    dbPermissionService.doesUserHaveAccessToFlow.mockImplementationOnce(() => {
+      throw new Error("no access");
+    });
+    await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
+      "no access",
     );
-    db.where.mockResolvedValueOnce([{ count: 2 }]);
   });
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
       "Not Found",
-    );
-  });
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "project not found",
-    );
-  });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
-    });
-    await expect(flowsController.getFlowDetail({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Forbidden",
     );
   });
   it("should return flow", async () => {
@@ -141,54 +101,31 @@ describe("Get flow detail", () => {
 
 describe("Get flow analytics", () => {
   beforeEach(() => {
-    db.leftJoin.mockResolvedValueOnce([{ count: 1 }]);
-    db.leftJoin.mockImplementationOnce(
-      jest.fn(function returnThis() {
-        return this as typeof db;
-      }),
-    );
     db.orderBy.mockResolvedValue([{ count: 2 }]);
+    db.leftJoin.mockResolvedValueOnce([{ count: 1 }]);
   });
   it("should throw without flow", async () => {
-    db.query.flows.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Not Found",
-    );
-  });
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "project not found",
-    );
-  });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
+    dbPermissionService.doesUserHaveAccessToFlow.mockImplementationOnce(() => {
+      throw new Error("no access");
     });
     await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Forbidden",
+      "no access",
     );
   });
   it("should return flow analytics", async () => {
     await expect(flowsController.getFlowAnalytics({ userId: "userId" }, "flowId")).resolves.toEqual(
-      {
-        daily_stats: [{ count: 1 }, { count: 2, type: "uniqueUsers" }],
-      },
+      { daily_stats: [{ count: 1 }, { count: 2, type: "uniqueUsers" }] },
     );
   });
 });
 
 describe("Update flow", () => {
   beforeEach(() => {
+    db.query.flows.findFirst.mockResolvedValue({
+      id: "flowId",
+      draftVersion: { data: { steps: [], userProperties: [] } },
+    });
     db.returning.mockResolvedValue([{ id: "newVerId" }]);
-    db.groupBy.mockResolvedValue([{ count: 1, type: "type" }]);
-    db.where.mockResolvedValueOnce(undefined);
-    db.where.mockImplementationOnce(
-      jest.fn(function returnThis() {
-        return this as typeof db;
-      }),
-    );
-    db.where.mockResolvedValueOnce([{ count: 2 }]);
   });
   const data: UpdateFlowDto = {
     name: "newName",
@@ -197,24 +134,18 @@ describe("Update flow", () => {
     enabled: true,
     description: "new description",
   };
+  it("should throw without access", async () => {
+    dbPermissionService.doesUserHaveAccessToFlow.mockImplementationOnce(() => {
+      throw new Error("no access");
+    });
+    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
+      "no access",
+    );
+  });
   it("should throw without flow", async () => {
     db.query.flows.findFirst.mockResolvedValue(null);
     await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
       "Not Found",
-    );
-  });
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
-      "project not found",
-    );
-  });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
-    });
-    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).rejects.toThrow(
-      "Forbidden",
     );
   });
   it("should throw without new version", async () => {
@@ -228,27 +159,13 @@ describe("Update flow", () => {
       flowsController.updateFlow({ userId: "userId" }, "flowId", {
         name: "newName",
       }),
-    ).resolves.toEqual({
-      id: "flowId",
-      preview_stats: [
-        { count: 1, type: "type" },
-        { count: 2, type: "uniqueUsers" },
-      ],
-      draftVersion: { steps: [], userProperties: [] },
-    });
+    ).resolves.toBeUndefined();
     expect(db.insert).not.toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
-    await expect(flowsController.updateFlow({ userId: "userId" }, "flowId", data)).resolves.toEqual(
-      {
-        id: "flowId",
-        draftVersion: { steps: [], userProperties: [] },
-        preview_stats: [
-          { count: 1, type: "type" },
-          { count: 2, type: "uniqueUsers" },
-        ],
-      },
-    );
+    await expect(
+      flowsController.updateFlow({ userId: "userId" }, "flowId", data),
+    ).resolves.toBeUndefined();
     expect(db.insert).toHaveBeenCalledWith(flowVersions);
     expect(db.update).toHaveBeenCalledWith(flows);
     expect(db.set).toHaveBeenCalledWith({
@@ -263,48 +180,39 @@ describe("Update flow", () => {
 });
 
 describe("Create flow", () => {
+  beforeEach(() => {
+    db.returning.mockResolvedValue([{ id: "flowId" }]);
+  });
   const data = { name: "newName", data: JSON.stringify({ el: "newEl" }) };
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
-      "project not found",
-    );
-  });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
+  it("should throw access", async () => {
+    dbPermissionService.doesUserHaveAccessToProject.mockImplementationOnce(() => {
+      throw new Error("no access");
     });
-    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
-      "Forbidden",
-    );
+    await expect(
+      flowsController.createFlow({ userId: "userId" }, "projectId", data),
+    ).rejects.toThrow("no access");
   });
+
   it("should throw without new flow", async () => {
     db.returning.mockResolvedValue([]);
-    await expect(flowsController.createFlow({ userId: "userId" }, "projId", data)).rejects.toThrow(
-      "failed to create flow",
-    );
+    await expect(
+      flowsController.createFlow({ userId: "userId" }, "projectId", data),
+    ).rejects.toThrow("failed to create flow");
+  });
+  it("should return new flow", async () => {
+    await expect(
+      flowsController.createFlow({ userId: "userId" }, "projectId", data),
+    ).resolves.toEqual({ id: "flowId" });
   });
 });
 
 describe("Delete flow", () => {
-  it("should throw without flow", async () => {
-    db.query.flows.findFirst.mockResolvedValue(null);
-    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Not Found",
-    );
-  });
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "project not found",
-    );
-  });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
+  it("should throw access", async () => {
+    dbPermissionService.doesUserHaveAccessToFlow.mockImplementationOnce(() => {
+      throw new Error("no access");
     });
     await expect(flowsController.deleteFlow({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Forbidden",
+      "no access",
     );
   });
   it("should delete flow", async () => {
@@ -319,24 +227,12 @@ describe("Get flow versions", () => {
   beforeEach(() => {
     db.query.flowVersions.findMany.mockResolvedValue([{ id: "flowVerId" }]);
   });
-  it("should throw without flow", async () => {
-    db.query.flows.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Not Found",
-    );
-  });
-  it("should throw without project", async () => {
-    db.query.projects.findFirst.mockResolvedValue(null);
-    await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "project not found",
-    );
-  });
-  it("should throw without access to organization", async () => {
-    db.query.organizations.findFirst.mockResolvedValue({
-      organizationsToUsers: [],
+  it("should throw access", async () => {
+    dbPermissionService.doesUserHaveAccessToFlow.mockImplementationOnce(() => {
+      throw new Error("no access");
     });
     await expect(flowsController.getFlowVersions({ userId: "userId" }, "flowId")).rejects.toThrow(
-      "Forbidden",
+      "no access",
     );
   });
   it("should return flow versions", async () => {

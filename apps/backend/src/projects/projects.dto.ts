@@ -1,16 +1,20 @@
-import { IsOptional, IsString, MinLength } from "class-validator";
+import { PartialType } from "@nestjs/swagger";
+import { IsString, MinLength } from "class-validator";
 
 export class GetProjectsDto {
   id: string;
   organization_id: string;
   name: string;
   description: string | null;
-  domains: string[];
   created_at: Date;
   updated_at: Date;
 }
 
-export class GetProjectDetailDto extends GetProjectsDto {}
+export class GetProjectDetailDto extends GetProjectsDto {
+  domains: string[];
+  css_vars?: string;
+  css_template?: string;
+}
 
 export class CreateProjectDto {
   @IsString()
@@ -18,11 +22,18 @@ export class CreateProjectDto {
   name: string;
 }
 
-export class UpdateProjectDto extends CreateProjectDto {
+export class CompleteUpdateProjectDto extends CreateProjectDto {
   @IsString()
-  @IsOptional()
-  description?: string;
+  description: string;
 
   @IsString({ each: true })
   domains: string[];
+
+  @IsString()
+  css_vars: string | null;
+
+  @IsString()
+  css_template: string | null;
 }
+
+export class UpdateProjectDto extends PartialType(CompleteUpdateProjectDto) {}

@@ -79,14 +79,14 @@ export default async function FlowAnalyticsPage({
 
   return (
     <>
-      <Flex gap="space8">
+      <Flex gap="space8" mb="space16">
         {categories.map((cat) => {
           return (
             <Button
               asChild
               key={cat.title}
               size="small"
-              variant={categoryKey === cat.key ? "primary" : "secondary"}
+              variant={categoryKey === cat.key ? "black" : "secondary"}
             >
               <Link href={routes.flowAnalytics({ ...params, category: cat.key })}>{cat.title}</Link>
             </Button>
@@ -94,7 +94,7 @@ export default async function FlowAnalyticsPage({
         })}
       </Flex>
 
-      <Box height={400} mb="space40">
+      <Box cardWrap="-" height={400} mb="space40">
         {currentCategory ? (
           <AnalyticsChart categoryKey={currentCategory.key} data={chartData} />
         ) : null}

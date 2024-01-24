@@ -41,6 +41,14 @@ export class ProjectsService {
     const orgProjects = await this.databaseService.db.query.projects.findMany({
       where: eq(projects.organization_id, organizationId),
       orderBy: [asc(projects.name)],
+      columns: {
+        id: true,
+        name: true,
+        description: true,
+        created_at: true,
+        updated_at: true,
+        organization_id: true,
+      },
     });
 
     return orgProjects.map((project) => ({
@@ -50,7 +58,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      domains: project.domains,
     }));
   }
 
@@ -84,6 +91,8 @@ export class ProjectsService {
       updated_at: project.updated_at,
       organization_id: project.organization_id,
       domains: project.domains,
+      css_vars: project.css_vars ?? undefined,
+      css_template: project.css_template ?? undefined,
     };
   }
 
@@ -95,7 +104,7 @@ export class ProjectsService {
     auth: Auth;
     organizationId: string;
     data: CreateProjectDto;
-  }): Promise<GetProjectDetailDto> {
+  }): Promise<GetProjectsDto> {
     const org = await this.databaseService.db.query.organizations.findFirst({
       where: eq(organizations.id, organizationId),
       with: {
@@ -126,7 +135,6 @@ export class ProjectsService {
       created_at: project.created_at,
       updated_at: project.updated_at,
       organization_id: project.organization_id,
-      domains: project.domains,
     };
   }
 
@@ -161,6 +169,8 @@ export class ProjectsService {
         description: data.description,
         domains: data.domains,
         name: data.name,
+        css_vars: data.css_vars?.trim(),
+        css_template: data.css_template?.trim(),
       })
       .where(eq(projects.id, projectId))
       .returning();
@@ -175,6 +185,8 @@ export class ProjectsService {
       updated_at: updatedProj.updated_at,
       organization_id: updatedProj.organization_id,
       domains: updatedProj.domains,
+      css_vars: updatedProj.css_vars ?? undefined,
+      css_template: updatedProj.css_template ?? undefined,
     };
   }
 

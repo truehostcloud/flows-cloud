@@ -4,13 +4,12 @@ import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { mutate } from "hooks/use-fetch";
 import { useSend } from "hooks/use-send";
-import { Plus16 } from "icons";
 import { api, type ProjectDetail } from "lib/api";
 import { clipboard } from "lib/clipboard";
 import { useRouter } from "next/navigation";
 import type { FC } from "react";
 import type { SubmitHandler } from "react-hook-form";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { t } from "translations";
 import { Button, Input, Text, toast } from "ui";
 
@@ -21,30 +20,21 @@ type Props = {
 type FormData = {
   name: string;
   description: string;
-  domains: { value: string }[];
 };
 
 export const ProjectEditForm: FC<Props> = ({ project }) => {
-  const defaultValues: FormData = {
-    domains: project.domains.map((value) => ({ value })),
-    name: project.name,
-    description: project.description || "",
-  };
-  const { handleSubmit, control, register, formState } = useForm<FormData>({ defaultValues });
-  const { append, fields, remove } = useFieldArray({ control, name: "domains" });
+  const { handleSubmit, register, formState, reset } = useForm<FormData>({
+    defaultValues: createDefaultValues(project),
+  });
 
   const { send, loading } = useSend();
   const router = useRouter();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const res = await send(
-      api["PUT /projects/:projectId"](project.id, {
-        domains: data.domains.map((d) => d.value),
-        description: data.description || undefined,
-        name: data.name,
-      }),
-      { errorMessage: t.toasts.saveProjectFailed },
-    );
+    const res = await send(api["PATCH /projects/:projectId"](project.id, data), {
+      errorMessage: t.toasts.saveProjectFailed,
+    });
     if (res.error) return;
+    if (res.data) reset(createDefaultValues(res.data));
     toast.success(t.toasts.updateProjectSuccess);
     void mutate("/organizations/:organizationId/projects", [project.organization_id]);
     router.refresh();
@@ -56,87 +46,50 @@ export const ProjectEditForm: FC<Props> = ({ project }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div
-        className={css({
-          cardWrap: "",
-          padding: "space16",
-          mb: "space16",
-        })}
-      >
-        <Text className={css({ mb: "space12" })} variant="titleL">
-          General
-        </Text>
+    <form
+      className={css({ cardWrap: "-", mb: "space16", p: "space16" })}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Text className={css({ mb: "space12" })} variant="titleL">
+        General
+      </Text>
+      <Input
+        {...register("name")}
+        className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
+        defaultValue={formState.defaultValues?.name}
+        label="Project name"
+      />
+      <Flex alignItems="flex-end" gap="space8" mb="space16">
         <Input
-          {...register("name")}
-          defaultValue={formState.defaultValues?.name}
-          fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
-          key="name"
-          label="Project name"
+          className={css({ maxWidth: "400px", width: "100%" })}
+          disabled
+          label="Project ID"
+          value={project.id}
         />
-        <Flex alignItems="flex-end" gap="space8" mb="space16">
-          <Input
-            disabled
-            fullClassName={css({ maxWidth: "400px", width: "100%" })}
-            label="Project ID"
-            value={project.id}
-          />
-          <Button onClick={handleCopyProjectId} variant="secondary">
-            {t.actions.copy}
-          </Button>
-        </Flex>
-        <Input
-          {...register("description")}
-          asChild
-          defaultValue={formState.defaultValues?.description}
-          fullClassName={css({ mb: "space12" })}
-          inputClassName={css({ height: "unset" })}
-          key="description"
-          label="Project description"
-        >
-          <textarea rows={4} />
-        </Input>
-      </div>
-      <Flex cardWrap="" flexDirection="column" gap="space16" mb="space16" padding="space16">
-        <Flex flexDirection="column">
-          <Text variant="titleL">{t.project.domains.domains}</Text>
-          <Text color="muted">{t.project.domains.description}</Text>
-        </Flex>
-
-        {fields.length > 0 && (
-          <Flex direction="column" gap="space8">
-            {fields.map((field, i) => {
-              return (
-                <Flex gap="space8" key={field.id}>
-                  <Input
-                    type="url"
-                    {...register(`domains.${i}.value`)}
-                    required
-                    wrapperClassName={css({ maxWidth: "400px", width: "100%" })}
-                  />
-                  <Button onClick={() => remove(i)} variant="secondary">
-                    {t.actions.remove}
-                  </Button>
-                </Flex>
-              );
-            })}
-          </Flex>
-        )}
-        <div>
-          <Button
-            onClick={() => append({ value: "" })}
-            size="small"
-            startIcon={<Plus16 />}
-            variant="secondary"
-          >
-            {t.project.domains.addDomain}
-          </Button>
-        </div>
+        <Button onClick={handleCopyProjectId} variant="secondary">
+          {t.actions.copy}
+        </Button>
       </Flex>
+      <Input
+        {...register("description")}
+        asChild
+        className={css({ mb: "space12" })}
+        defaultValue={formState.defaultValues?.description}
+        inputClassName={css({ height: "unset" })}
+        key="description"
+        label="Project description"
+      >
+        <textarea rows={4} />
+      </Input>
 
-      <Button loading={loading} type="submit">
+      <Button disabled={!formState.isDirty} loading={loading} type="submit" variant="black">
         {t.actions.save}
       </Button>
     </form>
   );
 };
+
+const createDefaultValues = (project: ProjectDetail): FormData => ({
+  name: project.name,
+  description: project.description || "",
+});

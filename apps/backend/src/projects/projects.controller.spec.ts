@@ -2,31 +2,18 @@ import { Test } from "@nestjs/testing";
 import { projects } from "db";
 
 import { DatabaseService } from "../database/database.service";
+import type { MockDB } from "../mocks";
+import { getMockDB } from "../mocks";
 import { ProjectsController } from "./projects.controller";
 import type { UpdateProjectDto } from "./projects.dto";
 import { ProjectsService } from "./projects.service";
 
 let projectsController: ProjectsController;
-const db = {
-  insert: jest.fn().mockReturnThis(),
-  values: jest.fn().mockReturnThis(),
-  update: jest.fn().mockReturnThis(),
-  where: jest.fn().mockReturnThis(),
-  set: jest.fn().mockReturnThis(),
-  returning: jest.fn(),
-  delete: jest.fn().mockReturnThis(),
-  query: {
-    projects: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    organizations: {
-      findFirst: jest.fn(),
-    },
-  },
-};
+let db: MockDB;
 
 beforeEach(async () => {
+  db = getMockDB();
+
   db.query.organizations.findFirst.mockResolvedValue({
     organizationsToUsers: [{ user_id: "userId" }],
   });
@@ -45,10 +32,6 @@ beforeEach(async () => {
     .compile();
 
   projectsController = moduleRef.get(ProjectsController);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
 });
 
 describe("Get projects", () => {

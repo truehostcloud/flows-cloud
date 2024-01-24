@@ -36,7 +36,7 @@ export const AnalyticsPreview: FC<Props> = ({ flow }) => {
   ];
 
   return (
-    <Box cardWrap="" width="100%">
+    <Box cardWrap="-" width="100%">
       <Box borBottom="1px" paddingX="space16" paddingY="space12">
         <Text>Statistics for the last 30 days</Text>
       </Box>

@@ -1,5 +1,7 @@
+import { createParams } from "lib/create-params";
+
 import { fetcher } from "./fetcher";
-import type { components } from "./schema";
+import type { components, operations as Operations } from "./schema";
 import type { Endpoint } from "./types";
 
 type Schemas = components["schemas"];
@@ -15,6 +17,8 @@ export type UpdateProject = Schemas["UpdateProjectDto"];
 export type CreateProject = Schemas["CreateProjectDto"];
 export type FlowPreview = Schemas["GetFlowsDto"];
 export type FlowDetail = Schemas["GetFlowDetailDto"];
+export type FlowAnalyticsRequest =
+  Operations["FlowsControllers_getFlowAnalytics"]["parameters"]["query"];
 export type FlowAnalytics = Schemas["GetFlowAnalyticsDto"];
 export type FlowVersion = Schemas["GetFlowVersionsDto"];
 export type UpdateFlow = Schemas["UpdateFlowDto"];
@@ -25,6 +29,10 @@ export type AcceptInviteResponse = Schemas["AcceptInviteResponseDto"];
 export type Api = {
   "/organizations": Endpoint<OrganizationPreview[]>;
   "POST /organizations": Endpoint<OrganizationDetail, [CreateOrganization]>;
+  "PATCH /organizations/:organizationId": Endpoint<
+    OrganizationDetail,
+    [string, CreateOrganization]
+  >;
   "/organizations/:organizationId": Endpoint<OrganizationDetail, [string]>;
   "/organizations/:organizationId/users": Endpoint<OrganizationUser[], [string]>;
   "POST /organizations/:organizationId/users": Endpoint<void, [string, InviteUser]>;
@@ -32,24 +40,29 @@ export type Api = {
   "DELETE /organizations/:organizationId": Endpoint<void, [string]>;
   "/organizations/:organizationId/projects": Endpoint<ProjectPreview[], [string]>;
   "/projects/:projectId": Endpoint<ProjectDetail, [string]>;
-  "PUT /projects/:projectId": Endpoint<ProjectDetail, [string, UpdateProject]>;
+  "PATCH /projects/:projectId": Endpoint<ProjectDetail, [string, UpdateProject]>;
   "DELETE /projects/:projectId": Endpoint<void, [string]>;
   "/projects/:projectId/flows": Endpoint<FlowPreview[], [string]>;
   "POST /organizations/:organizationId/projects": Endpoint<ProjectDetail, [string, CreateProject]>;
   "/flows/:flowId": Endpoint<FlowDetail, [string]>;
-  "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string]>;
+  "/flows/:flowId/analytics": Endpoint<FlowAnalytics, [string, FlowAnalyticsRequest?]>;
   "/flows/:flowId/versions": Endpoint<FlowVersion[], [string]>;
-  "PATCH /flows/:flowId": Endpoint<FlowDetail, [string, UpdateFlow]>;
+  "PATCH /flows/:flowId": Endpoint<void, [string, UpdateFlow]>;
   "POST /flows/:flowId/publish": Endpoint<void, [string]>;
   "POST /projects/:projectId/flows": Endpoint<FlowPreview, [string, CreateFlow]>;
   "DELETE /flows/:flowId": Endpoint<void, [string]>;
   "/me": Endpoint<Me>;
   "POST /invites/:inviteId/accept": Endpoint<AcceptInviteResponse, [string]>;
+
+  "/css/vars": Endpoint<string>;
+  "/css/template": Endpoint<string>;
 };
 
 export const api: Api = {
   "/organizations": () => fetcher("/organizations"),
   "POST /organizations": (body) => fetcher("/organizations", { method: "POST", body }),
+  "PATCH /organizations/:organizationId": (organizationId, body) =>
+    fetcher(`/organizations/${organizationId}`, { method: "PATCH", body }),
   "/organizations/:organizationId": (organizationId) => fetcher(`/organizations/${organizationId}`),
   "/organizations/:organizationId/users": (organizationId) =>
     fetcher(`/organizations/${organizationId}/users`),
@@ -62,15 +75,16 @@ export const api: Api = {
   "/organizations/:organizationId/projects": (organizationId) =>
     fetcher(`/organizations/${organizationId}/projects`),
   "/projects/:projectId": (projectId) => fetcher(`/projects/${projectId}`),
-  "PUT /projects/:projectId": (projectId, body) =>
-    fetcher(`/projects/${projectId}`, { method: "PUT", body }),
+  "PATCH /projects/:projectId": (projectId, body) =>
+    fetcher(`/projects/${projectId}`, { method: "PATCH", body }),
   "DELETE /projects/:projectId": (projectId) =>
     fetcher(`/projects/${projectId}`, { method: "DELETE" }),
   "POST /organizations/:organizationId/projects": (organizationId, body) =>
     fetcher(`/organizations/${organizationId}/projects`, { method: "POST", body }),
   "/projects/:projectId/flows": (projectId) => fetcher(`/projects/${projectId}/flows`),
   "/flows/:flowId": (flowId) => fetcher(`/flows/${flowId}`),
-  "/flows/:flowId/analytics": (flowId) => fetcher(`/flows/${flowId}/analytics`),
+  "/flows/:flowId/analytics": (flowId, request) =>
+    fetcher(`/flows/${flowId}/analytics${createParams(request)}`),
   "/flows/:flowId/versions": (flowId) => fetcher(`/flows/${flowId}/versions`),
   "PATCH /flows/:flowId": (flowId, body) => fetcher(`/flows/${flowId}`, { method: "PATCH", body }),
   "POST /flows/:flowId/publish": (flowId) =>
@@ -81,4 +95,7 @@ export const api: Api = {
   "/me": () => fetcher("/me"),
   "POST /invites/:inviteId/accept": (inviteId) =>
     fetcher(`/invites/${inviteId}/accept`, { method: "POST" }),
+
+  "/css/vars": () => fetcher("/css/vars"),
+  "/css/template": () => fetcher("/css/template"),
 };

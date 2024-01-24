@@ -1,5 +1,5 @@
+import type { FlowSteps } from "@flows/js";
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowSteps } from "@rbnd/flows";
 import type { FlowDetail } from "lib/api";
 import Link from "next/link";
 import type { FC } from "react";
@@ -17,7 +17,7 @@ export const StepsSection: FC<Props> = ({ params, flow }) => {
   const steps = flow.publishedVersion?.steps as FlowSteps | undefined;
 
   return (
-    <Flex cardWrap="" direction="column" padding="space16" width="100%">
+    <Flex cardWrap="-" direction="column" padding="space16" width="100%">
       <Flex alignItems="flex-start" justifyContent="space-between" width="100%">
         <Text variant="titleL">Published steps</Text>
         <Button asChild variant="secondary">

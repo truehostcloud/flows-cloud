@@ -1,3 +1,4 @@
+import { PartialType } from "@nestjs/swagger";
 import { IsEmail, IsString, MinLength } from "class-validator";
 
 export class GetOrganizationsDto {
@@ -15,6 +16,8 @@ export class CreateOrganizationDto {
   @MinLength(3)
   name: string;
 }
+
+export class UpdateOrganizationDto extends PartialType(CreateOrganizationDto) {}
 
 export class InviteUserDto {
   @IsEmail()

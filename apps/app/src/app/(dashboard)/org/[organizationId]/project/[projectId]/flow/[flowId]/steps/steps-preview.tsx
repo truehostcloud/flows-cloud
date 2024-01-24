@@ -1,11 +1,11 @@
 "use client";
 
-import "@rbnd/flows/flows.css";
+import "@flows/js/flows.css";
 
+import type { FlowStep, FlowSteps } from "@flows/js";
+import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
-import type { FlowStep, FlowSteps } from "@rbnd/flows";
-import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@rbnd/flows";
 import type { FC } from "react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -19,41 +19,43 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
   const [stepIndex, setStepIndex] = useState<number | number[]>(0);
   const [currentStep, setCurrentStep] = useState<FlowStep | null>();
 
+  const stepsJson = JSON.stringify(steps);
   useEffect(() => {
     if (!steps) return;
-    init({
-      flows: [
-        {
-          id: "flow",
-          steps: prepareSteps(steps),
-        },
-      ],
+    void init({
+      flows: [{ id: "flow", steps: prepareSteps(steps) }],
       rootElement: "#preview-root",
-    });
-    startFlow("flow");
+    }).then(() => {
+      startFlow("flow");
 
-    if (!Array.isArray(stepIndex)) {
-      for (let i = 0; i < stepIndex; i++) {
-        nextStep("flow");
+      if (!Array.isArray(stepIndex)) {
+        for (let i = 0; i < stepIndex; i++) {
+          nextStep("flow");
+        }
+      } else if (stepIndex.length === 3) {
+        for (let i = 0; i < stepIndex[0]; i++) {
+          const isLast = i === stepIndex[0] - 1;
+          nextStep("flow", isLast ? stepIndex[1] : undefined);
+        }
+        for (let i = 0; i < stepIndex[2]; i++) {
+          nextStep("flow");
+        }
       }
-    } else {
-      for (let i = 0; i < stepIndex[0]; i++) {
-        const isLast = i === stepIndex[0] - 1;
-        nextStep("flow", isLast ? stepIndex[1] : undefined);
-      }
-      for (let i = 0; i < stepIndex[2]; i++) {
-        nextStep("flow");
-      }
-    }
-    setCurrentStep(getCurrentStep("flow"));
+      setCurrentStep(getCurrentStep("flow"));
+    });
 
     return () => endFlow("flow");
-  }, [stepIndex, steps]);
+  }, [
+    stepIndex,
+    steps,
+    // We need to watch for changes in nested objects, hence the JSON.stringify
+    stepsJson,
+  ]);
 
   const tooltipPlacement = useMemo(() => {
     if (!currentStep) return;
     if (!("element" in currentStep)) return;
-    return "placement" in currentStep ? currentStep.placement : "bottom";
+    return currentStep.placement ?? "bottom";
   }, [currentStep]);
   const targetPosition = useMemo(() => {
     if (!tooltipPlacement) return;

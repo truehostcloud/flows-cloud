@@ -43,7 +43,9 @@ export const FlowTargetingForm: FC<Props> = ({ flow }) => {
       { errorMessage: t.toasts.saveTargetingFailed },
     );
     if (res.error) return;
-    if (res.data) reset(createDefaultValues(res.data));
+    void send(api["/flows/:flowId"](flow.id), { errorMessage: null }).then((flowRes) => {
+      if (flowRes.data) reset(createDefaultValues(flowRes.data));
+    });
     toast.success(t.toasts.saveTargetingSuccess);
     router.refresh();
   };
@@ -59,7 +61,7 @@ export const FlowTargetingForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   return (
-    <Flex cardWrap="" flexDirection="column" mb="space16">
+    <Flex cardWrap="-" flexDirection="column" mb="space16">
       <Flex flexDirection="column" padding="space16">
         <Text variant="titleL">{t.targeting.targeting}</Text>
         <Text color="muted">{t.targeting.description}</Text>

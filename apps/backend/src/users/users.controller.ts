@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 import { type Auth, Authorization } from "../auth";
 import type { AcceptInviteResponseDto, GetMeDto } from "./users.dto";
+import { JoinWaitlistDto } from "./users.dto";
 import { UsersService } from "./users.service";
 
 @ApiTags("users")
@@ -22,5 +23,10 @@ export class UsersController {
     @Param("inviteId") inviteId: string,
   ): Promise<AcceptInviteResponseDto> {
     return this.usersService.acceptInvite({ auth, inviteId });
+  }
+
+  @Post("waitlist")
+  joinWaitlist(@Body() body: JoinWaitlistDto): Promise<void> {
+    return this.usersService.joinWaitlist({ data: body });
   }
 }

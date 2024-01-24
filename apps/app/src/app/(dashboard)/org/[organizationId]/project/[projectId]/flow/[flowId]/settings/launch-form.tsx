@@ -20,8 +20,8 @@ type LaunchForm = Pick<UpdateFlow, "element" | "location">;
 const createDefaultValues = (flow: FlowDetail): LaunchForm => {
   const editVersion = flow.draftVersion ?? flow.publishedVersion;
   return {
-    element: editVersion?.element,
-    location: editVersion?.location,
+    element: editVersion?.element || "",
+    location: editVersion?.location || "",
   };
 };
 
@@ -36,7 +36,9 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
       errorMessage: t.toasts.saveLaunchFailed,
     });
     if (res.error) return;
-    if (res.data) reset(createDefaultValues(res.data));
+    void send(api["/flows/:flowId"](flow.id), { errorMessage: null }).then((flowRes) => {
+      if (flowRes.data) reset(createDefaultValues(flowRes.data));
+    });
     toast.success(t.toasts.saveLaunchSuccess);
     router.refresh();
   };
@@ -44,7 +46,7 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
   const isCloud = flow.flow_type === "cloud";
 
   return (
-    <Box cardWrap="" p="space16">
+    <Box cardWrap="-" p="space16">
       <Flex flexDirection="column" mb="space12">
         <Text variant="titleL">{t.launch.launch}</Text>
         <Text color="muted">{t.launch.description}</Text>
@@ -54,17 +56,17 @@ export const LaunchForm: FC<Props> = ({ flow }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
             {...register("element")}
+            className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             defaultValue={formState.defaultValues?.element}
             description={t.launch.element}
-            fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Element"
             placeholder=".onboarding-flow"
           />
           <Input
             {...register("location")}
+            className={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             defaultValue={formState.defaultValues?.location}
             description={t.launch.location}
-            fullClassName={css({ maxWidth: "400px", width: "100%", mb: "space16" })}
             label="Location"
             placeholder="^\/home$ <- shows up only on the home page"
           />

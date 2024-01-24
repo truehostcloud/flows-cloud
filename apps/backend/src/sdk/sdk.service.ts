@@ -3,11 +3,31 @@ import { events, flows, projects } from "db";
 import { and, arrayContains, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
+import { getDefaultCssTemplate, getDefaultCssVars } from "../lib/css";
 import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
 
 @Injectable()
 export class SdkService {
   constructor(private databaseService: DatabaseService) {}
+
+  async getCss({ projectId }: { projectId: string }): Promise<string> {
+    if (!projectId) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+      columns: {
+        css_vars: true,
+        css_template: true,
+      },
+    });
+    if (!project) throw new NotFoundException();
+
+    const css_vars = project.css_vars?.trim() || getDefaultCssVars();
+    const css_template = project.css_template?.trim() || getDefaultCssTemplate();
+    const css = await Promise.all([css_vars, css_template]);
+
+    return css.join("\n");
+  }
 
   async getFlows({
     projectId,

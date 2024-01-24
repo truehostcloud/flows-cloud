@@ -1,7 +1,7 @@
 import { api } from "lib/api";
 import { load } from "lib/load";
 
-import { StepsEditor } from "./steps-editor";
+import { StepsEditor } from "./steps-editor/steps-editor";
 
 type Props = {
   params: { flowId: string };

@@ -17,13 +17,16 @@ export default async function ProjectDetailPage({
 
   return (
     <>
-      <Flex alignItems="center" justifyContent="space-between" mb="space16">
-        <Text variant="titleXl">{project.name}</Text>
-        <CreateFlowDialog
-          organizationId={project.organization_id}
-          projectId={projectId}
-          trigger={<Button variant="black">New flow</Button>}
-        />
+      <Flex flexDirection="column" gap="space8" mb="space16">
+        <Flex justifyContent="space-between">
+          <Text variant="titleXl">{project.name}</Text>
+          <CreateFlowDialog
+            organizationId={project.organization_id}
+            projectId={projectId}
+            trigger={<Button variant="black">New flow</Button>}
+          />
+        </Flex>
+        <Text color="muted">{project.description}</Text>
       </Flex>
 
       <FlowsList projectId={projectId} />
