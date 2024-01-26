@@ -78,9 +78,9 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
             render={({ field }) => (
               <Select
                 buttonSize="default"
+                className={css({ mb: "space16" })}
                 description="Placement of the tooltip relative to the element"
                 label="Tooltip placement"
-                labelClassName={css({ mb: "space16" })}
                 onChange={field.onChange}
                 options={placementOptions}
                 value={field.value ?? "bottom"}

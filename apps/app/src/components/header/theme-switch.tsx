@@ -37,7 +37,7 @@ export const ThemeSwitch: FC = () => {
 
   return (
     <Select
-      buttonClassName={css({ width: selectWidth })}
+      className={css({ width: selectWidth })}
       onChange={handleModeChange}
       options={options}
       value={mode}
