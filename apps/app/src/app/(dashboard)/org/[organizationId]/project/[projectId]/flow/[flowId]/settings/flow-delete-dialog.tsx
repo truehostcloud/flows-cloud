@@ -39,18 +39,18 @@ export const FlowDeleteDialog: FC<Props> = ({ flow, organizationId, trigger }) =
 
   return (
     <Dialog trigger={trigger}>
-      <DialogTitle>Delete flow</DialogTitle>
+      <DialogTitle>{t.flow.deleteDialog.confirm}</DialogTitle>
       <DialogContent>
-        <Text>Are you sure you want to delete this flow?</Text>
+        <Text>{t.flow.deleteDialog.description}</Text>
       </DialogContent>
       <DialogActions>
         <DialogClose asChild>
           <Button shadow={false} size="small" variant="secondary">
-            Close
+            {t.actions.close}
           </Button>
         </DialogClose>
         <Button loading={loading} onClick={handleDelete} size="small" variant="primary">
-          Delete
+          {t.flow.deleteDialog.confirm}
         </Button>
       </DialogActions>
     </Dialog>

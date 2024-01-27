@@ -49,9 +49,7 @@ export const HelpMenu: FC = () => {
             borderColor: "border",
             borderRadius: "100%",
             backgroundColor: "bg",
-            transitionDuration: "fast",
-            transitionTimingFunction: "easeInOut",
-            transitionProperty: "background-color",
+            fastEaseInOut: "background-color",
             "&:hover": {
               bg: "bg.hover",
             },

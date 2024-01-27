@@ -1,4 +1,5 @@
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
 import type { FlowVersion } from "lib/api";
 import Link from "next/link";
 import type { FC } from "react";
@@ -13,6 +14,19 @@ type Props = {
   flowId: string;
 };
 
+const formatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "2-digit",
+  year: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+});
+
+const formatDate = (date: string): string => {
+  const d = new Date(date);
+  return formatter.format(d);
+};
+
 export const VersionList: FC<Props> = ({
   versions,
   activeVersionId,
@@ -21,13 +35,7 @@ export const VersionList: FC<Props> = ({
   projectId,
 }) => {
   return (
-    <div
-      className={css({
-        display: "flex",
-        flexDirection: "column",
-        gap: "space8",
-      })}
-    >
+    <Flex flexDirection="column" gap="space8">
       {versions.map((version) => {
         const active = version.id === activeVersionId;
         return (
@@ -37,31 +45,31 @@ export const VersionList: FC<Props> = ({
           >
             <div
               className={css({
-                borderWidth: 1,
-                borderStyle: "solid",
-                borderColor: active ? "border.primary" : "border.strong",
+                bor: "1px",
                 borderRadius: "radius8",
                 px: "space8",
                 py: "space8",
-                transitionProperty: "all",
-                transitionDuration: "fast",
-                transitionTimingFunction: "easeInOut",
+
+                fastEaseInOut: "all",
+
                 _hover: {
                   backgroundColor: "bg.hover",
                 },
                 cursor: active ? "default" : undefined,
+
                 "&&&": {
-                  backgroundColor: active ? "bg.primary" : undefined,
+                  backgroundColor: active ? "bg.subtle" : undefined,
+                  borderColor: active ? "border" : "transparent",
                 },
               })}
             >
-              <Text color={active ? "onPrimary" : undefined} variant="titleS">
-                {new Date(version.created_at).toLocaleString()}
+              <Text color={active ? "default" : "subtle"} weight="600">
+                {formatDate(version.created_at)}
               </Text>
             </div>
           </Link>
         );
       })}
-    </div>
+    </Flex>
   );
 };

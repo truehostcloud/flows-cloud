@@ -198,4 +198,11 @@ export const t = {
       confirm: "Delete organization",
     },
   },
+  flow: {
+    deleteDialog: {
+      title: "Delete flow",
+      description: "Are you sure you want to delete this flow?",
+      confirm: "Delete flow",
+    },
+  },
 };

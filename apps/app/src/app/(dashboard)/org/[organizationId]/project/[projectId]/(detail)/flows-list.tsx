@@ -43,9 +43,7 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
             gap: "space24",
             justifyContent: "space-between",
 
-            transitionDuration: "fast",
-            transitionTimingFunction: "easeInOut",
-            transitionProperty: "all",
+            fastEaseInOut: "all",
 
             borderBottomStyle: "solid",
             borderBottomWidth: "1px",
@@ -127,9 +125,7 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
                 py: "space48",
                 cursor: "pointer",
 
-                transitionDuration: "fast",
-                transitionTimingFunction: "easeInOut",
-                transitionProperty: "all",
+                fastEaseInOut: "all",
 
                 _hover: {
                   bg: "bg.subtleHover",
