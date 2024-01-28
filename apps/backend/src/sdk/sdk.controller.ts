@@ -30,7 +30,7 @@ export class SdkController {
     return this.sdkService.getFlows({ projectId, requestOrigin: origin, userHash });
   }
 
-  @Get("flows/:flowId")
+  @Get("flows/:flowId/draft")
   @Throttle({ default: { limit: 50, ttl: minutes(1) } })
   getPreviewFlow(
     @Headers("origin") origin: string,
@@ -38,6 +38,16 @@ export class SdkController {
     @Param("flowId") flowId: string,
   ): Promise<GetSdkFlowsDto> {
     return this.sdkService.getPreviewFlow({ projectId, requestOrigin: origin, flowId });
+  }
+
+  @Get("flows/:flowId")
+  @Throttle({ default: { limit: 50, ttl: minutes(1) } })
+  getFlowDetail(
+    @Headers("origin") origin: string,
+    @Query("projectId") projectId: string,
+    @Param("flowId") flowId: string,
+  ): Promise<GetSdkFlowsDto> {
+    return this.sdkService.getFlowDetail({ projectId, requestOrigin: origin, flowId });
   }
 
   @Post("events")

@@ -90,15 +90,55 @@ export class SdkService {
       })
       .flatMap((f) => {
         if (!f.publishedVersion) return [];
+        const steps = f.publishedVersion.data.steps;
+        const _incompleteSteps = steps.length > 1 ? true : undefined;
         return {
           id: f.human_id,
           frequency: f.publishedVersion.frequency,
-          steps: f.publishedVersion.data.steps,
           element: f.publishedVersion.data.element,
           location: f.publishedVersion.data.location,
           userProperties: f.publishedVersion.data.userProperties,
+          steps: steps.slice(0, 1),
+          _incompleteSteps,
         };
       });
+  }
+
+  async getFlowDetail({
+    flowId,
+    projectId,
+    requestOrigin,
+  }: {
+    requestOrigin: string;
+    projectId: string;
+    flowId: string;
+  }): Promise<GetSdkFlowsDto> {
+    if (!projectId || !flowId || !requestOrigin) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: and(eq(projects.id, projectId), arrayContains(projects.domains, [requestOrigin])),
+    });
+    if (!project) throw new NotFoundException();
+
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: and(
+        eq(flows.project_id, project.id),
+        eq(flows.flow_type, "cloud"),
+        eq(flows.human_id, flowId),
+        isNotNull(flows.enabled_at),
+      ),
+      with: { publishedVersion: true },
+    });
+    if (!flow?.publishedVersion) throw new NotFoundException();
+    const data = flow.publishedVersion.data;
+    return {
+      id: flow.human_id,
+      steps: data.steps,
+      element: data.element,
+      location: data.location,
+      userProperties: data.userProperties,
+      frequency: flow.publishedVersion.frequency,
+    };
   }
 
   async getPreviewFlow({
@@ -133,10 +173,7 @@ export class SdkService {
     const version = flow.draftVersion ?? flow.publishedVersion;
     if (!version) throw new NotFoundException();
 
-    const data = version.data as
-      | undefined
-      | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
-    if (!data) throw new NotFoundException();
+    const data = version.data;
     return {
       id: flow.human_id,
       steps: data.steps,

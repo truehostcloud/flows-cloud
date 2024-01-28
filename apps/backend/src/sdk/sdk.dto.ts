@@ -11,6 +11,7 @@ export class GetSdkFlowsDto {
   steps: unknown[];
   location?: string;
   userProperties?: unknown;
+  _incompleteSteps?: boolean;
 }
 
 export class CreateEventDto {
