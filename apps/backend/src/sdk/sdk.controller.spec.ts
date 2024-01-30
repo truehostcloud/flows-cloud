@@ -2,32 +2,16 @@ import { Test } from "@nestjs/testing";
 import { events, flows } from "db";
 
 import { DatabaseService } from "../database/database.service";
+import { getMockDB, type MockDB } from "../mocks";
 import { SdkController } from "./sdk.controller";
 import type { CreateEventDto } from "./sdk.dto";
 import { SdkService } from "./sdk.service";
 
 let sdkController: SdkController;
-const db = {
-  query: {
-    projects: {
-      findFirst: jest.fn(),
-    },
-    flows: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-    },
-  },
-  insert: jest.fn().mockReturnThis(),
-  values: jest.fn().mockReturnThis(),
-  returning: jest.fn(),
-  selectDistinctOn: jest.fn().mockReturnThis(),
-  from: jest.fn().mockReturnThis(),
-  where: jest.fn().mockReturnThis(),
-  groupBy: jest.fn().mockReturnThis(),
-  orderBy: jest.fn().mockReturnThis(),
-};
+let db: MockDB;
 
 beforeEach(async () => {
+  db = getMockDB();
   const moduleRef = await Test.createTestingModule({
     controllers: [SdkController],
     providers: [SdkService],
@@ -41,10 +25,6 @@ beforeEach(async () => {
     .compile();
 
   sdkController = moduleRef.get(SdkController);
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
 });
 
 describe("Get css", () => {
@@ -138,9 +118,8 @@ describe("Create event", () => {
   beforeEach(() => {
     db.query.projects.findFirst.mockReturnValue(project);
     db.query.flows.findFirst.mockReturnValue(flow);
-    db.returning.mockReturnValue([{ id: "newFlowId" }]);
+    db.returning.mockResolvedValueOnce([{ id: "newEventId" }]);
   });
-
   it("should throw without requestDomain", async () => {
     await expect(sdkController.createEvent("", createEventDto)).rejects.toThrow(
       "Origin is required",
@@ -152,19 +131,27 @@ describe("Create event", () => {
       "project not found",
     );
   });
-  it("should create local flow if it doesn't exists", async () => {
-    db.query.flows.findFirst.mockReturnValue(null);
-    await expect(sdkController.createEvent("origin", createEventDto)).resolves.toBeUndefined();
-    expect(db.insert).toHaveBeenCalledWith(flows);
-  });
-  it("should throw with error", async () => {
-    db.values.mockRejectedValueOnce(new Error());
+  it("should throw with no created event", async () => {
+    db.returning.mockReset();
+    db.returning.mockResolvedValue([]);
     await expect(sdkController.createEvent("origin", createEventDto)).rejects.toThrow(
       "error saving event",
     );
   });
+  it("should create local flow if it doesn't exist", async () => {
+    db.returning.mockReset();
+    db.returning.mockResolvedValueOnce([{ id: "newFlowId" }]);
+    db.returning.mockResolvedValueOnce([{ id: "newEventId" }]);
+    db.query.flows.findFirst.mockReturnValue(null);
+    await expect(sdkController.createEvent("origin", createEventDto)).resolves.toEqual({
+      id: "newEventId",
+    });
+    expect(db.insert).toHaveBeenCalledWith(flows);
+  });
   it("should insert into database", async () => {
-    await expect(sdkController.createEvent("origin", createEventDto)).resolves.toBeUndefined();
+    await expect(sdkController.createEvent("origin", createEventDto)).resolves.toEqual({
+      id: "newEventId",
+    });
     expect(db.insert).toHaveBeenCalledWith(events);
     expect(db.values).toHaveBeenCalled();
   });
@@ -281,5 +268,42 @@ describe("Get flow detail", () => {
       element: "e1",
       frequency: "once",
     });
+  });
+});
+
+describe("Delete event", () => {
+  beforeEach(() => {
+    db.where.mockResolvedValue([
+      {
+        projectId: "projId",
+        flowId: "flowId",
+        event: { type: "tooltipError", event_time: new Date() },
+      },
+    ]);
+  });
+  it("should throw without requestDomain or eventId", async () => {
+    await expect(sdkController.deleteEvent("", "eventId")).rejects.toThrow("Not Found");
+    await expect(sdkController.deleteEvent("origin", "")).rejects.toThrow("Not Found");
+  });
+  it("should throw without results", async () => {
+    db.where.mockResolvedValue([]);
+    await expect(sdkController.deleteEvent("origin", "eventId")).rejects.toThrow("Not Found");
+  });
+  it("should throw for event older then 15 mins", async () => {
+    db.where.mockResolvedValue([
+      {
+        projectId: "projId",
+        flowId: "flowId",
+        event: {
+          type: "tooltipError",
+          event_time: new Date(Date.now() - 1000 * 60 * 16),
+        },
+      },
+    ]);
+    await expect(sdkController.deleteEvent("origin", "eventId")).rejects.toThrow("Not Found");
+  });
+  it("should delete event", async () => {
+    await expect(sdkController.deleteEvent("origin", "eventId")).resolves.toBeUndefined();
+    expect(db.delete).toHaveBeenCalledWith(events);
   });
 });

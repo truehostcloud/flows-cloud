@@ -43,3 +43,7 @@ export class CreateEventDto {
   @IsString()
   flowHash: string;
 }
+
+export class CreateEventResponseDto {
+  id: string;
+}

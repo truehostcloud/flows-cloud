@@ -4,7 +4,7 @@ import { and, arrayContains, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
 import { getDefaultCssTemplate, getDefaultCssVars } from "../lib/css";
-import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
+import type { CreateEventDto, CreateEventResponseDto, GetSdkFlowsDto } from "./sdk.dto";
 
 @Injectable()
 export class SdkService {
@@ -190,7 +190,7 @@ export class SdkService {
   }: {
     event: CreateEventDto;
     requestOrigin: string;
-  }): Promise<void> {
+  }): Promise<CreateEventResponseDto> {
     if (!requestOrigin) throw new BadRequestException("Origin is required");
 
     const project = await this.databaseService.db.query.projects.findFirst({
@@ -230,13 +230,43 @@ export class SdkService {
       step_hash: event.stepHash,
     };
 
-    try {
-      await this.databaseService.db.insert(events).values(newEvent);
-    } catch (error) {
-      // eslint-disable-next-line no-console -- useful for debugging
-      console.log(error);
-      // TODO: add custom logger that doesnt log in test env
-      if (error) throw new BadRequestException("error saving event", { cause: error });
-    }
+    const createdEvents = await this.databaseService.db
+      .insert(events)
+      .values(newEvent)
+      .returning({ id: events.id });
+
+    const createdEvent = createdEvents.at(0);
+    if (!createdEvent) throw new BadRequestException("error saving event");
+    return createdEvent;
+  }
+
+  async deleteEvent({
+    eventId,
+    requestOrigin,
+  }: {
+    requestOrigin: string;
+    eventId: string;
+  }): Promise<void> {
+    if (!requestOrigin || !eventId) throw new NotFoundException();
+
+    const query = await this.databaseService.db
+      .select({ projectId: projects.id, flowId: flows.id, event: events })
+      .from(events)
+      .leftJoin(flows, eq(events.flow_id, flows.id))
+      .leftJoin(
+        projects,
+        and(eq(flows.project_id, projects.id), arrayContains(projects.domains, [requestOrigin])),
+      )
+      .where(eq(events.id, eventId));
+    const data = query.at(0);
+
+    if (!data) throw new NotFoundException();
+    const { event, flowId, projectId } = data;
+    if (!flowId || !projectId) throw new NotFoundException();
+
+    const eventIsMoreThen15MinutesOld = event.event_time < new Date(Date.now() - 15 * 60 * 1000);
+    if (event.type !== "tooltipError" || eventIsMoreThen15MinutesOld) throw new NotFoundException();
+
+    await this.databaseService.db.delete(events).where(eq(events.id, eventId));
   }
 }

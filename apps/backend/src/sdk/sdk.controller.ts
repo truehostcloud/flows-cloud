@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Header, Headers, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Header, Headers, Param, Post, Query } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { minutes, Throttle } from "@nestjs/throttler";
 
-import type { GetSdkFlowsDto } from "./sdk.dto";
+import type { CreateEventResponseDto, GetSdkFlowsDto } from "./sdk.dto";
 import { CreateEventDto } from "./sdk.dto";
 import { SdkService } from "./sdk.service";
 
@@ -54,7 +54,12 @@ export class SdkController {
   createEvent(
     @Headers("origin") origin: string,
     @Body() createEventDto: CreateEventDto,
-  ): Promise<void> {
+  ): Promise<CreateEventResponseDto> {
     return this.sdkService.createEvent({ event: createEventDto, requestOrigin: origin });
+  }
+
+  @Delete("events/:eventId")
+  deleteEvent(@Headers("origin") origin: string, @Param("eventId") eventId: string): Promise<void> {
+    return this.sdkService.deleteEvent({ eventId, requestOrigin: origin });
   }
 }

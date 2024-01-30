@@ -40,5 +40,6 @@ export const getMockDB = () => ({
   with: jest.fn().mockReturnThis(),
   $with: jest.fn().mockReturnThis(),
   selectDistinct: jest.fn().mockReturnThis(),
+  selectDistinctOn: jest.fn().mockReturnThis(),
   as: jest.fn().mockReturnThis(),
 });
