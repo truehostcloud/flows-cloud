@@ -15,8 +15,8 @@ export class SdkController {
   @Throttle({ default: { limit: 100, ttl: minutes(1) } })
   @Header("content-type", "text/css")
   @Header("cache-control", "max-age=3600")
-  getCss(@Query("projectId") projectId: string): Promise<string> {
-    return this.sdkService.getCss({ projectId });
+  getCss(@Query("projectId") projectId: string, @Query("v") version: string): Promise<string> {
+    return this.sdkService.getCss({ projectId, version });
   }
 
   @Get("flows")

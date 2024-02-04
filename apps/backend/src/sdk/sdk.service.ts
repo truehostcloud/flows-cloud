@@ -10,7 +10,7 @@ import type { CreateEventDto, CreateEventResponseDto, GetSdkFlowsDto } from "./s
 export class SdkService {
   constructor(private databaseService: DatabaseService) {}
 
-  async getCss({ projectId }: { projectId: string }): Promise<string> {
+  async getCss({ projectId, version }: { projectId: string; version?: string }): Promise<string> {
     if (!projectId) throw new NotFoundException();
 
     const project = await this.databaseService.db.query.projects.findFirst({
@@ -22,8 +22,8 @@ export class SdkService {
     });
     if (!project) throw new NotFoundException();
 
-    const css_vars = project.css_vars?.trim() || getDefaultCssVars();
-    const css_template = project.css_template?.trim() || getDefaultCssTemplate();
+    const css_vars = project.css_vars?.trim() || getDefaultCssVars(version);
+    const css_template = project.css_template?.trim() || getDefaultCssTemplate(version);
     const css = await Promise.all([css_vars, css_template]);
 
     return css.join("\n");

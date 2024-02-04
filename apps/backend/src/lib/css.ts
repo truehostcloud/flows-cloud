@@ -1,11 +1,9 @@
-import fs from "node:fs/promises";
+export const getDefaultCssVars = (version = "latest"): Promise<string> =>
+  fetch(`https://cdn.jsdelivr.net/npm/@flows/js@${version}/css.min/vars.css`).then((res) =>
+    res.text(),
+  );
 
-export const getDefaultCssVars = (): Promise<string> =>
-  fs.readFile(`node_modules/@flows/js/css/vars.css`, {
-    encoding: "utf-8",
-  });
-
-export const getDefaultCssTemplate = (): Promise<string> =>
-  fs.readFile(`node_modules/@flows/js/css/template.css`, {
-    encoding: "utf-8",
-  });
+export const getDefaultCssTemplate = (version = "latest"): Promise<string> =>
+  fetch(`https://cdn.jsdelivr.net/npm/@flows/js@${version}/css.min/template.css`).then((res) =>
+    res.text(),
+  );
