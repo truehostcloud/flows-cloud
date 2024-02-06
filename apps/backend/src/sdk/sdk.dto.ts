@@ -42,6 +42,16 @@ export class CreateEventDto {
 
   @IsString()
   flowHash: string;
+
+  @IsString()
+  sdkVersion: string;
+
+  @IsString()
+  @IsOptional()
+  targetElement?: string;
+
+  @IsString()
+  location: string;
 }
 
 export class CreateEventResponseDto {

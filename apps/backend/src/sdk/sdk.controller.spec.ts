@@ -108,6 +108,8 @@ describe("Create event", () => {
     flowHash: "e",
     stepHash: "f",
     projectId: "g",
+    sdkVersion: "0.0.0",
+    location: "/",
   };
   const project = {
     id: "pid",

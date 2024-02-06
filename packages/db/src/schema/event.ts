@@ -13,4 +13,7 @@ export const events = pgTable("event", {
   user_hash: text("user_hash"),
   step_index: text("step_index"),
   step_hash: text("step_hash"),
+  sdk_version: text("sdk_version").notNull(),
+  target_element: text("target_element"),
+  location: text("location").notNull(),
 });

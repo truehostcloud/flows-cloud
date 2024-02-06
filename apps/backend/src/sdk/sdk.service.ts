@@ -228,6 +228,9 @@ export class SdkService {
       step_index: event.stepIndex,
       flow_hash: event.flowHash,
       step_hash: event.stepHash,
+      sdk_version: event.sdkVersion,
+      target_element: event.targetElement,
+      location: event.location,
     };
 
     const createdEvents = await this.databaseService.db
