@@ -54,7 +54,7 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
 
   const tooltipPlacement = useMemo(() => {
     if (!currentStep) return;
-    if (!("element" in currentStep)) return;
+    if (!("targetElement" in currentStep)) return;
     return currentStep.placement ?? "bottom";
   }, [currentStep]);
   const targetPosition = useMemo(() => {
@@ -121,6 +121,6 @@ const prepareSteps = (steps: FlowSteps): FlowSteps =>
     if (Array.isArray(s)) return s.map((ss) => prepareSteps(ss) as FlowStep[]);
 
     const step = { ...s };
-    if ("element" in step) step.element = "#preview-target";
+    if ("targetElement" in step) step.targetElement = "#preview-target";
     return step;
   });

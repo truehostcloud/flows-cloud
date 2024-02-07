@@ -1,10 +1,9 @@
 import type { FlowModalStep, FlowTooltipStep, FlowWaitStep } from "@flows/js";
-import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { type FC, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { t } from "translations";
-import { Accordion, Button, Select } from "ui";
+import { Accordion, Button, Select, Text } from "ui";
 
 import { ModalStepForm } from "./modal-step-form";
 import type { StepsForm } from "./steps-editor.types";
@@ -17,7 +16,7 @@ type Props = {
   onRemove: () => void;
 };
 
-const DEFAULT_TOOLTIP: FlowTooltipStep = { element: "", title: "" };
+const DEFAULT_TOOLTIP: FlowTooltipStep = { targetElement: "", title: "" };
 const DEFAULT_MODAL: FlowModalStep = { title: "" };
 const DEFAULT_WAIT: FlowWaitStep = { wait: {} };
 export const STEP_DEFAULT = {
@@ -31,8 +30,9 @@ export const StepForm: FC<Props> = ({ control, index, onRemove }) => {
 
   const { field } = useController({ name: `${stepKey}`, control });
 
-  // eslint-disable-next-line no-nested-ternary -- ignore
-  const stepType = "element" in field.value ? "tooltip" : "title" in field.value ? "modal" : "wait";
+  const stepType =
+    // eslint-disable-next-line no-nested-ternary -- ignore
+    "targetElement" in field.value ? "tooltip" : "title" in field.value ? "modal" : "wait";
 
   const typeOptions = useMemo(
     () =>
@@ -46,18 +46,12 @@ export const StepForm: FC<Props> = ({ control, index, onRemove }) => {
   return (
     <Accordion
       title={
-        <>
-          {t.steps.stepType[stepType]}
-          <span
-            className={css({
-              textStyle: "bodyS",
-              color: "text.subtle",
-              ml: "space8",
-            })}
-          >
+        <Flex alignItems="center" gap="space8">
+          <Text variant="titleM">{t.steps.stepType[stepType]}</Text>
+          <Text color="subtle" variant="bodyS">
             {index}
-          </span>
-        </>
+          </Text>
+        </Flex>
       }
     >
       <Flex mb="space12">

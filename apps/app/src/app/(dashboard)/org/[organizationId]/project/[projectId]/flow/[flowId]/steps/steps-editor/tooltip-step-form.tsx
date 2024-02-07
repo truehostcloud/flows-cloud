@@ -65,11 +65,11 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
 
         <Box>
           <Input
-            {...control.register(`${stepKey}.element`)}
+            {...control.register(`${stepKey}.targetElement`)}
             className={css({ mb: "space16" })}
-            defaultValue={value.element}
+            defaultValue={value.targetElement}
             description="Element to attach tooltip to"
-            label="Element"
+            label="Target element"
             placeholder=".element"
           />
           <Controller
@@ -119,16 +119,16 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
 
         <Accordion title="Advanced">
           <Input
-            {...control.register(`${stepKey}.key`)}
+            {...control.register(`${stepKey}.stepId`)}
             className={css({ mb: "space16" })}
-            defaultValue={value.key}
-            description={t.steps.keyDescription}
-            label={t.steps.keyLabel}
+            defaultValue={value.stepId}
+            description={t.steps.stepIdDescription}
+            label={t.steps.stepIdLabel}
             placeholder="my-step-id"
           />
           <Input
             {...control.register(`${stepKey}.scrollElement`)}
-            defaultValue={value.element}
+            defaultValue={value.scrollElement}
             description="Element to scroll to when tooltip is shown"
             label="Scroll to element"
             placeholder=".element"

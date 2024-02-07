@@ -1,3 +1,4 @@
+import type { WaitStepOptions } from "@flows/js";
 import { css } from "@flows/styled-system/css";
 import { Plus16 } from "icons";
 import type { FC } from "react";
@@ -12,6 +13,8 @@ type Props = {
   control: Control<StepsForm>;
   fieldName: `steps.${number}.wait` | `steps.${number}.${number}.${number}.wait`;
 };
+
+const DEFAULT_WAIT_OPTION: WaitStepOptions = {};
 
 export const StepWaitOptionList: FC<Props> = ({ control, fieldName }: Props) => {
   const { append, remove, fields } = useFieldArray({
@@ -40,7 +43,7 @@ export const StepWaitOptionList: FC<Props> = ({ control, fieldName }: Props) => 
         />
       ))}
       <Button
-        onClick={() => append({} as never)}
+        onClick={() => append(DEFAULT_WAIT_OPTION as never)}
         shadow={false}
         size="small"
         startIcon={<Plus16 />}
