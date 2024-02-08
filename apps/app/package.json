@@ -17,7 +17,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-slot": "^1.0.2",
-    "@flows/js": "0.0.34",
+    "@flows/js": "0.0.36",
     "@rbnd/react-dark-mode": "^2.0.1",
     "@supabase/ssr": "^0.0.10",
     "@visx/axis": "^3.5.0",

@@ -3,7 +3,7 @@
 import "@flows/js/flows.css";
 
 import type { FlowStep, FlowSteps } from "@flows/js";
-import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@flows/js";
+import { endFlow, getCurrentStep, init, nextStep, startFlow } from "@flows/js/core";
 import { css } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import type { FC } from "react";

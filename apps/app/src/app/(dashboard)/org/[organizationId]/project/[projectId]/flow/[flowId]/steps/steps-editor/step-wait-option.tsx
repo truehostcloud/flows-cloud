@@ -41,7 +41,7 @@ export const StepWaitOption: FC<Props> = ({ control, fieldName, index, onRemove 
       newValue = {
         location: controller.field.value.location,
         targetBranch: controller.field.value.targetBranch,
-        form: { element: "", values: [] },
+        form: { formElement: "", values: [] },
       };
     if (variant === "click")
       newValue = {

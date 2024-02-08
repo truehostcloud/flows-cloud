@@ -28,8 +28,8 @@ export const StepWaitForm: FC<Props> = ({ control, fieldName }) => {
           Wait for a form to be submitted and optionally check the values of the fields in it.
         </Text>
         <Input
-          {...control.register(`${fieldName}.form.element`)}
-          defaultValue={value.form?.element}
+          {...control.register(`${fieldName}.form.formElement`)}
+          defaultValue={value.form?.formElement}
           description="Form element to listen 'onsubmit' event on."
           label="Form element"
           placeholder=".element"
