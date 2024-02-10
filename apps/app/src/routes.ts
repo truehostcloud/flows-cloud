@@ -6,6 +6,7 @@ export const routes = {
   signUp: (params?: { message?: string }) => `/signup${createParams(params)}`,
 
   home: "/",
+  userSettings: (params: { userId: string }) => `/user/${params.userId}/settings`,
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
   organizationSettings: (params: { organizationId: string }) =>
     `/org/${params.organizationId}/settings`,

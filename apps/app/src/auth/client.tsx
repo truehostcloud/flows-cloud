@@ -2,7 +2,7 @@ import type { FC, ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "supabase/client";
 
-type Session = { token: string; user: { email: string } };
+type Session = { token: string; user: { email: string; id?: string } };
 
 type AuthContextType = Session | null;
 const AuthContext = createContext<AuthContextType>(null);
@@ -16,19 +16,35 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const setSession = (
-      session: { access_token: string; user: { email?: string } } | null,
+      session: { access_token: string; user: { email?: string; id?: string } } | null,
     ): void => {
       if (!session) return setValue(null);
       setValue({
         token: session.access_token,
         user: {
           email: session.user.email ?? "",
+          id: session.user.id ?? "",
         },
       });
     };
 
     void supabase.auth.getSession().then((res) => {
       setSession(res.data.session);
+    });
+
+    void supabase.auth.getUser().then((res) => {
+      setValue((prev) => {
+        if (prev) {
+          return {
+            ...prev,
+            user: {
+              ...prev.user,
+              id: res.data.user?.id,
+            },
+          };
+        }
+        return null;
+      });
     });
 
     supabase.auth.onAuthStateChange((_, session) => {

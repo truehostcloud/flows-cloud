@@ -1,5 +1,7 @@
 import { IsEmail, IsString } from "class-validator";
 
+import type { GetOrganizationsDto } from "../organizations/organizations.dto";
+
 export class Invite {
   id: string;
   expires_at: Date;
@@ -8,6 +10,7 @@ export class Invite {
 
 export class GetMeDto {
   pendingInvites: Invite[];
+  organizations: GetOrganizationsDto[];
 }
 
 export class AcceptInviteResponseDto {

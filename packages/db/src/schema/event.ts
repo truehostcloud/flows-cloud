@@ -1,6 +1,24 @@
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { flows } from "./flow";
+
+export const eventType = pgEnum("event_type", [
+  "startFlow",
+  "nextStep",
+  "prevStep",
+  "tooltipError",
+  "cancelFlow",
+  "finishFlow",
+]);
+
+export type EventType = (typeof eventType.enumValues)[number];
+export enum EventTypeEnum {
+  StartFlow = "startFlow",
+  NextStep = "nextStep",
+  PrevStep = "prevStep",
+  TooltipError = "tooltipError",
+  CancelFlow = "cancelFlow",
+}
 
 export const events = pgTable("event", {
   id: uuid("id").notNull().unique().primaryKey().defaultRandom(),
@@ -9,6 +27,7 @@ export const events = pgTable("event", {
     .references(() => flows.id, { onDelete: "cascade" }),
   event_time: timestamp("event_time").notNull(),
   type: text("type").notNull(),
+  event_type: eventType("event_type"),
   flow_hash: text("flow_hash").notNull(),
   user_hash: text("user_hash"),
   step_index: text("step_index"),

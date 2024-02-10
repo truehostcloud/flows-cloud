@@ -2,9 +2,14 @@ import { Test } from "@nestjs/testing";
 import { organizationsToUsers, userInvite } from "db";
 
 import { DatabaseService } from "../database/database.service";
+import { DbPermissionService } from "../db-permission/db-permission.service";
 import { EmailService } from "../email/email.service";
 import { verifyCaptcha } from "../lib/captcha";
+import { getMockDbPermissionService, type MockDbPermissionService } from "../mocks";
+import type { MockOrganizationsService } from "../mocks/organizations-service";
+import { getMockOrganizationsService } from "../mocks/organizations-service";
 import { NewsfeedService } from "../newsfeed/newsfeed.service";
+import { OrganizationsService } from "../organizations/organizations.service";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 
@@ -35,7 +40,12 @@ const newsfeedService = {
   postMessage: jest.fn(),
 };
 
+let dbPermissionService: MockDbPermissionService;
+let organizationsService: MockOrganizationsService;
+
 beforeEach(async () => {
+  dbPermissionService = getMockDbPermissionService();
+  organizationsService = getMockOrganizationsService();
   db.query.users.findFirst.mockResolvedValue({
     id: "userId",
     email: "email",
@@ -70,6 +80,12 @@ beforeEach(async () => {
       }
       if (token === NewsfeedService) {
         return newsfeedService;
+      }
+      if (token === DbPermissionService) {
+        return dbPermissionService;
+      }
+      if (token === OrganizationsService) {
+        return organizationsService;
       }
     })
     .compile();

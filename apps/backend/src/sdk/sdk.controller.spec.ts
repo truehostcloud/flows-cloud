@@ -110,6 +110,7 @@ describe("Create event", () => {
     projectId: "g",
     sdkVersion: "0.0.0",
     location: "/",
+    eventType: "startFlow",
   };
   const project = {
     id: "pid",

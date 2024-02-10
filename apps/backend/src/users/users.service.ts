@@ -7,6 +7,7 @@ import { DatabaseService } from "../database/database.service";
 import { EmailService } from "../email/email.service";
 import { verifyCaptcha } from "../lib/captcha";
 import { NewsfeedService } from "../newsfeed/newsfeed.service";
+import { OrganizationsService } from "../organizations/organizations.service";
 import type { AcceptInviteResponseDto, GetMeDto, JoinWaitlistDto } from "./users.dto";
 
 @Injectable()
@@ -15,6 +16,7 @@ export class UsersService {
     private databaseService: DatabaseService,
     private emailService: EmailService,
     private newsfeedService: NewsfeedService,
+    private organizationsService: OrganizationsService,
   ) {}
 
   async me({ auth }: { auth: Auth }): Promise<GetMeDto> {
@@ -39,6 +41,7 @@ export class UsersService {
         expires_at: invite.expires_at,
         organizationName: invite.organization.name,
       })),
+      organizations: await this.organizationsService.getOrganizations({ auth }),
     };
   }
 

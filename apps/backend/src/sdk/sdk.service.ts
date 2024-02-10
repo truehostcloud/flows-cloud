@@ -222,6 +222,7 @@ export class SdkService {
 
     const newEvent: typeof events.$inferInsert = {
       event_time: event.eventTime,
+      event_type: event.eventType,
       type: event.type,
       flow_id: flow.id,
       user_hash: event.userHash,

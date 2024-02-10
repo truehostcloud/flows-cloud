@@ -42,10 +42,16 @@ export const SettingsMenu: FC = () => {
   const { projectId, organizationId } = useParams<{ projectId?: string; organizationId: string }>();
   const pathname = usePathname();
 
+  const auth = useAuth();
   const SETTINGS_MENU_OPTIONS = [
-    {
-      label: "Personal settings TODO",
-    },
+    ...((auth?.user.id?.length || 0) > 0
+      ? [
+          {
+            label: "Personal settings",
+            href: routes.userSettings({ userId: auth?.user.id ?? "" }),
+          },
+        ]
+      : []),
     ...(projectId
       ? [
           {
@@ -63,7 +69,6 @@ export const SettingsMenu: FC = () => {
       href: routes.organizationSettings({ organizationId }),
     },
   ];
-  const auth = useAuth();
 
   if (!auth) return <Trigger />;
 

@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsDate, IsOptional, IsString } from "class-validator";
-import { type FlowFrequency, FlowFrequencyEnum } from "db";
+import { EventType, EventTypeEnum, type FlowFrequency, FlowFrequencyEnum } from "db";
 
 export class GetSdkFlowsDto {
   id: string;
@@ -52,6 +52,8 @@ export class CreateEventDto {
 
   @IsString()
   location: string;
+  @ApiProperty({ enum: EventTypeEnum })
+  eventType: EventType;
 }
 
 export class CreateEventResponseDto {

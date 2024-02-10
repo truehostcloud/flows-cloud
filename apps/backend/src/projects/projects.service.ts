@@ -9,6 +9,7 @@ import { asc, eq } from "drizzle-orm";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
+import { DbPermissionService } from "../db-permission/db-permission.service";
 import type {
   CreateProjectDto,
   GetProjectDetailDto,
@@ -18,7 +19,10 @@ import type {
 
 @Injectable()
 export class ProjectsService {
-  constructor(private databaseService: DatabaseService) {}
+  constructor(
+    private databaseService: DatabaseService,
+    private dbPermissionService: DbPermissionService,
+  ) {}
 
   async getProjects({
     auth,
@@ -27,16 +31,7 @@ export class ProjectsService {
     organizationId: string;
     auth: Auth;
   }): Promise<GetProjectsDto[]> {
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, organizationId),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
     const orgProjects = await this.databaseService.db.query.projects.findMany({
       where: eq(projects.organization_id, organizationId),
@@ -105,17 +100,7 @@ export class ProjectsService {
     organizationId: string;
     data: CreateProjectDto;
   }): Promise<GetProjectsDto> {
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, organizationId),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    if (!org) throw new NotFoundException();
-    const userHasAccessToOrg = !!org.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
     const newProjs = await this.databaseService.db
       .insert(projects)
@@ -147,20 +132,7 @@ export class ProjectsService {
     projectId: string;
     data: UpdateProjectDto;
   }): Promise<GetProjectDetailDto> {
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, projectId),
-    });
-    if (!project) throw new NotFoundException();
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToProject({ auth, projectId });
 
     const updatedProjects = await this.databaseService.db
       .update(projects)
@@ -191,20 +163,7 @@ export class ProjectsService {
   }
 
   async deleteProject({ auth, projectId }: { auth: Auth; projectId: string }): Promise<void> {
-    const project = await this.databaseService.db.query.projects.findFirst({
-      where: eq(projects.id, projectId),
-    });
-    if (!project) throw new NotFoundException();
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, project.organization_id),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    const userHasAccessToOrg = !!org?.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToProject({ auth, projectId });
 
     await this.databaseService.db.delete(projects).where(eq(projects.id, projectId));
   }
