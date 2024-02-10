@@ -307,9 +307,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@flows/js':
-        specifier: 0.0.34
-        version: 0.0.34
       '@rbnd/react-dark-mode':
         specifier: ^2.0.1
         version: 2.0.1(react@18.2.0)
