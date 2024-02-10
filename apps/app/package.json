@@ -15,9 +15,9 @@
     "prepare": "panda codegen"
   },
   "dependencies": {
+    "@flows/js": "0.0.34",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-slot": "^1.0.2",
-    "@flows/js": "0.0.34",
     "@rbnd/react-dark-mode": "^2.0.1",
     "@supabase/ssr": "^0.0.10",
     "@visx/axis": "^3.5.0",
@@ -36,6 +36,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
     "shared": "workspace:*",
+    "sharp": "^0.33.2",
     "swr": "^2.2.4",
     "ui": "workspace:*"
   },
