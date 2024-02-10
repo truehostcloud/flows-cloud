@@ -1,11 +1,6 @@
-import { createBrowserClient } from "@supabase/ssr";
 import type { FC, ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../lib/constants";
-
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- not needed
-export const createClient = () => createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { createClient } from "supabase/client";
 
 type Session = { token: string; user: { email: string } };
 

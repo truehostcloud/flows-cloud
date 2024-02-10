@@ -3,13 +3,13 @@
 import { css } from "@flows/styled-system/css";
 import { Box, Flex } from "@flows/styled-system/jsx";
 import { LoginMessage } from "app/(auth)/login/login-message";
-import { createClient } from "auth/client";
 import { signIn } from "auth/server-actions";
 import { GitHub16, Google16 } from "icons";
 import Link from "next/link";
 import type { FC } from "react";
 import { Suspense, useTransition } from "react";
 import { routes } from "routes";
+import { createClient } from "supabase/client";
 import { Button, Input, Text } from "ui";
 
 export const LoginForm: FC = () => {
