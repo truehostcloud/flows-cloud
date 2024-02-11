@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Text } from "ui";
 
-import { AuthWrapper } from "../auth-wrapper";
 import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = {
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function Signup(): JSX.Element {
   return (
-    <AuthWrapper>
+    <>
       <SignupForm />
       <Text
         align="center"
@@ -45,6 +44,6 @@ export default function Signup(): JSX.Element {
           Privacy policy
         </Link>
       </Text>
-    </AuthWrapper>
+    </>
   );
 }

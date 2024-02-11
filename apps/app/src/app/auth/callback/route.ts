@@ -10,6 +10,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-sign-in-with-code-exchange
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const errorMessage = requestUrl.searchParams.get("error_description");
+
+  const origin = headers().get("x-forwarded-host");
+  const protocol = headers().get("x-forwarded-proto");
+  const redirectTo = `${protocol}://${origin}`;
 
   if (code) {
     const cookieStore = cookies();
@@ -17,10 +22,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  const origin = headers().get("x-forwarded-host");
-  const protocol = headers().get("x-forwarded-proto");
-  const redirectTo = `${protocol}://${origin}${routes.home}`;
+  if (!code && errorMessage)
+    return NextResponse.redirect(redirectTo + routes.verifyError({ message: errorMessage }));
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(redirectTo);
+  return NextResponse.redirect(redirectTo + routes.home);
 }

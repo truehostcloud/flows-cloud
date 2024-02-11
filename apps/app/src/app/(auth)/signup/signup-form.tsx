@@ -10,7 +10,7 @@ import type { FC } from "react";
 import { Suspense, useTransition } from "react";
 import { routes } from "routes";
 import { createClient } from "supabase/client";
-import { Button, Input, Text } from "ui";
+import { Button, Input, Text, toast } from "ui";
 
 export const SignupForm: FC = () => {
   const [isPending, startTransition] = useTransition();
@@ -20,8 +20,9 @@ export const SignupForm: FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    startTransition(() => {
-      void signUp(formData);
+    startTransition(async () => {
+      const res = await signUp(formData);
+      if (res.error) toast.error(res.error);
     });
   };
 
