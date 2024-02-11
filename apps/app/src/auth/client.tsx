@@ -16,26 +16,20 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const setSession = (
-      session: { access_token: string; user: { email?: string; id?: string } } | null,
+      session: { access_token: string; user: { email?: string; id: string } } | null,
     ): void => {
       if (!session) return setValue(null);
       setValue({
         token: session.access_token,
         user: {
           email: session.user.email ?? "",
-          id: session.user.id ?? "",
+          id: session.user.id,
         },
       });
     };
 
     void supabase.auth.getSession().then((res) => {
-      setSession({
-        access_token: res.data.session?.access_token ?? "",
-        user: {
-          email: res.data.session?.user.email ?? "",
-          id: res.data.session?.user.id ?? "",
-        },
-      });
+      setSession(res.data.session);
     });
 
     supabase.auth.onAuthStateChange((_, session) => {
