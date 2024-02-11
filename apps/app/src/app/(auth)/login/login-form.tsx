@@ -12,6 +12,7 @@ import { routes } from "routes";
 import { createClient } from "supabase/client";
 import { Button, Input, Text, toast } from "ui";
 
+//TODO: @pesickadavid add password reset page and uncomment the link
 export const LoginForm: FC = () => {
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
@@ -95,7 +96,7 @@ export const LoginForm: FC = () => {
         <Button loading={isPending} name="sign-in" size="medium" type="submit">
           Log in
         </Button>
-        <Text align="center" color="muted">
+        {/* <Text align="center" color="muted">
           <Link
             className={css({
               textDecoration: "underline",
@@ -105,7 +106,7 @@ export const LoginForm: FC = () => {
           >
             Forgot password?
           </Link>
-        </Text>
+        </Text> */}
 
         <hr
           className={css({
