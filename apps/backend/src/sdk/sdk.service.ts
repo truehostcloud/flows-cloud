@@ -67,7 +67,7 @@ export class SdkService {
         .where(
           and(
             eq(events.user_hash, userHash),
-            inArray(events.type, ["finishFlow", "cancelFlow"]),
+            inArray(events.event_type, ["finishFlow", "cancelFlow"]),
             inArray(
               events.flow_id,
               dbFlows.map((f) => f.id),
@@ -222,8 +222,7 @@ export class SdkService {
 
     const newEvent: typeof events.$inferInsert = {
       event_time: event.eventTime,
-      event_type: event.eventType,
-      type: event.type,
+      event_type: event.type,
       flow_id: flow.id,
       user_hash: event.userHash,
       step_index: event.stepIndex,
@@ -269,7 +268,8 @@ export class SdkService {
     if (!flowId || !projectId) throw new NotFoundException();
 
     const eventIsMoreThen15MinutesOld = event.event_time < new Date(Date.now() - 15 * 60 * 1000);
-    if (event.type !== "tooltipError" || eventIsMoreThen15MinutesOld) throw new NotFoundException();
+    if (event.event_type !== "tooltipError" || eventIsMoreThen15MinutesOld)
+      throw new NotFoundException();
 
     await this.databaseService.db.delete(events).where(eq(events.id, eventId));
   }

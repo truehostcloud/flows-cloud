@@ -20,9 +20,6 @@ export class CreateEventDto {
   eventTime: Date;
 
   @IsString()
-  type: string;
-
-  @IsString()
   @IsOptional()
   userHash?: string;
 
@@ -53,7 +50,7 @@ export class CreateEventDto {
   @IsString()
   location: string;
   @ApiProperty({ enum: EventTypeEnum })
-  eventType: EventType;
+  type: EventType;
 }
 
 export class CreateEventResponseDto {

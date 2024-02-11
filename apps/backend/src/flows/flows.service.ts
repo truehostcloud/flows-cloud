@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import dayjs from "dayjs";
+import type { EventType } from "db";
 import { events, flows, flowVersions } from "db";
 import { and, desc, eq, gt, gte, lte, sql } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
@@ -73,7 +74,7 @@ export class FlowsService {
 
     const uniqueUsersQuerySql = this.databaseService.db
       .select({
-        type: sql<string>`'uniqueUsers'`,
+        type: sql<EventType>`'uniqueUsers'`,
         count: sql<number>`cast(count(${events.user_hash}) as int)`,
         uniqueUsers: sql<number>`0`,
       })
@@ -84,13 +85,13 @@ export class FlowsService {
 
     const previewStatsQuerySql = this.databaseService.db
       .select({
-        type: events.type,
+        type: events.event_type,
         count: sql<number>`cast(count(${events.id}) as int)`,
         uniqueUsers: sql<number>`cast(count(distinct ${events.user_hash}) as int)`,
       })
       .from(events)
       .where(and(eq(events.flow_id, flowId), gt(events.event_time, sql`now() - interval '30 day'`)))
-      .groupBy(events.type);
+      .groupBy(events.event_type);
 
     const stats = await union(previewStatsQuerySql, uniqueUsersQuerySql);
 
@@ -143,10 +144,9 @@ export class FlowsService {
   }): Promise<GetFlowAnalyticsDto> {
     await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
 
-    // TODO: @pesickadavid distinct on large table is slow, we should separate event types to item list table and use that instead
     const eventTypes = this.databaseService.db
       .$with("event_types")
-      .as(this.databaseService.db.selectDistinct({ type: events.type }).from(events));
+      .as(this.databaseService.db.selectDistinct({ type: events.event_type }).from(events));
 
     const sD = startDate
       ? dayjs(startDate).format("YYYY-MM-DD")
@@ -158,7 +158,7 @@ export class FlowsService {
         .select({
           date: sql`date_trunc('day', ${events.event_time})`.as("date"),
           count: sql`cast(count(${events.id}) as int)`.as("count"),
-          type: events.type,
+          type: events.event_type,
         })
         .from(events)
         .where(

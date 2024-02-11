@@ -90,9 +90,6 @@ describe("Create organization", () => {
   });
   it("should throw without organization", async () => {
     db.returning.mockResolvedValue([]);
-    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
-      throw new NotFoundException();
-    });
     await expect(
       organizationsController.createOrganization({ userId: "userId" }, { name: "org1" }),
     ).rejects.toThrow("Failed to create organization");

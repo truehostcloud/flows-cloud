@@ -100,7 +100,6 @@ describe("Get flows", () => {
 
 describe("Create event", () => {
   const createEventDto: CreateEventDto = {
-    type: "a",
     eventTime: new Date(),
     flowId: "b",
     stepIndex: "c",
@@ -110,7 +109,7 @@ describe("Create event", () => {
     projectId: "g",
     sdkVersion: "0.0.0",
     location: "/",
-    eventType: "startFlow",
+    type: "startFlow",
   };
   const project = {
     id: "pid",
@@ -280,7 +279,7 @@ describe("Delete event", () => {
       {
         projectId: "projId",
         flowId: "flowId",
-        event: { type: "tooltipError", event_time: new Date() },
+        event: { event_type: "tooltipError", event_time: new Date() },
       },
     ]);
   });

@@ -26,8 +26,7 @@ export const events = pgTable("event", {
     .notNull()
     .references(() => flows.id, { onDelete: "cascade" }),
   event_time: timestamp("event_time").notNull(),
-  type: text("type").notNull(),
-  event_type: eventType("event_type"),
+  event_type: eventType("event_type").notNull(),
   flow_hash: text("flow_hash").notNull(),
   user_hash: text("user_hash"),
   step_index: text("step_index"),

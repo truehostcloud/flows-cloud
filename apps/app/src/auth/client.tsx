@@ -29,21 +29,12 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     };
 
     void supabase.auth.getSession().then((res) => {
-      setSession(res.data.session);
-    });
-
-    void supabase.auth.getUser().then((res) => {
-      setValue((prev) => {
-        if (prev) {
-          return {
-            ...prev,
-            user: {
-              ...prev.user,
-              id: res.data.user?.id,
-            },
-          };
-        }
-        return null;
+      setSession({
+        access_token: res.data.session?.access_token ?? "",
+        user: {
+          email: res.data.session?.user.email ?? "",
+          id: res.data.session?.user.id ?? "",
+        },
       });
     });
 

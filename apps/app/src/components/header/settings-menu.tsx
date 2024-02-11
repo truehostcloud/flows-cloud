@@ -44,11 +44,11 @@ export const SettingsMenu: FC = () => {
 
   const auth = useAuth();
   const SETTINGS_MENU_OPTIONS = [
-    ...((auth?.user.id?.length || 0) > 0
+    ...(auth?.user.id
       ? [
           {
             label: "Personal settings",
-            href: routes.userSettings({ userId: auth?.user.id ?? "" }),
+            href: routes.userSettings({ userId: auth.user.id }),
           },
         ]
       : []),
