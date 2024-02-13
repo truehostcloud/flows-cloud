@@ -106,6 +106,33 @@ export const TooltipStepForm: FC<Props> = ({ control, index }) => {
                 )}
               />
             ))}
+
+            <Controller
+              control={control}
+              name={`${stepKey}.overlay`}
+              render={({ field }) => (
+                <>
+                  <Checkbox
+                    checked={field.value}
+                    label="Show overlay"
+                    onCheckedChange={field.onChange}
+                  />
+                  {field.value ? (
+                    <Controller
+                      control={control}
+                      name={`${stepKey}.closeOnOverlayClick`}
+                      render={({ field: closeField }) => (
+                        <Checkbox
+                          checked={closeField.value}
+                          label="Close on overlay click"
+                          onCheckedChange={closeField.onChange}
+                        />
+                      )}
+                    />
+                  ) : null}
+                </>
+              )}
+            />
           </Flex>
         </Box>
       </Grid>

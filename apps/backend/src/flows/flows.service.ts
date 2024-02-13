@@ -85,7 +85,7 @@ export class FlowsService {
 
     const previewStatsQuerySql = this.databaseService.db
       .select({
-        type: events.event_type,
+        type: sql<EventType>`cast(${events.event_type} as text)`,
         count: sql<number>`cast(count(${events.id}) as int)`,
         uniqueUsers: sql<number>`cast(count(distinct ${events.user_hash}) as int)`,
       })
