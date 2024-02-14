@@ -1,8 +1,8 @@
-import { createClient } from "auth/server";
 import { cookies, headers } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { routes } from "routes";
+import { createClient } from "supabase/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // The `/auth/callback` route is required for the server-side auth flow implemented
@@ -10,16 +10,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-sign-in-with-code-exchange
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-
-  if (code) {
-    const supabase = createClient(cookies());
-    await supabase.auth.exchangeCodeForSession(code);
-  }
+  const errorMessage = requestUrl.searchParams.get("error_description");
 
   const origin = headers().get("x-forwarded-host");
   const protocol = headers().get("x-forwarded-proto");
-  const redirectTo = `${protocol}://${origin}${routes.home}`;
+  const redirectTo = `${protocol}://${origin}`;
+
+  if (code) {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
+    await supabase.auth.exchangeCodeForSession(code);
+  }
+
+  if (!code && errorMessage)
+    return NextResponse.redirect(redirectTo + routes.verifyError({ message: errorMessage }));
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(redirectTo);
+  return NextResponse.redirect(redirectTo + routes.home);
 }

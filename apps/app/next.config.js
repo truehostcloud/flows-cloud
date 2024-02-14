@@ -10,6 +10,9 @@ const nextConfig = {
     outputFileTracingRoot: path.join(__dirname, "../../"),
     optimizePackageImports: ["ui", "icons"],
   },
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
 };
 
 module.exports = nextConfig;

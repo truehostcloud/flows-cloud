@@ -1,4 +1,5 @@
 import { css } from "@flows/styled-system/css";
+import { SmartLink } from "components/ui";
 import Image from "next/image";
 import type { ReactElement } from "react";
 import React from "react";
@@ -16,15 +17,13 @@ interface FooterGroup {
   }[];
 }
 
-//TODO: add Link component that handles internal and external links
-
 const footerGroups: FooterGroup[] = [
   {
     title: "Product",
     links: [
       {
-        title: "Overview",
-        href: "/",
+        title: "Features",
+        href: "/features",
       },
     ],
   },
@@ -63,7 +62,7 @@ export const Footer = (): ReactElement => {
     >
       <div
         className={css({
-          maxWidth: "1100px",
+          maxWidth: "960px",
           mx: "auto",
           py: "space40",
           display: "flex",
@@ -139,26 +138,29 @@ export const Footer = (): ReactElement => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",
-                gap: "space8",
               })}
               key={group.title}
             >
-              <Text color="subtle" variant="bodyS">
+              <Text className={css({ mb: "space4" })} color="subtle" variant="bodyS">
                 {group.title}
               </Text>
               {group.links.map((link) => (
-                <Text asChild key={link.href} variant="bodyS" weight="700">
-                  <a
-                    className={css({
-                      "&:hover": {
-                        textDecoration: "underline",
-                      },
-                    })}
-                    href={link.href}
-                    {...(link.target ? { target: link.target, rel: "noopener" } : {})}
-                  >
+                <Text
+                  asChild
+                  className={css({
+                    padding: "space4",
+                    mx: "-space4",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  })}
+                  key={link.href}
+                  variant="bodyS"
+                  weight="700"
+                >
+                  <SmartLink href={link.href} target={link.target}>
                     {link.title}
-                  </a>
+                  </SmartLink>
                 </Text>
               ))}
             </div>

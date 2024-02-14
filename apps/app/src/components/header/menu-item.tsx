@@ -30,9 +30,7 @@ export const MenuItem = forwardRef<HTMLElement, Props>(function MenuItem(
           borderRadius: "radius8",
           cursor: disabled ? "default" : "pointer",
           width: "100%",
-          transitionDuration: "fast",
-          transitionTimingFunction: "easeInOut",
-          transitionProperty: "all",
+          fastEaseInOut: "all",
 
           "&:hover": {
             bg: disabled ? "transparent" : "bg.hover",

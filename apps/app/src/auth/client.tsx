@@ -1,13 +1,8 @@
-import { createBrowserClient } from "@supabase/ssr";
 import type { FC, ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
+import { createClient } from "supabase/client";
 
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../lib/constants";
-
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- not needed
-export const createClient = () => createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-type Session = { token: string; user: { email: string } };
+type Session = { token: string; user: { email: string; id?: string } };
 
 type AuthContextType = Session | null;
 const AuthContext = createContext<AuthContextType>(null);
@@ -21,13 +16,14 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const setSession = (
-      session: { access_token: string; user: { email?: string } } | null,
+      session: { access_token: string; user: { email?: string; id: string } } | null,
     ): void => {
       if (!session) return setValue(null);
       setValue({
         token: session.access_token,
         user: {
           email: session.user.email ?? "",
+          id: session.user.id,
         },
       });
     };

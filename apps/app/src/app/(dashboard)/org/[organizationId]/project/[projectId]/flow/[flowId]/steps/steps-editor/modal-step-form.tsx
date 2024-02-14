@@ -62,10 +62,10 @@ export const ModalStepForm: FC<Props> = ({ control, index }) => {
 
         <Accordion title="Advanced">
           <Input
-            {...control.register(`${stepKey}.key`)}
-            defaultValue={value.key}
-            description={t.steps.keyDescription}
-            label={t.steps.keyLabel}
+            {...control.register(`${stepKey}.stepId`)}
+            defaultValue={value.stepId}
+            description={t.steps.stepIdDescription}
+            label={t.steps.stepIdLabel}
             placeholder="my-step-id"
           />
         </Accordion>

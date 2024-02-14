@@ -57,7 +57,7 @@ export const FrequencyForm: FC<Props> = ({ flow }) => {
               name="frequency"
               render={({ field }) => (
                 <Select
-                  buttonClassName={css({ width: "200px" })}
+                  className={css({ width: "200px" })}
                   onChange={field.onChange}
                   options={[
                     { value: "once", label: "Once" },

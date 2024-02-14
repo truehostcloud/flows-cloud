@@ -35,6 +35,12 @@ export const CssTemplateForm: FC<Props> = ({ project, defaultTemplate }) => {
       defaultValues: createDefaultValues({ project, defaultTemplate }),
     });
   const [enabled, setEnabled] = useState(createDefaultEnabled(project));
+  const handleSetEnabled = (value: boolean): void => {
+    if (value)
+      setValue("cssTemplate", formState.defaultValues?.cssTemplate ?? "", { shouldDirty: true });
+    else setValue("cssTemplate", "", { shouldDirty: true });
+    setEnabled(value);
+  };
 
   const { send, loading } = useSend();
   const router = useRouter();
@@ -82,7 +88,7 @@ export const CssTemplateForm: FC<Props> = ({ project, defaultTemplate }) => {
         className={css({ mb: "space12" })}
         id="enabled"
         label="Customize full CSS template"
-        onChange={setEnabled}
+        onChange={handleSetEnabled}
       />
       <form onSubmit={handleSubmit(onSubmit)}>
         {enabled ? (

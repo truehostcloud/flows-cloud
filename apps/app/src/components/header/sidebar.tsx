@@ -3,7 +3,7 @@
 import { css, cx } from "@flows/styled-system/css";
 import { Flex } from "@flows/styled-system/jsx";
 import { SettingsMenu } from "components/header/settings-menu";
-import { Flows16, Graph16, Home16, Paintbrush16, Settings16 } from "icons";
+import { Home16, Paintbrush16, Settings16 } from "icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -33,18 +33,18 @@ export const Sidebar: FC = () => {
         href: routes.project({ organizationId, projectId }),
         icon: Home16,
       },
-      {
-        label: "Flows",
-        // TODO: add flows route
-        href: "/",
-        icon: Flows16,
-      },
-      {
-        label: "Analytics",
-        // TODO: add analytics route
-        href: "/",
-        icon: Graph16,
-      },
+      // {
+      //   label: "Flows",
+      //   // TODO: add flows route
+      //   href: "/",
+      //   icon: Flows16,
+      // },
+      // {
+      //   label: "Analytics",
+      //   // TODO: add analytics route
+      //   href: "/",
+      //   icon: Graph16,
+      // },
       {
         label: "Style template",
         href: routes.projectTemplate({ organizationId, projectId }),
@@ -130,9 +130,8 @@ export const Sidebar: FC = () => {
 
                       borderRadius: "radius8",
 
-                      transitionDuration: "fast",
-                      transitionTimingFunction: "easeInOut",
-                      transitionProperty: "background-color",
+                      fastEaseInOut: "background-color",
+
                       color: "text.muted",
 
                       "&:hover": {

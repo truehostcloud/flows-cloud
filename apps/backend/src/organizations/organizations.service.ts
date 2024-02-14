@@ -10,6 +10,7 @@ import { and, eq } from "drizzle-orm";
 
 import type { Auth } from "../auth";
 import { DatabaseService } from "../database/database.service";
+import { DbPermissionService } from "../db-permission/db-permission.service";
 import { EmailService } from "../email/email.service";
 import type {
   CreateOrganizationDto,
@@ -24,13 +25,22 @@ export class OrganizationsService {
   constructor(
     private databaseService: DatabaseService,
     private emailService: EmailService,
+    private dbPermissionService: DbPermissionService,
   ) {}
 
   async getOrganizations({ auth }: { auth: Auth }): Promise<GetOrganizationsDto[]> {
     const orgs = await this.databaseService.db
-      .select()
+      .select({
+        organization: organizations,
+      })
       .from(organizations)
-      .leftJoin(organizationsToUsers, eq(organizations.id, organizationsToUsers.organization_id))
+      .leftJoin(
+        organizationsToUsers,
+        and(
+          eq(organizations.id, organizationsToUsers.organization_id),
+          eq(organizationsToUsers.user_id, auth.userId),
+        ),
+      )
       .where(eq(organizationsToUsers.user_id, auth.userId))
       .orderBy(organizations.name);
 
@@ -108,17 +118,7 @@ export class OrganizationsService {
     data: UpdateOrganizationDto;
     organizationId: string;
   }): Promise<GetOrganizationDetailDto> {
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, organizationId),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    if (!org) throw new NotFoundException();
-    const userHasAccessToOrg = !!org.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
     const updatedOrganizations = await this.databaseService.db
       .update(organizations)
@@ -147,17 +147,7 @@ export class OrganizationsService {
     auth: Auth;
     organizationId: string;
   }): Promise<void> {
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, organizationId),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    if (!org) throw new NotFoundException();
-    const userHasAccessToOrg = !!org.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
     await this.databaseService.db.delete(organizations).where(eq(organizations.id, organizationId));
   }
@@ -222,18 +212,7 @@ export class OrganizationsService {
   }): Promise<void> {
     if (auth.userId === userId)
       throw new BadRequestException("Cannot remove yourself from organization");
-
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, organizationId),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    if (!org) throw new NotFoundException();
-    const userHasAccessToOrg = !!org.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
     await this.databaseService.db
       .delete(organizationsToUsers)
@@ -252,17 +231,7 @@ export class OrganizationsService {
     auth: Auth;
     organizationId: string;
   }): Promise<GetOrganizationMembersDto[]> {
-    const org = await this.databaseService.db.query.organizations.findFirst({
-      where: eq(organizations.id, organizationId),
-      with: {
-        organizationsToUsers: {
-          where: eq(organizationsToUsers.user_id, auth.userId),
-        },
-      },
-    });
-    if (!org) throw new NotFoundException();
-    const userHasAccessToOrg = !!org.organizationsToUsers.length;
-    if (!userHasAccessToOrg) throw new ForbiddenException();
+    await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
     const members = await this.databaseService.db.query.organizationsToUsers.findMany({
       where: eq(organizationsToUsers.organization_id, organizationId),

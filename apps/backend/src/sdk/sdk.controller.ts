@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Header, Headers, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Header, Headers, Param, Post, Query } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { minutes, Throttle } from "@nestjs/throttler";
 
-import type { GetSdkFlowsDto } from "./sdk.dto";
+import type { CreateEventResponseDto, GetSdkFlowsDto } from "./sdk.dto";
 import { CreateEventDto } from "./sdk.dto";
 import { SdkService } from "./sdk.service";
 
@@ -15,8 +15,8 @@ export class SdkController {
   @Throttle({ default: { limit: 100, ttl: minutes(1) } })
   @Header("content-type", "text/css")
   @Header("cache-control", "max-age=3600")
-  getCss(@Query("projectId") projectId: string): Promise<string> {
-    return this.sdkService.getCss({ projectId });
+  getCss(@Query("projectId") projectId: string, @Query("v") version: string): Promise<string> {
+    return this.sdkService.getCss({ projectId, version });
   }
 
   @Get("flows")
@@ -30,7 +30,7 @@ export class SdkController {
     return this.sdkService.getFlows({ projectId, requestOrigin: origin, userHash });
   }
 
-  @Get("flows/:flowId")
+  @Get("flows/:flowId/draft")
   @Throttle({ default: { limit: 50, ttl: minutes(1) } })
   getPreviewFlow(
     @Headers("origin") origin: string,
@@ -40,11 +40,26 @@ export class SdkController {
     return this.sdkService.getPreviewFlow({ projectId, requestOrigin: origin, flowId });
   }
 
+  @Get("flows/:flowId")
+  @Throttle({ default: { limit: 50, ttl: minutes(1) } })
+  getFlowDetail(
+    @Headers("origin") origin: string,
+    @Query("projectId") projectId: string,
+    @Param("flowId") flowId: string,
+  ): Promise<GetSdkFlowsDto> {
+    return this.sdkService.getFlowDetail({ projectId, requestOrigin: origin, flowId });
+  }
+
   @Post("events")
   createEvent(
     @Headers("origin") origin: string,
     @Body() createEventDto: CreateEventDto,
-  ): Promise<void> {
+  ): Promise<CreateEventResponseDto> {
     return this.sdkService.createEvent({ event: createEventDto, requestOrigin: origin });
+  }
+
+  @Delete("events/:eventId")
+  deleteEvent(@Headers("origin") origin: string, @Param("eventId") eventId: string): Promise<void> {
+    return this.sdkService.deleteEvent({ eventId, requestOrigin: origin });
   }
 }

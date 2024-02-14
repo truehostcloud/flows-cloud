@@ -37,8 +37,8 @@ export const StepFooter: FC<Props> = ({ control, index }) => {
             />
           </Flex>
           <Input
-            {...control.register(`${stepKey}.prevText`)}
-            defaultValue={value.prevText}
+            {...control.register(`${stepKey}.prevLabel`)}
+            defaultValue={value.prevLabel}
             description="Replace default text of the previous step button"
             disabled={value.hidePrev}
             id={`${stepKey}.prevText`}
@@ -63,8 +63,8 @@ export const StepFooter: FC<Props> = ({ control, index }) => {
           </Flex>
 
           <Input
-            {...control.register(`${stepKey}.nextText`)}
-            defaultValue={value.nextText}
+            {...control.register(`${stepKey}.nextLabel`)}
+            defaultValue={value.nextLabel}
             description="Replace default text of the next step button or finish button in case of the last step"
             disabled={value.hideNext}
             id={`${stepKey}.nextText`}

@@ -4,8 +4,11 @@ export const routes = {
   login: (params?: { message?: string }) => `/login${createParams(params)}`,
   authCallback: "/auth/callback",
   signUp: (params?: { message?: string }) => `/signup${createParams(params)}`,
+  signupSuccess: ({ email }: { email: string }) => `/signup/success?email=${email}`,
+  verifyError: ({ message }: { message: string }) => `/verify/error?message=${message}`,
 
   home: "/",
+  userSettings: (params: { userId: string }) => `/user/${params.userId}/settings`,
   organization: (params: { organizationId: string }) => `/org/${params.organizationId}`,
   organizationSettings: (params: { organizationId: string }) =>
     `/org/${params.organizationId}/settings`,

@@ -3,15 +3,16 @@
 import { css } from "@flows/styled-system/css";
 import { Box, Flex } from "@flows/styled-system/jsx";
 import { LoginMessage } from "app/(auth)/login/login-message";
-import { createClient } from "auth/client";
 import { signIn } from "auth/server-actions";
 import { GitHub16, Google16 } from "icons";
 import Link from "next/link";
 import type { FC } from "react";
 import { Suspense, useTransition } from "react";
 import { routes } from "routes";
-import { Button, Input, Text } from "ui";
+import { createClient } from "supabase/client";
+import { Button, Input, Text, toast } from "ui";
 
+//TODO: @pesickadavid add password reset page and uncomment the link
 export const LoginForm: FC = () => {
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
@@ -20,8 +21,9 @@ export const LoginForm: FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    startTransition(() => {
-      void signIn(formData);
+    startTransition(async () => {
+      const res = await signIn(formData);
+      if (res.error) toast.error(res.error);
     });
   };
 
@@ -94,7 +96,7 @@ export const LoginForm: FC = () => {
         <Button loading={isPending} name="sign-in" size="medium" type="submit">
           Log in
         </Button>
-        <Text align="center" color="muted">
+        {/* <Text align="center" color="muted">
           <Link
             className={css({
               textDecoration: "underline",
@@ -104,7 +106,7 @@ export const LoginForm: FC = () => {
           >
             Forgot password?
           </Link>
-        </Text>
+        </Text> */}
 
         <hr
           className={css({

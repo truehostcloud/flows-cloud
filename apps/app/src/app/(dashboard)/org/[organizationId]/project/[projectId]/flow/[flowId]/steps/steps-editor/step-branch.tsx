@@ -1,9 +1,8 @@
-import { css } from "@flows/styled-system/css";
 import { Box, Flex } from "@flows/styled-system/jsx";
 import { Plus16 } from "icons";
 import { type FC } from "react";
 import { type Control, useFieldArray } from "react-hook-form";
-import { Accordion, Button } from "ui";
+import { Accordion, Button, Text } from "ui";
 
 import { STEP_DEFAULT, StepForm } from "./step-form";
 import type { StepsForm } from "./steps-editor.types";
@@ -22,18 +21,14 @@ export const StepBranch: FC<Props> = ({ control, index, onRemove }) => {
     <Accordion
       title={
         <Flex alignItems="center" mr="space8">
-          <span className={css({ flex: 1 })}>
-            <span>Branch</span>
-            <span
-              className={css({
-                textStyle: "bodyS",
-                color: "text.subtle",
-                ml: "space8",
-              })}
-            >
+          <Flex flex={1} gap="space8">
+            <Text as="span" variant="titleM">
+              Branch
+            </Text>
+            <Text color="subtle" variant="bodyS">
               {branchIndex}
-            </span>
-          </span>
+            </Text>
+          </Flex>
 
           <Button
             onClick={(e) => (e.stopPropagation(), onRemove())}

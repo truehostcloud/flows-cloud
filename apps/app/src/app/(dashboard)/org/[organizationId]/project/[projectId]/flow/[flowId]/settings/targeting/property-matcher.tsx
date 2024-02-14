@@ -66,8 +66,8 @@ export const PropertyMatcher: FC<Props> = ({ groupIndex, matcherIndex, control, 
         />
 
         <Select<MatcherKey>
-          buttonClassName={css({ minWidth: "190px" })}
           buttonSize="default"
+          className={css({ minWidth: "190px" })}
           onChange={setVariant}
           options={matcherOptions}
           value={variant}

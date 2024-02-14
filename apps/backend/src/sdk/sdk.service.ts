@@ -4,13 +4,13 @@ import { and, arrayContains, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { DatabaseService } from "../database/database.service";
 import { getDefaultCssTemplate, getDefaultCssVars } from "../lib/css";
-import type { CreateEventDto, GetSdkFlowsDto } from "./sdk.dto";
+import type { CreateEventDto, CreateEventResponseDto, GetSdkFlowsDto } from "./sdk.dto";
 
 @Injectable()
 export class SdkService {
   constructor(private databaseService: DatabaseService) {}
 
-  async getCss({ projectId }: { projectId: string }): Promise<string> {
+  async getCss({ projectId, version }: { projectId: string; version?: string }): Promise<string> {
     if (!projectId) throw new NotFoundException();
 
     const project = await this.databaseService.db.query.projects.findFirst({
@@ -22,8 +22,8 @@ export class SdkService {
     });
     if (!project) throw new NotFoundException();
 
-    const css_vars = project.css_vars?.trim() || getDefaultCssVars();
-    const css_template = project.css_template?.trim() || getDefaultCssTemplate();
+    const css_vars = project.css_vars?.trim() || getDefaultCssVars(version);
+    const css_template = project.css_template?.trim() || getDefaultCssTemplate(version);
     const css = await Promise.all([css_vars, css_template]);
 
     return css.join("\n");
@@ -67,7 +67,7 @@ export class SdkService {
         .where(
           and(
             eq(events.user_hash, userHash),
-            inArray(events.type, ["finishFlow", "cancelFlow"]),
+            inArray(events.event_type, ["finishFlow", "cancelFlow"]),
             inArray(
               events.flow_id,
               dbFlows.map((f) => f.id),
@@ -90,15 +90,55 @@ export class SdkService {
       })
       .flatMap((f) => {
         if (!f.publishedVersion) return [];
+        const steps = f.publishedVersion.data.steps;
+        const _incompleteSteps = steps.length > 1 ? true : undefined;
         return {
           id: f.human_id,
           frequency: f.publishedVersion.frequency,
-          steps: f.publishedVersion.data.steps,
           element: f.publishedVersion.data.element,
           location: f.publishedVersion.data.location,
           userProperties: f.publishedVersion.data.userProperties,
+          steps: steps.slice(0, 1),
+          _incompleteSteps,
         };
       });
+  }
+
+  async getFlowDetail({
+    flowId,
+    projectId,
+    requestOrigin,
+  }: {
+    requestOrigin: string;
+    projectId: string;
+    flowId: string;
+  }): Promise<GetSdkFlowsDto> {
+    if (!projectId || !flowId || !requestOrigin) throw new NotFoundException();
+
+    const project = await this.databaseService.db.query.projects.findFirst({
+      where: and(eq(projects.id, projectId), arrayContains(projects.domains, [requestOrigin])),
+    });
+    if (!project) throw new NotFoundException();
+
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: and(
+        eq(flows.project_id, project.id),
+        eq(flows.flow_type, "cloud"),
+        eq(flows.human_id, flowId),
+        isNotNull(flows.enabled_at),
+      ),
+      with: { publishedVersion: true },
+    });
+    if (!flow?.publishedVersion) throw new NotFoundException();
+    const data = flow.publishedVersion.data;
+    return {
+      id: flow.human_id,
+      steps: data.steps,
+      element: data.element,
+      location: data.location,
+      userProperties: data.userProperties,
+      frequency: flow.publishedVersion.frequency,
+    };
   }
 
   async getPreviewFlow({
@@ -133,10 +173,7 @@ export class SdkService {
     const version = flow.draftVersion ?? flow.publishedVersion;
     if (!version) throw new NotFoundException();
 
-    const data = version.data as
-      | undefined
-      | { steps: unknown[]; element?: string; location?: string; userProperties?: unknown };
-    if (!data) throw new NotFoundException();
+    const data = version.data;
     return {
       id: flow.human_id,
       steps: data.steps,
@@ -153,7 +190,7 @@ export class SdkService {
   }: {
     event: CreateEventDto;
     requestOrigin: string;
-  }): Promise<void> {
+  }): Promise<CreateEventResponseDto> {
     if (!requestOrigin) throw new BadRequestException("Origin is required");
 
     const project = await this.databaseService.db.query.projects.findFirst({
@@ -185,21 +222,55 @@ export class SdkService {
 
     const newEvent: typeof events.$inferInsert = {
       event_time: event.eventTime,
-      type: event.type,
+      event_type: event.type,
       flow_id: flow.id,
       user_hash: event.userHash,
       step_index: event.stepIndex,
       flow_hash: event.flowHash,
       step_hash: event.stepHash,
+      sdk_version: event.sdkVersion,
+      target_element: event.targetElement,
+      location: event.location,
     };
 
-    try {
-      await this.databaseService.db.insert(events).values(newEvent);
-    } catch (error) {
-      // eslint-disable-next-line no-console -- useful for debugging
-      console.log(error);
-      // TODO: add custom logger that doesnt log in test env
-      if (error) throw new BadRequestException("error saving event", { cause: error });
-    }
+    const createdEvents = await this.databaseService.db
+      .insert(events)
+      .values(newEvent)
+      .returning({ id: events.id });
+
+    const createdEvent = createdEvents.at(0);
+    if (!createdEvent) throw new BadRequestException("error saving event");
+    return createdEvent;
+  }
+
+  async deleteEvent({
+    eventId,
+    requestOrigin,
+  }: {
+    requestOrigin: string;
+    eventId: string;
+  }): Promise<void> {
+    if (!requestOrigin || !eventId) throw new NotFoundException();
+
+    const query = await this.databaseService.db
+      .select({ projectId: projects.id, flowId: flows.id, event: events })
+      .from(events)
+      .leftJoin(flows, eq(events.flow_id, flows.id))
+      .leftJoin(
+        projects,
+        and(eq(flows.project_id, projects.id), arrayContains(projects.domains, [requestOrigin])),
+      )
+      .where(eq(events.id, eventId));
+    const data = query.at(0);
+
+    if (!data) throw new NotFoundException();
+    const { event, flowId, projectId } = data;
+    if (!flowId || !projectId) throw new NotFoundException();
+
+    const eventIsMoreThen15MinutesOld = event.event_time < new Date(Date.now() - 15 * 60 * 1000);
+    if (event.event_type !== "tooltipError" || eventIsMoreThen15MinutesOld)
+      throw new NotFoundException();
+
+    await this.databaseService.db.delete(events).where(eq(events.id, eventId));
   }
 }

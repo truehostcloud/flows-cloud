@@ -1,10 +1,12 @@
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { organizations, organizationsToUsers, userInvite } from "db";
 
 import { DatabaseService } from "../database/database.service";
+import { DbPermissionService } from "../db-permission/db-permission.service";
 import { EmailService } from "../email/email.service";
-import type { MockDB } from "../mocks";
-import { getMockDB } from "../mocks";
+import type { MockDB, MockDbPermissionService } from "../mocks";
+import { getMockDB, getMockDbPermissionService } from "../mocks";
 import { OrganizationsController } from "./organizations.controller";
 import { OrganizationsService } from "./organizations.service";
 
@@ -13,10 +15,12 @@ const emailService = {
   sendInvite: jest.fn(),
 };
 
+let dbPermissionService: MockDbPermissionService;
 let db: MockDB;
 
 beforeEach(async () => {
   db = getMockDB();
+  dbPermissionService = getMockDbPermissionService();
 
   db.orderBy.mockResolvedValue([{ organization: { id: "org1" } }]);
   db.query.organizations.findFirst.mockResolvedValue({
@@ -37,6 +41,9 @@ beforeEach(async () => {
       if (token === EmailService) {
         return emailService;
       }
+      if (token === DbPermissionService) {
+        return dbPermissionService;
+      }
     })
     .compile();
 
@@ -54,12 +61,18 @@ describe("Get organizations", () => {
 describe("Get organization detail", () => {
   it("should throw without organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue(null);
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new NotFoundException();
+    });
     await expect(
       organizationsController.getOrganizationDetail({ userId: "userId" }, "org1"),
     ).rejects.toThrow("Not Found");
   });
   it("should throw without access", async () => {
     db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new ForbiddenException();
+    });
     await expect(
       organizationsController.getOrganizationDetail({ userId: "userId" }, "org1"),
     ).rejects.toThrow("Forbidden");
@@ -96,12 +109,18 @@ describe("Update organization", () => {
   });
   it("should throw without organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue(null);
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new NotFoundException();
+    });
     await expect(
       organizationsController.updateOrganization({ userId: "userId" }, "org1", { name: "org1" }),
     ).rejects.toThrow("Not Found");
   });
   it("should throw without access", async () => {
     db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new ForbiddenException();
+    });
     await expect(
       organizationsController.updateOrganization({ userId: "userId" }, "org1", { name: "org1" }),
     ).rejects.toThrow("Forbidden");
@@ -120,12 +139,18 @@ describe("Update organization", () => {
 describe("Delete organization", () => {
   it("should throw without organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue(null);
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new NotFoundException();
+    });
     await expect(
       organizationsController.deleteOrganization({ userId: "userId" }, "org1"),
     ).rejects.toThrow("Not Found");
   });
   it("should throw without access", async () => {
     db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new ForbiddenException();
+    });
     await expect(
       organizationsController.deleteOrganization({ userId: "userId" }, "org1"),
     ).rejects.toThrow("Forbidden");
@@ -145,12 +170,18 @@ describe("Invite user", () => {
   });
   it("should throw without organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue(null);
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new NotFoundException();
+    });
     await expect(
       organizationsController.inviteUser({ userId: "userId" }, "org1", { email: "email" }),
     ).rejects.toThrow("Not Found");
   });
   it("should throw without access", async () => {
     db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new ForbiddenException();
+    });
     await expect(
       organizationsController.inviteUser({ userId: "userId" }, "org1", { email: "email" }),
     ).rejects.toThrow("Forbidden");
@@ -190,12 +221,18 @@ describe("Invite user", () => {
 describe("Remove user", () => {
   it("should throw without organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue(null);
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new NotFoundException();
+    });
     await expect(
       organizationsController.removeUser({ userId: "userId" }, "org1", "anotherUserId"),
     ).rejects.toThrow("Not Found");
   });
   it("should throw without access", async () => {
     db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new ForbiddenException();
+    });
     await expect(
       organizationsController.removeUser({ userId: "userId" }, "org1", "anotherUserId"),
     ).rejects.toThrow("Forbidden");
@@ -216,12 +253,18 @@ describe("Remove user", () => {
 describe("Get organization members", () => {
   it("should throw without organization", async () => {
     db.query.organizations.findFirst.mockResolvedValue(null);
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new NotFoundException();
+    });
     await expect(organizationsController.getUsers({ userId: "userId" }, "org1")).rejects.toThrow(
       "Not Found",
     );
   });
   it("should throw without access", async () => {
     db.query.organizations.findFirst.mockResolvedValue({ organizationsToUsers: [] });
+    dbPermissionService.doesUserHaveAccessToOrganization.mockImplementationOnce(() => {
+      throw new ForbiddenException();
+    });
     await expect(organizationsController.getUsers({ userId: "userId" }, "org1")).rejects.toThrow(
       "Forbidden",
     );

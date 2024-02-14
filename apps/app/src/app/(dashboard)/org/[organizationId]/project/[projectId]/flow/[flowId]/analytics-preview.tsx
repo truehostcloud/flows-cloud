@@ -23,7 +23,7 @@ export const AnalyticsPreview: FC<Props> = ({ flow }) => {
     },
     {
       title: t.analytics.finishRate,
-      value: `${Math.round((finishes / starts) * 100)}%`,
+      value: starts ? `${Math.round((finishes / starts) * 100)}%` : "-",
     },
     {
       title: t.analytics.exits,

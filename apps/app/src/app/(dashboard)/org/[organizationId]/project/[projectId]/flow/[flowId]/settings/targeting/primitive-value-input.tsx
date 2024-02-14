@@ -39,8 +39,8 @@ export const PrimitiveValueInput: FC<Props> = ({ onChange, value }) => {
   return (
     <>
       <Select
-        buttonClassName={css({ minWidth: "124px" })}
         buttonSize="default"
+        className={css({ minWidth: "124px" })}
         onChange={handleDataTypeChange}
         options={primitiveValueOptions}
         value={dataType}

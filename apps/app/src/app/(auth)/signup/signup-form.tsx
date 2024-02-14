@@ -3,14 +3,14 @@
 import { css } from "@flows/styled-system/css";
 import { Box, Flex } from "@flows/styled-system/jsx";
 import { LoginMessage } from "app/(auth)/login/login-message";
-import { createClient } from "auth/client";
 import { signUp } from "auth/server-actions";
 import { GitHub16, Google16 } from "icons";
 import Link from "next/link";
 import type { FC } from "react";
 import { Suspense, useTransition } from "react";
 import { routes } from "routes";
-import { Button, Input, Text } from "ui";
+import { createClient } from "supabase/client";
+import { Button, Input, Text, toast } from "ui";
 
 export const SignupForm: FC = () => {
   const [isPending, startTransition] = useTransition();
@@ -20,8 +20,9 @@ export const SignupForm: FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    startTransition(() => {
-      void signUp(formData);
+    startTransition(async () => {
+      const res = await signUp(formData);
+      if (res.error) toast.error(res.error);
     });
   };
 

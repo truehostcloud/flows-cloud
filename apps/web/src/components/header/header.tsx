@@ -1,11 +1,13 @@
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
+import { MobileMenu } from "components/header/mobile-menu";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import React from "react";
 import { Text } from "ui";
 
-import { HeaderItems } from "./header-items";
+import { DesktopMenu } from "./desktop-menu";
 import { JoinWaitlist } from "./join-waitlist";
 
 export const Header = (): ReactElement => {
@@ -28,8 +30,8 @@ export const Header = (): ReactElement => {
           py: "space12",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          maxWidth: "1100px",
+          maxWidth: "960px",
+          gap: "space8",
         })}
       >
         <Link
@@ -40,13 +42,16 @@ export const Header = (): ReactElement => {
           })}
           href="/"
         >
-          <Image alt="Logo" height={28} src="/images/logo/logo.svg" width={28} />
+          <Image alt="Logo" height={28} priority src="/images/logo/logo.svg" width={28} />
           <Text variant="bodyM" weight="700">
             Flows
           </Text>
         </Link>
-        <HeaderItems />
+        <Flex flex={1} justifyContent="center">
+          <DesktopMenu />
+        </Flex>
         <JoinWaitlist />
+        <MobileMenu />
       </div>
     </header>
   );

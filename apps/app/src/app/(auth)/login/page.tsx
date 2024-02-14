@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { AuthWrapper } from "../auth-wrapper";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Login(): JSX.Element {
-  return (
-    <AuthWrapper>
-      <LoginForm />
-    </AuthWrapper>
-  );
+  return <LoginForm />;
 }

@@ -9,6 +9,35 @@ import { DatabaseService } from "../database/database.service";
 export class DbPermissionService {
   constructor(private databaseService: DatabaseService) {}
 
+  async doesUserHaveAccessToOrganization({
+    auth,
+    organizationId,
+  }: {
+    auth: Auth;
+    organizationId: string;
+  }): Promise<boolean> {
+    const complexQuery = await this.databaseService.db
+      .select({
+        organizationId: organizations.id,
+        organizationToUser: organizationsToUsers,
+      })
+      .from(organizations)
+      .leftJoin(
+        organizationsToUsers,
+        and(
+          eq(organizations.id, organizationsToUsers.organization_id),
+          eq(organizationsToUsers.user_id, auth.userId),
+        ),
+      )
+      .where(eq(organizations.id, organizationId));
+
+    if (!complexQuery.length) throw new NotFoundException();
+    const data = complexQuery[0];
+    if (!data.organizationToUser) throw new ForbiddenException();
+
+    return true;
+  }
+
   async doesUserHaveAccessToProject({
     auth,
     projectId,

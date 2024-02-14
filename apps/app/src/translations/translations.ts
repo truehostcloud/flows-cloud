@@ -75,8 +75,11 @@ export const t = {
       "left-start": "Left start",
       "left-end": "Left end",
     },
-    keyLabel: "ID",
-    keyDescription: "Unique ID of the step. Useful for programmatic control of the flow.",
+    stepIdLabel: "Step ID",
+    stepIdDescription: "Unique ID of the step. Useful for programmatic control of the flow.",
+    targetBranchLabel: "Target branch",
+    targetBranchDescription:
+      "Which branch to take. Leave empty is there is no fork step after this step.",
     footer: {
       buttonAlignment: {
         left: "Left",
@@ -85,7 +88,7 @@ export const t = {
       },
       variant: {
         href: "Link",
-        action: "Action",
+        targetBranch: "Branch",
         next: "Next",
         prev: "Previous",
       },
@@ -196,6 +199,13 @@ export const t = {
       description:
         "Are you sure you want to delete this organization? All projects and flows will be deleted as well.",
       confirm: "Delete organization",
+    },
+  },
+  flow: {
+    deleteDialog: {
+      title: "Delete flow",
+      description: "Are you sure you want to delete this flow?",
+      confirm: "Delete flow",
     },
   },
 };

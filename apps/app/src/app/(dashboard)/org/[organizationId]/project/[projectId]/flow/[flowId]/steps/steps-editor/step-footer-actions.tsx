@@ -37,7 +37,7 @@ export const StepFooterActions: FC<Props> = ({ control, index, placement }) => {
       ))}
       <Box padding="space12">
         <Button
-          onClick={() => fieldArray.append({ text: "" })}
+          onClick={() => fieldArray.append({ label: "" })}
           shadow={false}
           size="small"
           startIcon={<Plus16 />}
@@ -66,16 +66,16 @@ const Option: FC<OptionProps> = ({ control, fieldName, onRemove, index }) => {
     if (controller.field.value.href !== undefined) return "href";
     if (controller.field.value.prev) return "prev";
     if (controller.field.value.next) return "next";
-    return "action";
+    return "targetBranch";
   })();
   const handleSwitchVariant = (variant: typeof currentVariant): void => {
     if (variant === "href")
-      return controller.field.onChange({ text: controller.field.value.text, href: "" });
+      return controller.field.onChange({ text: controller.field.value.label, href: "" });
     if (variant === "prev")
-      return controller.field.onChange({ text: controller.field.value.text, prev: true });
+      return controller.field.onChange({ text: controller.field.value.label, prev: true });
     if (variant === "next")
-      return controller.field.onChange({ text: controller.field.value.text, next: true });
-    return controller.field.onChange({ text: controller.field.value.text, action: 0 });
+      return controller.field.onChange({ text: controller.field.value.label, next: true });
+    return controller.field.onChange({ text: controller.field.value.label, targetBranch: 0 });
   };
 
   return (
@@ -87,14 +87,14 @@ const Option: FC<OptionProps> = ({ control, fieldName, onRemove, index }) => {
         </Button>
       </Flex>
       <Input
-        {...control.register(`${fieldName}.text`)}
+        {...control.register(`${fieldName}.label`)}
         className={css({ mb: "space16" })}
-        defaultValue={controller.field.value.text}
+        defaultValue={controller.field.value.label}
         label="Text"
       />
 
       <Flex gap="space4" mb="space16">
-        {(["href", "action", "prev", "next"] as const).map((variant) => (
+        {(["href", "targetBranch", "prev", "next"] as const).map((variant) => (
           <Button
             className={css({ flex: 1 })}
             key={variant}
@@ -132,13 +132,14 @@ const Option: FC<OptionProps> = ({ control, fieldName, onRemove, index }) => {
         </Box>
       )}
 
-      {currentVariant === "action" && (
+      {currentVariant === "targetBranch" && (
         <Controller
           control={control}
-          name={`${fieldName}.action`}
+          name={`${fieldName}.targetBranch`}
           render={({ field }) => (
             <Input
-              label="Action"
+              description={t.steps.targetBranchDescription}
+              label={t.steps.targetBranchLabel}
               onChange={(e) => field.onChange(Number(e.target.value))}
               placeholder="0"
               type="number"

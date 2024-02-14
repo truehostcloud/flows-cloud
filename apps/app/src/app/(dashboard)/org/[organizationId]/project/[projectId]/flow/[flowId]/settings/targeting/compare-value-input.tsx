@@ -33,8 +33,8 @@ export const CompareValueInput: FC<Props> = ({ onChange, value }) => {
   return (
     <>
       <Select
-        buttonClassName={css({ minWidth: "124px" })}
         buttonSize="default"
+        className={css({ minWidth: "124px" })}
         onChange={(v) => setDataType(v)}
         options={compareValueOptions}
         value={dataType}
