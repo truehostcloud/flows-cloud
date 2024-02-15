@@ -16,12 +16,18 @@ jobs:
       - run: |
           touch .env
           echo NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} >> .env
+          echo NEXT_PUBLIC_ENV=${{ secrets.NEXT_PUBLIC_ENV }} >> .env
         working-directory: "./prod-deploy/apps/web"
+      - run: |
+          touch .env
+          echo NEXT_PUBLIC_ENV=${{ secrets.NEXT_PUBLIC_ENV }} >> .env
+        working-directory: "./prod-deploy/apps/docs"
       - run: |
           touch .env
           echo NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} >> .env
           echo NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} >> .env
           echo NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} >> .env
+          echo NEXT_PUBLIC_ENV=${{ secrets.NEXT_PUBLIC_ENV }} >> .env
         working-directory: "./prod-deploy/apps/app"
       - run: |
           touch .env
