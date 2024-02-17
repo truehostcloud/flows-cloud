@@ -263,6 +263,9 @@ importers:
       '@flows/js':
         specifier: 0.0.37
         version: 0.0.37
+      icons:
+        specifier: workspace:*
+        version: link:../../packages/icons
       next:
         specifier: 14.1.0
         version: 14.1.0(@opentelemetry/api@1.6.0)(react-dom@18.2.0)(react@18.2.0)
