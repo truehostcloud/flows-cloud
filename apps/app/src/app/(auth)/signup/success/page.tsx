@@ -8,7 +8,7 @@ import { routes } from "routes";
 import { Text } from "ui";
 
 // Try it out by visiting http://localhost:6001/signup/success?email=example%40example.com
-export default function SignupSuccessPage(): JSX.Element {
+export default function SignUpSuccessPage(): JSX.Element {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
 

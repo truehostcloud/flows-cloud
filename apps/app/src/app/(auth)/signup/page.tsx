@@ -3,16 +3,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Text } from "ui";
 
-import { SignupForm } from "./signup-form";
+import { SignUpForm } from "./sign-up-form";
 
 export const metadata: Metadata = {
   title: "Login | Flows",
 };
 
-export default function Signup(): JSX.Element {
+export default function SignUp(): JSX.Element {
   return (
     <>
-      <SignupForm />
+      <SignUpForm />
       <Text
         align="center"
         className={css({

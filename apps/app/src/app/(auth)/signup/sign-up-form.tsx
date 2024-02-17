@@ -12,7 +12,7 @@ import { routes } from "routes";
 import { createClient } from "supabase/client";
 import { Button, Input, Text, toast } from "ui";
 
-export const SignupForm: FC = () => {
+export const SignUpForm: FC = () => {
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
 
