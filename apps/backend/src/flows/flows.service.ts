@@ -29,35 +29,24 @@ export class FlowsService {
   async getFlows({ auth, projectId }: { auth: Auth; projectId: string }): Promise<GetFlowsDto[]> {
     await this.dbPermissionService.doesUserHaveAccessToProject({ auth, projectId });
 
-    const projectFlows = await this.databaseService.db.query.flows.findMany({
-      where: eq(flows.project_id, projectId),
-      orderBy: [desc(flows.updated_at)],
-      columns: {
-        id: true,
-        human_id: true,
-        project_id: true,
-        name: true,
-        flow_type: true,
-        description: true,
-        created_at: true,
-        updated_at: true,
-        enabled_at: true,
-        preview_url: true,
-      },
-    });
-
-    return projectFlows.map((flow) => ({
-      id: flow.id,
-      name: flow.name,
-      description: flow.description,
-      created_at: flow.created_at,
-      updated_at: flow.updated_at,
-      enabled_at: flow.enabled_at,
-      project_id: flow.project_id,
-      flow_type: flow.flow_type,
-      human_id: flow.human_id,
-      preview_url: flow.preview_url,
-    }));
+    return this.databaseService.db
+      .select({
+        id: flows.id,
+        human_id: flows.human_id,
+        project_id: flows.project_id,
+        name: flows.name,
+        flow_type: flows.flow_type,
+        description: flows.description,
+        created_at: flows.created_at,
+        updated_at: flows.updated_at,
+        enabled_at: flows.enabled_at,
+        preview_url: flows.preview_url,
+        start_count: sql<number>`cast(count(${events.id}) as int)`,
+      })
+      .from(flows)
+      .where(eq(flows.project_id, projectId))
+      .leftJoin(events, and(eq(events.flow_id, flows.id), eq(events.event_type, "startFlow")))
+      .groupBy(flows.id);
   }
 
   async getFlowDetail({ auth, flowId }: { auth: Auth; flowId: string }): Promise<GetFlowDetailDto> {
@@ -102,7 +91,7 @@ export class FlowsService {
       return {
         frequency: version.frequency,
         steps: version.data.steps,
-        element: version.data.element,
+        clickElement: version.data.clickElement,
         location: version.data.location,
         userProperties: version.data.userProperties,
       };
@@ -233,21 +222,42 @@ export class FlowsService {
     });
     if (!flow) throw new NotFoundException();
 
-    const currentVersion = flow.draftVersion ?? flow.publishedVersion;
-    const updatedVersionData = {
-      frequency: data.frequency ?? currentVersion?.frequency,
+    const createVersionData = ({
+      compareVersion,
+      updates,
+    }: {
+      updates?: UpdateFlowDto;
+      compareVersion: typeof flow.publishedVersion;
+      // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- ignore
+    }) => ({
+      frequency: updates?.frequency ?? compareVersion?.frequency,
       data: {
-        steps: data.steps ?? currentVersion?.data.steps ?? [],
-        element: data.element ?? currentVersion?.data.element,
-        location: data.location ?? currentVersion?.data.location,
-        userProperties: data.userProperties ?? currentVersion?.data.userProperties ?? [],
+        steps: updates?.steps ?? compareVersion?.data.steps ?? [],
+        clickElement: updates?.clickElement ?? compareVersion?.data.clickElement,
+        location: updates?.location ?? compareVersion?.data.location,
+        userProperties: updates?.userProperties ?? compareVersion?.data.userProperties ?? [],
       },
-    };
-    const versionDataChanged =
-      JSON.stringify(updatedVersionData) !== JSON.stringify(currentVersion);
+    });
+    const updatedVersionData = createVersionData({
+      updates: data,
+      compareVersion: flow.draftVersion ?? flow.publishedVersion,
+    });
+    const changedFromPublished =
+      JSON.stringify(updatedVersionData) !==
+      JSON.stringify(createVersionData({ compareVersion: flow.publishedVersion }));
+    const changedFromDraft =
+      JSON.stringify(updatedVersionData) !==
+      JSON.stringify(createVersionData({ compareVersion: flow.draftVersion }));
 
-    const currentDrafts = await (() => {
-      if (!versionDataChanged) return;
+    const currentDrafts = await (async () => {
+      if (!changedFromPublished) {
+        if (!flow.draft_version_id) return;
+        await this.databaseService.db
+          .delete(flowVersions)
+          .where(eq(flowVersions.id, flow.draft_version_id));
+        return null;
+      }
+      if (!changedFromDraft) return;
       if (flow.draft_version_id)
         return this.databaseService.db
           .update(flowVersions)
@@ -265,8 +275,8 @@ export class FlowsService {
         })
         .returning({ id: flowVersions.id });
     })();
-    const currentDraftVersionId = currentDrafts?.at(0)?.id;
-    if (versionDataChanged && !currentDraftVersionId)
+    const currentDraftVersionId = currentDrafts === null ? null : currentDrafts?.at(0)?.id;
+    if (changedFromDraft && currentDraftVersionId === undefined)
       throw new BadRequestException("Failed to update data");
 
     const enabled_at = (() => {
@@ -351,6 +361,7 @@ export class FlowsService {
       flow_type: flow.flow_type,
       human_id: flow.human_id,
       preview_url: flow.preview_url,
+      start_count: 0,
     };
   }
 
