@@ -42,8 +42,8 @@ export const flows = pgTable(
   },
   (table) => {
     return {
-      humanIdIdx: index("human_id_idx").on(table.human_id),
-      humanIdProjectIdIdx: uniqueIndex("human_id_project_id_idx").on(
+      humanIdIdx: index("flow_human_id_idx").on(table.human_id),
+      humanIdProjectIdIdx: uniqueIndex("flow_human_id_project_id_idx").on(
         table.project_id,
         table.human_id,
       ),
