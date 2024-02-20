@@ -15,7 +15,8 @@
     "prepare": "panda codegen"
   },
   "dependencies": {
-    "@flows/js": "0.0.37",
+    "@flows/js": "0.0.38",
+    "@marsidev/react-turnstile": "^0.5.2",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@rbnd/react-dark-mode": "^2.0.1",
@@ -41,7 +42,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "14.1.0",
-    "@pandacss/dev": "0.30.2",
+    "@pandacss/dev": "0.32.0",
     "@types/node": "^17.0.12",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",

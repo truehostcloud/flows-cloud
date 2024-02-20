@@ -28,6 +28,7 @@ export const t = {
     saveFrequencySuccess: "Frequency updated",
     saveLaunchSuccess: "Launch settings updated",
     inviteSent: "Invite sent",
+    usersInvited: "Users were invited",
     memberRemoved: "Member removed",
     publishFlowSuccess: "Flow published",
     enableFlowSuccess: "Flow enabled",
@@ -167,12 +168,12 @@ export const t = {
   },
   project: {
     domains: {
-      domains: "Domains",
-      description:
-        "Add the domains where you want to access flows from this project. For local development, add localhost with port.",
+      domains: "Project domains",
+      description: "Add the domains from where you want to use this project.",
       localState: "Local project domains need to be changed in your codebase",
       addDomain: "Add domain",
       domainPlaceholder: "example.com",
+      invalidDomain: "Invalid domain. Please use https://example.com format.",
     },
     deleteDialog: {
       title: "Delete project",

@@ -3,9 +3,10 @@ import "./globals.css";
 import { css } from "@flows/styled-system/css";
 import { Providers } from "components/providers";
 import { PRODUCTION } from "lib/constants";
+import type { Metadata } from "next";
 import Script from "next/script";
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL("https://app.flows.sh"),
   title: "Flows",
   description:
@@ -28,6 +29,7 @@ export const metadata = {
     creator: "@flows_sh",
   },
   keywords: ["flows", "onboarding", "product adoption", "user onboarding", "user adoption"],
+  robots: PRODUCTION ? undefined : "noindex,nofollow",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {

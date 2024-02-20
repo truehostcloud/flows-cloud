@@ -1,4 +1,3 @@
-import { NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { flows, flowVersions } from "db";
 
@@ -46,19 +45,15 @@ beforeEach(async () => {
 
 describe("Get flows", () => {
   beforeEach(() => {
-    db.query.flows.findMany.mockResolvedValue([{ id: "flowId" }]);
+    db.groupBy.mockResolvedValue([{ start_count: 2, id: "flowId" }]);
   });
   it("should throw without project", async () => {
-    dbPermissionService.doesUserHaveAccessToProject.mockImplementationOnce(() => {
-      throw new NotFoundException();
-    });
-    await expect(flowsController.getFlows({ userId: "userId" }, "projectId")).rejects.toThrow(
-      "Not Found",
-    );
+    dbPermissionService.doesUserHaveAccessToProject.mockRejectedValue(new Error());
+    await expect(flowsController.getFlows({ userId: "userId" }, "projectId")).rejects.toThrow();
   });
   it("should return flows", async () => {
     await expect(flowsController.getFlows({ userId: "userId" }, "projectId")).resolves.toEqual([
-      { id: "flowId" },
+      { id: "flowId", start_count: 2 },
     ]);
   });
 });
@@ -123,13 +118,14 @@ describe("Update flow", () => {
   beforeEach(() => {
     db.query.flows.findFirst.mockResolvedValue({
       id: "flowId",
-      draftVersion: { data: { steps: [], userProperties: [] } },
+      draftVersion: { data: { steps: [], userProperties: [], clickElement: "oldEl" } },
+      publishedVersion: { data: { steps: [], userProperties: [], clickElement: "publishedEl" } },
     });
     db.returning.mockResolvedValue([{ id: "newVerId" }]);
   });
   const data: UpdateFlowDto = {
     name: "newName",
-    element: "newEl",
+    clickElement: "newEl",
     human_id: "new human id",
     enabled: true,
     description: "new description",
@@ -161,6 +157,29 @@ describe("Update flow", () => {
       }),
     ).resolves.toBeUndefined();
     expect(db.insert).not.toHaveBeenCalled();
+  });
+  it("should not create new version without changes", async () => {
+    await expect(
+      flowsController.updateFlow({ userId: "userId" }, "flowId", {
+        clickElement: "oldEl",
+      }),
+    ).resolves.toBeUndefined();
+    expect(db.insert).not.toHaveBeenCalled();
+  });
+  it("should delete draft version if it's the same as published", async () => {
+    db.query.flows.findFirst.mockResolvedValue({
+      id: "flowId",
+      draft_version_id: "draftVerId",
+      draftVersion: { data: { steps: [], userProperties: [], clickElement: "oldEl" } },
+      publishedVersion: { data: { steps: [], userProperties: [], clickElement: "publishedEl" } },
+    });
+    await expect(
+      flowsController.updateFlow({ userId: "userId" }, "flowId", {
+        clickElement: "publishedEl",
+      }),
+    ).resolves.toBeUndefined();
+    expect(db.insert).not.toHaveBeenCalled();
+    expect(db.delete).toHaveBeenCalled();
   });
   it("should create new version and update flow", async () => {
     await expect(
@@ -202,7 +221,7 @@ describe("Create flow", () => {
   it("should return new flow", async () => {
     await expect(
       flowsController.createFlow({ userId: "userId" }, "projectId", data),
-    ).resolves.toEqual({ id: "flowId" });
+    ).resolves.toEqual({ id: "flowId", start_count: 0 });
   });
 });
 

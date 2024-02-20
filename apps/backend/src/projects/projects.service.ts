@@ -102,15 +102,15 @@ export class ProjectsService {
   }): Promise<GetProjectsDto> {
     await this.dbPermissionService.doesUserHaveAccessToOrganization({ auth, organizationId });
 
-    const newProjs = await this.databaseService.db
+    const newProjects = await this.databaseService.db
       .insert(projects)
       .values({
         name: data.name,
         organization_id: organizationId,
-        domains: [],
+        domains: data.domains ?? [],
       })
       .returning();
-    const project = newProjs.at(0);
+    const project = newProjects.at(0);
     if (!project) throw new BadRequestException("Failed to create project");
 
     return {

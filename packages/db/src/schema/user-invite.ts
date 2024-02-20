@@ -15,8 +15,8 @@ export const userInvite = pgTable(
   },
   (table) => {
     return {
-      emailIdx: index("email_idx").on(table.email),
-      organizationIdIdx: index("organization_id_idx").on(table.organization_id),
+      emailIdx: index("user_invite_email_idx").on(table.email),
+      organizationIdIdx: index("user_invite_organization_id_idx").on(table.organization_id),
     };
   },
 );

@@ -162,6 +162,20 @@
       "when": 1707641956832,
       "tag": "0022_neat_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1708415219674,
+      "tag": "0023_icy_gunslinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1708423579956,
+      "tag": "0024_superb_hercules",
+      "breakpoints": true
     }
   ]
 }

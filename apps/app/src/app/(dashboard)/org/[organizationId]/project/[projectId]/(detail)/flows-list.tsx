@@ -1,25 +1,22 @@
 import { css } from "@flows/styled-system/css";
 import { Check16, CircleSlash16 } from "icons";
-import { api } from "lib/api";
+import type { FlowPreview } from "lib/api";
 import { timeFromNow } from "lib/date";
-import { load } from "lib/load";
 import Link from "next/link";
 import type { FC } from "react";
 import { routes } from "routes";
+import { plural } from "translations";
 import { Icon, Text } from "ui";
 
 import { CreateFlowDialog } from "./create-flow-dialog";
 
 type Props = {
+  organizationId: string;
   projectId: string;
+  flows: FlowPreview[];
 };
 
-export const FlowsList: FC<Props> = async ({ projectId }) => {
-  const [project, flows] = await Promise.all([
-    load(api["/projects/:projectId"](projectId)),
-    load(api["/projects/:projectId/flows"](projectId)),
-  ]);
-
+export const FlowsList: FC<Props> = ({ projectId, flows, organizationId }) => {
   return (
     <div
       className={css({
@@ -60,11 +57,7 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
               color: "text.primary",
             },
           })}
-          href={routes.flow({
-            flowId: flow.id,
-            projectId,
-            organizationId: project.organization_id,
-          })}
+          href={routes.flow({ flowId: flow.id, projectId, organizationId })}
           key={flow.id}
         >
           <Text color="inherit" variant="titleM">
@@ -77,6 +70,9 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
               gap: "space24",
             })}
           >
+            <Text className={css({ width: "100px" })} color="muted">
+              {flow.start_count} {plural(flow.start_count, "Start", "Starts")}
+            </Text>
             <Text
               className={css({
                 width: "200px",
@@ -111,7 +107,7 @@ export const FlowsList: FC<Props> = async ({ projectId }) => {
 
       {!flows.length && (
         <CreateFlowDialog
-          organizationId={project.organization_id}
+          organizationId={organizationId}
           projectId={projectId}
           trigger={
             <button

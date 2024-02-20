@@ -19,8 +19,8 @@ export const projects = pgTable(
   },
   (table) => {
     return {
-      organizationIdIdx: index("organization_id_idx").on(table.organization_id),
-      domainIdx: index("domain_idx").on(table.domains),
+      organizationIdIdx: index("project_organization_id_idx").on(table.organization_id),
+      domainIdx: index("project_domain_idx").on(table.domains),
     };
   },
 );

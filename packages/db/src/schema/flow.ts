@@ -42,8 +42,8 @@ export const flows = pgTable(
   },
   (table) => {
     return {
-      humanIdIdx: index("human_id_idx").on(table.human_id),
-      humanIdProjectIdIdx: uniqueIndex("human_id_project_id_idx").on(
+      humanIdIdx: index("flow_human_id_idx").on(table.human_id),
+      humanIdProjectIdIdx: uniqueIndex("flow_human_id_project_id_idx").on(
         table.project_id,
         table.human_id,
       ),
@@ -75,7 +75,12 @@ export const flowVersions = pgTable("flow_version", {
     .notNull()
     .references(() => flows.id, { onDelete: "cascade" }),
   data: json("data")
-    .$type<{ steps: unknown[]; userProperties: unknown[][]; element?: string; location?: string }>()
+    .$type<{
+      steps: unknown[];
+      userProperties: unknown[][];
+      clickElement?: string;
+      location?: string;
+    }>()
     .notNull(),
   frequency: flowFrequencyEnum("frequency").notNull().default("once"),
   created_at: timestamp("created_at").notNull().defaultNow(),
