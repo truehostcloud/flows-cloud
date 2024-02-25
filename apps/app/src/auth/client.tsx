@@ -1,4 +1,5 @@
 import { signOut } from "auth/server-actions";
+import { posthog } from "posthog-js";
 import type { FC, ReactNode } from "react";
 import {
   createContext,
@@ -11,7 +12,7 @@ import {
 } from "react";
 import { createClient } from "supabase/client";
 
-type Session = { token: string; user: { email: string; id?: string } };
+type Session = { token: string; user: { email?: string; id: string; name?: string } };
 
 type AuthContextType = {
   auth: Session | null;
@@ -33,14 +34,18 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const setSession = (
-      session: { access_token: string; user: { email?: string; id: string } } | null,
+      session: {
+        access_token: string;
+        user: { email?: string; id: string; user_metadata?: { full_name?: string } };
+      } | null,
     ): void => {
       if (!session) return setAuth(null);
       setAuth({
         token: session.access_token,
         user: {
-          email: session.user.email ?? "",
+          email: session.user.email,
           id: session.user.id,
+          name: session.user.user_metadata?.full_name,
         },
       });
     };
@@ -62,6 +67,11 @@ export const AuthProvider: FC<Props> = ({ children }) => {
       }),
     [],
   );
+
+  useEffect(() => {
+    if (!auth) return;
+    posthog.identify(auth.user.email);
+  }, [auth]);
 
   const value = useMemo(
     (): AuthContextType => ({ auth, logout, processingLogout }),

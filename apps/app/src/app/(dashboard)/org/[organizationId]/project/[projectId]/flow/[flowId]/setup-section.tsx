@@ -7,6 +7,7 @@ import { routes } from "routes";
 import { Button, Text } from "ui";
 
 import { Frequency } from "./frequency";
+import { Launch } from "./launch";
 import { Targeting } from "./targeting";
 
 type Props = {
@@ -26,7 +27,7 @@ export const SetupSection: FC<Props> = ({ params, flow }) => {
       width="100%"
     >
       <Flex alignItems="flex-start" justifyContent="space-between" width="100%">
-        <Text variant="titleL">Setup</Text>
+        <Text variant="titleL">Published setup</Text>
         <Link href={routes.flowSettings(params)}>
           <Button variant="secondary">Edit</Button>
         </Link>
@@ -34,6 +35,7 @@ export const SetupSection: FC<Props> = ({ params, flow }) => {
       <Flex direction="column" gap="space24">
         <Frequency flow={flow} />
         <Targeting flow={flow} />
+        <Launch flow={flow} />
       </Flex>
     </Flex>
   );

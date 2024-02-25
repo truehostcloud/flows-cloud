@@ -15,7 +15,7 @@
     "prepare": "panda codegen"
   },
   "dependencies": {
-    "@flows/js": "0.0.38",
+    "@flows/js": "0.0.39",
     "@marsidev/react-turnstile": "^0.5.2",
     "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-slot": "^1.0.2",
@@ -32,6 +32,7 @@
     "icons": "workspace:*",
     "monaco-editor": "^0.44.0",
     "next": "14.1.0",
+    "posthog-js": "^1.108.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",

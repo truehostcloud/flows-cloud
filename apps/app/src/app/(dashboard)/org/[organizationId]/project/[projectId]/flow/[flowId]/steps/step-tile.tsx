@@ -2,7 +2,11 @@
 
 import type { FlowStep } from "@flows/js";
 import { css } from "@flows/styled-system/css";
+import { Flex } from "@flows/styled-system/jsx";
+import { Hourglass16 } from "icons";
 import type { FC } from "react";
+import { Fragment } from "react";
+import { Icon } from "ui";
 
 type Props = {
   step: FlowStep | FlowStep[][];
@@ -11,18 +15,28 @@ type Props = {
   onClick: (index: number | number[]) => void;
 };
 
+const TitlePlaceholder = (): JSX.Element => (
+  <span
+    className={css({
+      color: "text.subtle",
+    })}
+  >
+    Empty step
+  </span>
+);
+
+const WaitStep = (): JSX.Element => (
+  <Flex justifyContent="center" width="100%">
+    <Icon icon={Hourglass16} />
+  </Flex>
+);
+
 export const StepTile: FC<Props> = ({ step, activeIndex, index, onClick }) => {
   if (Array.isArray(step)) {
     return (
-      <div
-        className={css({
-          display: "flex",
-          flexDirection: "column",
-          gap: "space8",
-        })}
-      >
+      <Flex flexDirection="column" gap="space8">
         {step.map((s, i) => (
-          <div className={css({ display: "flex", gap: "space8" })} key={i}>
+          <Fragment key={i}>
             {s.map((subS, j) => {
               const activeI = (() => {
                 if (!Array.isArray(activeIndex)) return undefined;
@@ -42,15 +56,26 @@ export const StepTile: FC<Props> = ({ step, activeIndex, index, onClick }) => {
                 />
               );
             })}
-          </div>
+          </Fragment>
         ))}
-      </div>
+      </Flex>
     );
   }
 
   const active = activeIndex === index;
 
-  const title = "title" in step ? step.title : "Wait";
+  // If the step is a wait step, we don't want to show the title but icon instead
+  const title =
+    "title" in step ? (
+      //
+      step.title !== "" ? (
+        step.title
+      ) : (
+        <TitlePlaceholder />
+      )
+    ) : (
+      <WaitStep />
+    );
 
   return (
     <button

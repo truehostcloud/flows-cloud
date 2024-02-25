@@ -2,7 +2,7 @@
 
 import type { FlowSteps } from "@flows/js";
 import { css } from "@flows/styled-system/css";
-import { Flex } from "@flows/styled-system/jsx";
+import { Box, Flex } from "@flows/styled-system/jsx";
 import { useSend } from "hooks/use-send";
 import { Plus16 } from "icons";
 import type { FlowDetail, UpdateFlow } from "lib/api";
@@ -10,15 +10,15 @@ import { api } from "lib/api";
 import { useRouter } from "next/navigation";
 import { type FC, Fragment } from "react";
 import type { SubmitHandler } from "react-hook-form";
-import { useFieldArray, useForm } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { t } from "translations";
 import { Button, Icon, Menu, MenuItem, Text, toast } from "ui";
 
-import { StepsPreview } from "../steps-preview";
 import { Step } from "./step";
 import { STEP_DEFAULT } from "./step-form";
 import { StepInsertMenu } from "./step-insert-menu";
 import type { StepsForm } from "./steps-editor.types";
+import { StepsEditorPreview } from "./steps-editor-preview";
 
 type Props = {
   flow: FlowDetail;
@@ -32,7 +32,8 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
   const defaultValues: StepsForm = {
     steps: editVersionSteps ?? [],
   };
-  const { handleSubmit, control, watch } = useForm<StepsForm>({ defaultValues, mode: "onChange" });
+  const methods = useForm<StepsForm>({ defaultValues, mode: "onChange" });
+  const { handleSubmit, control } = methods;
   const { append, remove, fields, insert } = useFieldArray({
     control,
     name: "steps",
@@ -53,39 +54,69 @@ export const StepsEditor: FC<Props> = ({ flow }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Flex direction="column" mb="space16">
-        {fields.map((field, index) => (
-          <Fragment key={field.id}>
-            <StepInsertMenu onInsert={(step) => insert(index, step)} />
-            <Step control={control} index={index} onRemove={() => remove(index)} />
-          </Fragment>
-        ))}
-      </Flex>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Flex direction="column" mb="space16">
+          {fields.map((field, index) => (
+            <Fragment key={field.id}>
+              <StepInsertMenu onInsert={(step) => insert(index, step)} />
+              <Step index={index} key={field.id} onRemove={() => remove(index)} />
+            </Fragment>
+          ))}
+        </Flex>
 
-      <Menu
-        trigger={
-          <Button
-            className={css({ mb: "space32" })}
-            startIcon={<Icon icon={Plus16} />}
-            variant="secondary"
+        <Box mb="space24">
+          <Menu
+            trigger={
+              !fields.length ? (
+                <button
+                  className={css({
+                    cardWrap: "-",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: 1,
+                    gap: "space8",
+                    py: "space32",
+                    cursor: "pointer",
+                    width: "100%",
+
+                    fastEaseInOut: "all",
+
+                    _hover: {
+                      bg: "bg.subtleHover",
+                    },
+                  })}
+                  type="button"
+                >
+                  <Text color="muted">Start by adding a step</Text>
+                  <Text color="subtle" variant="bodyXs">
+                    Steps are the building blocks of your flow. They are the individual steps a user
+                    can take when interacting with your flow.
+                  </Text>
+                </button>
+              ) : (
+                <Button startIcon={<Icon icon={Plus16} />} variant="secondary">
+                  Add
+                </Button>
+              )
+            }
           >
-            Add
-          </Button>
-        }
-      >
-        <MenuItem onClick={() => append(STEP_DEFAULT.tooltip)}>Step</MenuItem>
-        <MenuItem onClick={() => append(STEP_DEFAULT.fork)}>Fork</MenuItem>
-      </Menu>
+            <MenuItem onClick={() => append(STEP_DEFAULT.tooltip)}>Step</MenuItem>
+            <MenuItem onClick={() => append(STEP_DEFAULT.fork)}>Fork</MenuItem>
+          </Menu>
+        </Box>
 
-      <Text className={css({ mb: "space8" })} variant="titleM">
-        Steps preview
-      </Text>
-      <StepsPreview steps={watch("steps")} />
+        <Button className={css({ mb: "space40" })} loading={loading} type="submit">
+          Save changes
+        </Button>
 
-      <Button className={css({ mt: "space24" })} loading={loading} type="submit">
-        Save
-      </Button>
-    </form>
+        <Text className={css({ mb: "space8" })} variant="titleM">
+          Flow preview
+        </Text>
+        <StepsEditorPreview />
+      </form>
+    </FormProvider>
   );
 };

@@ -39,6 +39,10 @@ export const t = {
     createOrgFailed: "Failed to create organization",
     updateOrgFailed: "Failed to update organization",
     acceptInviteFailed: "Failed to accept invite",
+    acceptInviteSuccess: "Invite accepted",
+    declineInviteFailed: "Failed to decline invite",
+    deleteInviteFailed: "Failed to delete invite",
+    deleteInviteSuccess: "Invite deleted",
     saveStepsFailed: "Failed to update steps",
     saveFlowFailed: "Failed to update flow",
     saveTargetingFailed: "Failed to update targeting",
@@ -144,7 +148,8 @@ export const t = {
   },
   launch: {
     launch: "Launch",
-    description: "When and where should the flow be shown to your users.",
+    description:
+      "When and where should the flow be shown to your users. Leave empty when launching manually in your codebase.",
     localState: "Local flow launch settings need to be changed in your codebase",
     element: "After clicking on a specified element.",
     location: "After visiting a specified url. Supports regex.",

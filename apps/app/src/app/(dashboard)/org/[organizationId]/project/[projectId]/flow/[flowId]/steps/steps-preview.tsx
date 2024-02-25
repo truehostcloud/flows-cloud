@@ -23,6 +23,9 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
   useEffect(() => {
     if (!steps) return;
     void init({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- internal option
+      // @ts-expect-error
+      validate: false,
       flows: [{ id: "flow", steps: prepareSteps(steps) }],
       rootElement: "#preview-root",
     }).then(() => {
@@ -67,7 +70,7 @@ export const StepsPreview: FC<Props> = ({ steps }) => {
 
   return (
     <>
-      <Flex alignItems="center" gap="space8" minHeight="48px">
+      <Flex alignItems="center" gap="space8">
         {steps?.map((s, i) => (
           <StepTile
             activeIndex={stepIndex}
