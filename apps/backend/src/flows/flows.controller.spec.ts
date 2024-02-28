@@ -98,6 +98,7 @@ describe("Get flow analytics", () => {
   beforeEach(() => {
     db.orderBy.mockResolvedValue([{ count: 2 }]);
     db.leftJoin.mockResolvedValueOnce([{ count: 1 }]);
+    db.query.flows.findFirst.mockResolvedValue({ created_at: new Date() });
   });
   it("should throw without flow", async () => {
     dbPermissionService.doesUserHaveAccessToFlow.mockImplementationOnce(() => {

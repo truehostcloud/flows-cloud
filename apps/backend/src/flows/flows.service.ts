@@ -132,12 +132,20 @@ export class FlowsService {
     endDate?: Date;
   }): Promise<GetFlowAnalyticsDto> {
     await this.dbPermissionService.doesUserHaveAccessToFlow({ auth, flowId });
+    const flow = await this.databaseService.db.query.flows.findFirst({
+      where: eq(flows.id, flowId),
+      columns: { created_at: true },
+    });
+    if (!flow) throw new NotFoundException();
 
     const eventTypes = this.databaseService.db
       .$with("event_types")
       .as(this.databaseService.db.selectDistinct({ type: events.event_type }).from(events));
 
-    const sD = dayjs(startDate).format("YYYY-MM-DD");
+    const startOrCreatedDate = dayjs(startDate).isBefore(flow.created_at)
+      ? flow.created_at
+      : startDate;
+    const sD = dayjs(startOrCreatedDate).format("YYYY-MM-DD");
     // Add 1 day to include events from today
     const eD = dayjs(endDate).add(1, "day").format("YYYY-MM-DD");
 
