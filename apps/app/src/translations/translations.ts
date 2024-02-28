@@ -34,7 +34,7 @@ export const t = {
     enableFlowSuccess: "Flow enabled",
     disableFlowSuccess: "Flow disabled",
 
-    createInviteFailed: "Failed to send invite",
+    sendInviteFailed: "Failed to send invite",
     createProjectFailed: "Failed to create project",
     createOrgFailed: "Failed to create organization",
     updateOrgFailed: "Failed to update organization",
