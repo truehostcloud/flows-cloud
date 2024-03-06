@@ -62,7 +62,7 @@ export const FlowPublishChangesDialog: FC<Props> = ({ flow }) => {
         </DialogContent>
         <DialogActions>
           <DialogClose asChild>
-            <Button shadow={false} size="small" variant="secondary">
+            <Button shadow="none" size="small" variant="secondary">
               Close
             </Button>
           </DialogClose>
@@ -73,7 +73,7 @@ export const FlowPublishChangesDialog: FC<Props> = ({ flow }) => {
       </Dialog>
     );
 
-  const changesToPublish = !!flow.draftVersion;
+  const changesToPublish = !!flow.draftVersion && !!flow.draftVersion.steps.length;
   if (!changesToPublish) return null;
 
   return (
@@ -88,7 +88,7 @@ export const FlowPublishChangesDialog: FC<Props> = ({ flow }) => {
       </DialogContent>
       <DialogActions>
         <DialogClose asChild>
-          <Button shadow={false} size="small" variant="secondary">
+          <Button shadow="none" size="small" variant="secondary">
             Close
           </Button>
         </DialogClose>

@@ -2,13 +2,14 @@
 
 import { css } from "@flows/styled-system/css";
 import { Box, Flex } from "@flows/styled-system/jsx";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { LoginMessage } from "app/(auth)/login/login-message";
 import { signUp } from "auth/server-actions";
 import { GitHub16, Google16 } from "icons";
 import { Captcha } from "lib/captcha";
 import Link from "next/link";
 import type { FC } from "react";
-import { useState, useTransition } from "react";
+import { useRef, useTransition } from "react";
 import { routes } from "routes";
 import { createClient } from "supabase/client";
 import { Button, Input, Text, toast } from "ui";
@@ -16,17 +17,16 @@ import { Button, Input, Text, toast } from "ui";
 export const SignUpForm: FC = () => {
   const [isPending, startTransition] = useTransition();
   const supabase = createClient();
+  const captchaRef = useRef<TurnstileInstance>(null);
 
-  const [captchaToken, setCaptchaToken] = useState<string>();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (!captchaToken) return;
     const formData = new FormData(event.currentTarget);
-    formData.set("captchaToken", captchaToken);
 
     startTransition(async () => {
       const res = await signUp(formData);
       if (res.error) toast.error(res.error.title, { description: res.error.description });
+      captchaRef.current?.reset();
     });
   };
 
@@ -34,7 +34,7 @@ export const SignUpForm: FC = () => {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.origin}/auth/callback`,
+        redirectTo: `${window.origin}${routes.authCallback}`,
       },
     });
   };
@@ -111,10 +111,10 @@ export const SignUpForm: FC = () => {
         <LoginMessage />
 
         <Flex direction="column">
+          <Captcha action="signUp" />
           <Button loading={isPending} name="sign-up" size="medium" type="submit">
             Sign up
           </Button>
-          <Captcha action="signUp" onSuccess={(v) => setCaptchaToken(v)} />
         </Flex>
 
         <Text align="center" color="muted">
