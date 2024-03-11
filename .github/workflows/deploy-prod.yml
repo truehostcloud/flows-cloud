@@ -4,12 +4,18 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   build:
     environment: production
-    runs-on: [self-hosted, stage-env]
+    runs-on: ubuntu-latest
     steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
       - uses: actions/checkout@v4
         with:
           path: "./prod-deploy"
@@ -41,41 +47,20 @@ jobs:
           echo BACKEND_CAPTCHA_SECRET=${{ secrets.BACKEND_CAPTCHA_SECRET }} >> .env
           echo BACKEND_SLACK_WEBHOOK_URL=${{ secrets.BACKEND_SLACK_WEBHOOK_URL }} >> .env
         working-directory: "./prod-deploy/apps/backend"
-      - run: docker build -t docker.flows.sh/app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
+      - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
         working-directory: "./prod-deploy"
-      - run: docker build -t docker.flows.sh/web-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=web .
+      - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/web-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=web .
         working-directory: "./prod-deploy"
-      - run: docker build -t docker.flows.sh/docs-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=docs .
+      - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/docs-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=docs .
         working-directory: "./prod-deploy"
       - run: |
           touch .env
           echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
           echo BACKEND_JWT_SECRET=${{ secrets.BACKEND_JWT_SECRET }} >> .env
         working-directory: "./prod-deploy/apps/backend"
-      - run: docker build -t docker.flows.sh/backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
+      - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./prod-deploy"
-      - run: docker push docker.flows.sh/app-frontend-prod:${{github.sha}}
-      - run: docker push docker.flows.sh/web-frontend-prod:${{github.sha}}
-      - run: docker push docker.flows.sh/docs-frontend-prod:${{github.sha}}
-      - run: docker push docker.flows.sh/backend-prod:${{github.sha}}
-
-  deploy:
-    needs: [build]
-    runs-on: [self-hosted, prod-env]
-    steps:
-      - run: docker pull docker.flows.sh/app-frontend-prod:${{github.sha}}
-      - run: docker pull docker.flows.sh/web-frontend-prod:${{github.sha}}
-      - run: docker pull docker.flows.sh/docs-frontend-prod:${{github.sha}}
-      - run: docker pull docker.flows.sh/backend-prod:${{github.sha}}
-      - run: docker stop flows-app-frontend-prod
-      - run: docker rm flows-app-frontend-prod
-      - run: docker run -d --restart always -p 6001:3000 --network flows_supabase_bridge --name flows-app-frontend-prod docker.flows.sh/app-frontend-prod:${{github.sha}}
-      - run: docker stop flows-web-frontend-prod
-      - run: docker rm flows-web-frontend-prod
-      - run: docker run -d --restart always -p 6002:3000 --name flows-web-frontend-prod docker.flows.sh/web-frontend-prod:${{github.sha}}
-      - run: docker stop flows-docs-frontend-prod
-      - run: docker rm flows-docs-frontend-prod
-      - run: docker run -d --restart always -p 6003:3000 --name flows-docs-frontend-prod docker.flows.sh/docs-frontend-prod:${{github.sha}}
-      - run: docker stop flows-backend-prod
-      - run: docker rm flows-backend-prod
-      - run: docker run -d --restart always -p 6005:3005 --network flows_supabase_bridge --name flows-backend-prod docker.flows.sh/backend-prod:${{github.sha}}
+      - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}}
+      - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/web-frontend-prod:${{github.sha}}
+      - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/docs-frontend-prod:${{github.sha}}
+      - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/backend-prod:${{github.sha}}
