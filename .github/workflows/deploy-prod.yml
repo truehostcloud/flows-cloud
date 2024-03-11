@@ -55,14 +55,14 @@ jobs:
           echo BACKEND_CAPTCHA_SECRET=${{ env.BACKEND_CAPTCHA_SECRET }} >> .env
           echo BACKEND_SLACK_WEBHOOK_URL=${{ env.BACKEND_SLACK_WEBHOOK_URL }} >> .env
         working-directory: "./prod-deploy/apps/backend"
-      - run: docker build -t docker.io/${{ env.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
+      - run: docker build -t docker.io/${{ env.DOCKER_USERNAME }}/flows-app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
         working-directory: "./prod-deploy"
       - run: |
           touch .env
           echo BACKEND_DATABASE_CONNECTION=${{ env.BACKEND_DATABASE_CONNECTION }} >> .env
           echo BACKEND_JWT_SECRET=${{ env.BACKEND_JWT_SECRET }} >> .env
         working-directory: "./prod-deploy/apps/backend"
-      - run: docker build -t docker.io/${{ env.DOCKER_USERNAME }}/backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
+      - run: docker build -t docker.io/${{ env.DOCKER_USERNAME }}/flows-backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./prod-deploy"
-      - run: docker push docker.io/${{ env.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}}
-      - run: docker push docker.io/${{ env.DOCKER_USERNAME }}/backend-prod:${{github.sha}}
+      - run: docker push docker.io/${{ env.DOCKER_USERNAME }}/flows-app-frontend-prod:${{github.sha}}
+      - run: docker push docker.io/${{ env.DOCKER_USERNAME }}/flows-backend-prod:${{github.sha}}
