@@ -21,15 +21,6 @@ jobs:
           path: "./prod-deploy"
       - run: |
           touch .env
-          echo NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} >> .env
-          echo NEXT_PUBLIC_ENV=${{ secrets.NEXT_PUBLIC_ENV }} >> .env
-        working-directory: "./prod-deploy/apps/web"
-      - run: |
-          touch .env
-          echo NEXT_PUBLIC_ENV=${{ secrets.NEXT_PUBLIC_ENV }} >> .env
-        working-directory: "./prod-deploy/apps/docs"
-      - run: |
-          touch .env
           echo SERVER_API_URL=${{ secrets.SERVER_API_URL }} >> .env
           echo NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} >> .env
           echo NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} >> .env
@@ -49,10 +40,6 @@ jobs:
         working-directory: "./prod-deploy/apps/backend"
       - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
         working-directory: "./prod-deploy"
-      - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/web-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=web .
-        working-directory: "./prod-deploy"
-      - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/docs-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=docs .
-        working-directory: "./prod-deploy"
       - run: |
           touch .env
           echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
@@ -61,6 +48,4 @@ jobs:
       - run: docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./prod-deploy"
       - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}}
-      - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/web-frontend-prod:${{github.sha}}
-      - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/docs-frontend-prod:${{github.sha}}
       - run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/backend-prod:${{github.sha}}
