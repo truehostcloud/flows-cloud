@@ -9,6 +9,19 @@ on:
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  SERVER_API_URL: ${{ secrets.SERVER_API_URL }}
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+  NEXT_PUBLIC_ENV: ${{ secrets.NEXT_PUBLIC_ENV }}
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+  NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+  BACKEND_DATABASE_CONNECTION: ${{ secrets.BACKEND_DATABASE_CONNECTION }}
+  BACKEND_JWT_SECRET: ${{ secrets.BACKEND_JWT_SECRET }}
+  BACKEND_LOOPS_API_KEY: ${{ secrets.BACKEND_LOOPS_API_KEY }}
+  BACKEND_APP_URL: ${{ secrets.BACKEND_APP_URL }}
+  BACKEND_CAPTCHA_SECRET: ${{ secrets.BACKEND_CAPTCHA_SECRET }}
+  BACKEND_SLACK_WEBHOOK_URL: ${{ secrets.BACKEND_SLACK_WEBHOOK_URL }}
 
 jobs:
   build:
@@ -25,29 +38,29 @@ jobs:
           path: "./prod-deploy"
       - run: |
           touch .env
-          echo SERVER_API_URL=${{ secrets.SERVER_API_URL }} >> .env
-          echo NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} >> .env
-          echo NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} >> .env
-          echo NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} >> .env
-          echo NEXT_PUBLIC_ENV=${{ secrets.NEXT_PUBLIC_ENV }} >> .env
-          echo NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} >> .env
-          echo NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }} >> .env
+          echo SERVER_API_URL=${{ env.SERVER_API_URL }} >> .env
+          echo NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }} >> .env
+          echo NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }} >> .env
+          echo NEXT_PUBLIC_API_URL=${{ env.NEXT_PUBLIC_API_URL }} >> .env
+          echo NEXT_PUBLIC_ENV=${{ env.NEXT_PUBLIC_ENV }} >> .env
+          echo NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ env.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} >> .env
+          echo NEXT_PUBLIC_POSTHOG_KEY=${{ env.NEXT_PUBLIC_POSTHOG_KEY }} >> .env
         working-directory: "./prod-deploy/apps/app"
       - run: |
           touch .env
-          echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
-          echo BACKEND_JWT_SECRET=${{ secrets.BACKEND_JWT_SECRET }} >> .env
-          echo BACKEND_LOOPS_API_KEY=${{ secrets.BACKEND_LOOPS_API_KEY }} >> .env
-          echo BACKEND_APP_URL=${{ secrets.BACKEND_APP_URL }} >> .env
-          echo BACKEND_CAPTCHA_SECRET=${{ secrets.BACKEND_CAPTCHA_SECRET }} >> .env
-          echo BACKEND_SLACK_WEBHOOK_URL=${{ secrets.BACKEND_SLACK_WEBHOOK_URL }} >> .env
+          echo BACKEND_DATABASE_CONNECTION=${{ env.BACKEND_DATABASE_CONNECTION }} >> .env
+          echo BACKEND_JWT_SECRET=${{ env.BACKEND_JWT_SECRET }} >> .env
+          echo BACKEND_LOOPS_API_KEY=${{ env.BACKEND_LOOPS_API_KEY }} >> .env
+          echo BACKEND_APP_URL=${{ env.BACKEND_APP_URL }} >> .env
+          echo BACKEND_CAPTCHA_SECRET=${{ env.BACKEND_CAPTCHA_SECRET }} >> .env
+          echo BACKEND_SLACK_WEBHOOK_URL=${{ env.BACKEND_SLACK_WEBHOOK_URL }} >> .env
         working-directory: "./prod-deploy/apps/backend"
       - run: docker build -t docker.io/${{ env.DOCKER_USERNAME }}/app-frontend-prod:${{github.sha}} -f infrastructure/docker/next.Dockerfile --build-arg APP=app .
         working-directory: "./prod-deploy"
       - run: |
           touch .env
-          echo BACKEND_DATABASE_CONNECTION=${{ secrets.BACKEND_DATABASE_CONNECTION }} >> .env
-          echo BACKEND_JWT_SECRET=${{ secrets.BACKEND_JWT_SECRET }} >> .env
+          echo BACKEND_DATABASE_CONNECTION=${{ env.BACKEND_DATABASE_CONNECTION }} >> .env
+          echo BACKEND_JWT_SECRET=${{ env.BACKEND_JWT_SECRET }} >> .env
         working-directory: "./prod-deploy/apps/backend"
       - run: docker build -t docker.io/${{ env.DOCKER_USERNAME }}/backend-prod:${{github.sha}} -f infrastructure/docker/nest.Dockerfile .
         working-directory: "./prod-deploy"
