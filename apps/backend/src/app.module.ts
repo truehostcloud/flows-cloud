@@ -59,6 +59,7 @@ export class AppModule implements NestModule {
       .apply(
         cors({
           origin: [
+            "https://flows.olitt.net",
             "https://flows.sh",
             "https://stage.flows.sh",
             "https://app.flows.sh",
