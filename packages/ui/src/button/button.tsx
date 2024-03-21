@@ -47,9 +47,11 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
       type={!asChild ? "button" : undefined}
       {...props}
       className={cx(button({ size, variant, shadow }), props.className)}
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- nullish coalescing cannot be used here
       disabled={disabled || loading}
       ref={ref}
     >
+      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- nullish coalescing cannot be used here */}
       {startIcon || loading ? (
         <Icon position="start">{loading ? <Spinner color="inherit" size={16} /> : startIcon}</Icon>
       ) : null}
@@ -106,6 +108,10 @@ const button = cva({
         textStyle: "titleS",
         padding: "3px 7px",
         height: 28,
+      },
+      smallIcon: {
+        padding: "5px",
+        height: "unset",
       },
       medium: {
         textStyle: "titleS",
